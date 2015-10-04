@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+	printf 'ERROR: no gluon-release was specified.\n' >&2
+        exit 1
+fi
+
+
+if ! [ -f "./gluon" ]; then
+	printf 'ERROR: "./gluon"-file could not be found in wd, please cwd to the right directory.\n' >&2
+	exit 1
+fi
+
+. ./gluon
+
+sel_gluon_release="$1"
+selected_found=0
+
+for GluonRelease in $GLUON_RELEASES; do
+	if ! [ "$GluonRelease" == "$sel_gluon_release" ]; then
+		continue
+	else
+		selected_found=1
+	fi
+	
+	mkdir -p "${GluonRelease}/patches/"
+	if ! [ -d "$GluonRelease-patches" ]; then
+		printf 'WARN: No patches found.\n' >&2
+		exit 0
+	fi
+	cp -r $GluonRelease-patches/* $GluonRelease/patches/ > /dev/null 2>&1 || printf 'WARN: No patches found.\n' >&2 && exit 0
+done
+
+if [ "$selected_found" -ne "1" ]; then
+	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
+	exit 1
+fi
