@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+	printf 'ERROR: no gluon-release was specified.\n' >&2
+        exit 1
+fi
+
+
+if ! [ -f "./gluon" ]; then
+	printf 'ERROR: "./gluon"-file could not be found in wd, please cwd to the right directory.\n' >&2
+	exit 1
+fi
+
+. ./gluon
+
+sel_gluon_release="$1"
+selected_found=0
+
+for GluonRelease in $GLUON_RELEASES; do
+	if ! [ "$GluonRelease" == "$sel_gluon_release" ]; then
+		continue
+	else
+		selected_found=1
+	fi
+	
+	var=$(echo $GluonRelease | tr '[:lower:]/' '[:upper:]_')
+	eval repo=\${${var}_REPO}
+	eval branch=\${${var}_BRANCH}
+	eval commit=\${${var}_COMMIT}
+
+	mkdir -p "$GluonRelease"
+	cd "$GluonRelease"
+	git init 2>&1 > /dev/null
+
+	git checkout $commit 2>&1 > /dev/null || git fetch $repo $branch 2>&1 > /dev/null
+	git checkout -B base $commit 2>&1 > /dev/null
+done
+
+if [ "$selected_found" -ne "1" ]; then
+	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
+	exit 1
+fi
