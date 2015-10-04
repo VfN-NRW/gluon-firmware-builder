@@ -1,0 +1,5 @@
+GLUON_FEEDS="gluon"
+
+GLUON_REPO='https://github.com/freifunk-gluon/gluon.git'
+GLUON_COMMIT=9640e66005e901e8f6c2a16fadb2a67112dc058e
+GLUON_BRANCH='master'
