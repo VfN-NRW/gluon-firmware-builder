@@ -24,7 +24,14 @@ for GluonRelease in $GLUON_RELEASES; do
 	else
 		selected_found=1
 	fi
-	
+
+    echo "resetting patches folder..."
+    old_dir="$(pwd)"
+    rm -fdR "${GluonRelease}/patches/"
+    cd "${GluonRelease}"
+    git checkout patches || printf 'WARN: No patches folder in gluon-repo.\n' >&2 && true
+    cd "$old_dir"
+
 	mkdir -p "${GluonRelease}/patches/"
 	if ! [ -d "$GluonRelease-patches" ]; then
 		printf 'WARN: No patches found.\n' >&2
