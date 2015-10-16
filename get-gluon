@@ -32,7 +32,7 @@ for GluonRelease in $GLUON_RELEASES; do
 
 	mkdir -p "$GluonRelease"
 	cd "$GluonRelease"
-	git init 2>&1 > /dev/null
+	git init >/dev/null 2>&1
 
 	git checkout $commit >/dev/null 2>&1 || rm .gitignore && git fetch $repo $branch >/dev/null 2>&1
 	git checkout -B base $commit >/dev/null 2>&1
