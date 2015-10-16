@@ -24,7 +24,7 @@ for GluonRelease in $GLUON_RELEASES; do
 	else
 		selected_found=1
 	fi
-	
+
 	var=$(echo $GluonRelease | tr '[:lower:]/' '[:upper:]_')
 	eval repo=\${${var}_REPO}
 	eval branch=\${${var}_BRANCH}
@@ -34,7 +34,7 @@ for GluonRelease in $GLUON_RELEASES; do
 	cd "$GluonRelease"
 	git init 2>&1 > /dev/null
 
-	git checkout $commit 2>&1 > /dev/null || git fetch $repo $branch 2>&1 > /dev/null
+	git checkout $commit 2>&1 > /dev/null || rm .gitignore && git fetch $repo $branch 2>&1 > /dev/null
 	git checkout -B base $commit 2>&1 > /dev/null
 done
 
