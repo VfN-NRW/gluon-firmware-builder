@@ -34,8 +34,8 @@ for GluonRelease in $GLUON_RELEASES; do
 	cd "$GluonRelease"
 	git init 2>&1 > /dev/null
 
-	git checkout $commit 2>&1 > /dev/null || rm .gitignore && git fetch $repo $branch 2>&1 > /dev/null
-	git checkout -B base $commit 2>&1 > /dev/null
+	git checkout $commit >/dev/null 2>&1 || rm .gitignore && git fetch $repo $branch >/dev/null 2>&1
+	git checkout -B base $commit >/dev/null 2>&1
 done
 
 if [ "$selected_found" -ne "1" ]; then
