@@ -25,7 +25,7 @@ for GluonRelease in $GLUON_RELEASES; do
 		selected_found=1
 	fi
 
-	var=$(echo $GluonRelease | tr '[:lower:]/' '[:upper:]_')
+	var="$(echo $GluonRelease | tr '[:lower:]/' '[:upper:]_')"
 	eval repo=\${${var}_REPO}
 	eval branch=\${${var}_BRANCH}
 	eval commit=\${${var}_COMMIT}
