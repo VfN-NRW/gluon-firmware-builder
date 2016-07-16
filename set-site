@@ -32,36 +32,43 @@ for GluonRelease in $GLUON_RELEASES; do
 	else
 		selected_found=1
 	fi
-
-    if [ ! -d "$GluonRelease" ]; then
-        printf 'ERROR: Gluon-Folder could not be located.\n' >&2
-        exit 1
-    fi
-
-    echo "fetching sites-repo..."
-    . ./get-sites
-    cd "$DIR"
-
-    if [ ! -d "site-modules/$SITE" ]; then
-        echo "selected site ($SITE) not found"
-        exit 1
-    fi
-
-    rm -fdR "./$GluonRelease/site/"
-    mkdir -p "./$GluonRelease/site"
-
-    SITE_MAIN=$(echo "$SITE" | cut -d '/' -f 1)
-
-    [ -d "./site-modules/$SITE_MAIN/all" ] && cp -ax "./site-modules/$SITE_MAIN/all/"* "./$GluonRelease/site/"
-    cp -ax "./site-modules/$SITE/"* "./$GluonRelease/site/"
-
-    cat "./site-modules/$SITE_MAIN/version" >> "./$GluonRelease/site/site.mk"
-
-    echo "Site set to $SITE"
-
-
-	cd "$GluonRelease"
 done
+
+if [ "$selected_found" -ne "1" ]; then
+	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
+	exit 1
+fi
+
+
+if [ ! -d "$GluonRelease" ]; then
+    printf 'ERROR: Gluon-Folder could not be located.\n' >&2
+    exit 1
+fi
+
+echo "fetching sites-repo..."
+. ./get-sites
+cd "$DIR"
+
+if [ ! -d "site-modules/$SITE" ]; then
+    echo "selected site ($SITE) not found"
+    exit 1
+fi
+
+rm -fdR "./$GluonRelease/site/"
+mkdir -p "./$GluonRelease/site"
+
+SITE_MAIN=$(echo "$SITE" | cut -d '/' -f 1)
+
+[ -d "./site-modules/$SITE_MAIN/all" ] && cp -ax "./site-modules/$SITE_MAIN/all/"* "./$GluonRelease/site/"
+cp -ax "./site-modules/$SITE/"* "./$GluonRelease/site/"
+
+cat "./site-modules/$SITE_MAIN/version" >> "./$GluonRelease/site/site.mk"
+
+echo "Site set to $SITE"
+
+
+cd "$GluonRelease"
+
 
 
 
