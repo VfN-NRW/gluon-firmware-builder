@@ -41,5 +41,5 @@ mkdir -p "$GluonRelease"
 cd "$GluonRelease"
 git init >/dev/null 2>&1
 
-git checkout $commit >/dev/null 2>&1 || rm .gitignore && git fetch $repo $branch >/dev/null 2>&1
-git checkout -B base $commit >/dev/null 2>&1
+git checkout $commit 2>&1 >/dev/null || git fetch $repo $branch 2>&1 >/dev/null
+git checkout -B base $commit 2>&1 >/dev/null
