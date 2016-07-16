@@ -4,7 +4,7 @@ set -e
 
 if [ -z "$1" ]; then
 	printf 'ERROR: no gluon-release was specified.\n' >&2
-        exit 1
+		exit 1
 fi
 
 
@@ -25,12 +25,12 @@ for GluonRelease in $GLUON_RELEASES; do
 		selected_found=1
 	fi
 
-    echo "resetting patches folder..."
-    old_dir="$(pwd)"
-    rm -fdR "${GluonRelease}/patches/"
-    cd "${GluonRelease}"
-    git checkout patches || printf 'WARN: No patches folder in gluon-repo.\n' >&2 && true
-    cd "$old_dir"
+	echo "resetting patches folder..."
+	old_dir="$(pwd)"
+	rm -fdR "${GluonRelease}/patches/"
+	cd "${GluonRelease}"
+	git checkout patches || printf 'WARN: No patches folder in gluon-repo.\n' >&2 && true
+	cd "$old_dir"
 
 	mkdir -p "${GluonRelease}/patches/"
 	if ! [ -d "$GluonRelease-patches" ]; then
