@@ -1,0 +1,43 @@
+From 0f0c8baa793950ba91bd0bab8eba25969bdcb817 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Sat, 16 Jul 2016 18:41:43 +0200
+Subject: [PATCH 2/2] add all wifi tweaks and reenable >ht20 modes
+
+---
+ .../gluon-core/files/lib/gluon/upgrade/200-wireless   | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/200-wireless b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+index 77cd04d..5f1d2b2 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/200-wireless
++++ b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+@@ -18,9 +18,24 @@ local function configure_radio(radio, index, config)
+   if config then
+     uci:delete('wireless', radio, 'disabled')
+ 
+-    uci:set('wireless', radio, 'channel', config.channel)
+-    uci:set('wireless', radio, 'htmode', 'HT20')
++    local htmode = uci:get('wireless', radio, 'htmode')
++    if htmode ~= 'VHT80' then --enable VHT80 on AC-Devices
++      uci:set('wireless', radio, 'htmode', htmode)
++    else
++      if config.htmode == 'HT40-' then --disable VHT80 if second channel is below...
++        uci:set('wireless', radio, 'htmode', htmode)
++      end
++    end
++    uci:set('wireless', radio, 'channel', channel)
++    uci:set('wireless', radio, 'noscan', '1')
+     uci:set('wireless', radio, 'country', site.regdom)
++    local hwmode = uci:get('wireless', radio, 'hwmode')
++    if hwmode == '11g' then -- 5GHz Wifi does not need this tweaks
++      uci:set('wireless', radio, 'supported_rates', '6000 9000 12000 18000 24000 36000 48000 54000')
++      uci:set('wireless', radio, 'basic_rate', '6000 9000 18000 36000 54000')
++    end
++    uci:set('wireless', radio, 'iapp_interface', 'bat0')
++    uci:set('wireless', radio, 'max_inactivity', '120')
+   end
+ end
+ 
+-- 
+2.9.0
+
