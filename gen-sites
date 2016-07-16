@@ -88,7 +88,7 @@ vars=("sitename" "sitecode" "city" "city2" "prefix4" "prefix6" "ntpserver" "ssid
 
 . "./$GluonRelease/site/vars"
 
-for e in $vars; do
+for e in ${vars[@]}; do
     sed -i -e "s/+++$e+++/${!e}/" "./$GluonRelease/site/site.conf"
 done
 
