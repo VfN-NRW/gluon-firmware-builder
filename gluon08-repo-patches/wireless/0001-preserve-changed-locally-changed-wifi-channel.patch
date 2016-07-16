@@ -1,0 +1,27 @@
+From 6af4725f86961b01713c377ba83a082e9bc280f7 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Sat, 16 Jul 2016 18:35:22 +0200
+Subject: [PATCH 1/2] preserve changed locally changed wifi-channel
+
+---
+ package/gluon-core/files/lib/gluon/upgrade/200-wireless | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/200-wireless b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+index 5a98a70..77cd04d 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/200-wireless
++++ b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+@@ -10,6 +10,10 @@ if not sysconfig.gluon_version then
+   uci:delete_all('wireless', 'wifi-iface')
+ end
+ 
++local function get_channel(radio, config)
++  return uci:get('wireless', radio, 'channel') or config.channel
++end
++
+ local function configure_radio(radio, index, config)
+   if config then
+     uci:delete('wireless', radio, 'disabled')
+-- 
+2.9.0
+
