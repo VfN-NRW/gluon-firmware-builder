@@ -96,6 +96,6 @@ done
 # step 5 remove vars file
 rm -f "./$GluonRelease/site/vars"
 
-
+cat "./site-modules/$(echo $SITE|cut -d '/' -f1)/$sel_gluon_release/version" >> "./$GluonRelease/site/site.mk"
 
 cd "$DIR"
