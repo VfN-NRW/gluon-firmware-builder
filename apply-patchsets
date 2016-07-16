@@ -26,28 +26,31 @@ for GluonRelease in $GLUON_RELEASES; do
 	else
 		selected_found=1
 	fi
-
-	if ! [ -d "$GluonRelease-repo-patches" ]; then
-		printf 'WARN: No repo-patches found.\n' >&2
-		exit 0
-	fi
-
-	cd "$GluonRelease"
-
-	patchdir="$opwd/$GluonRelease-repo-patches"
-
-	for dir in $(find "$patchdir/" -type d || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
-		if [ "$patchdir/" == "$dir" ]; then
-			continue
-		fi
-		for patch in $(find "$patchdir/$dir" -type f >/dev/null 2>&1 || printf "WARN: No patches in patchset $(echo $dir | rev | cut -d / -f 1 | rev) found.\n" >&2 ); do
-			printf "INFO: applying patch $patch...\n" >&1
-			patch < "$patchdir/$dir/$patch" || printf "ERROR: can't apply patch $patch.\n" >&2 && exit 1
-		done
-	done
 done
 
 if [ "$selected_found" -ne "1" ]; then
 	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
 	exit 1
 fi
+
+
+if ! [ -d "$GluonRelease-repo-patches" ]; then
+	printf 'WARN: No repo-patches found.\n' >&2
+	exit 0
+fi
+
+cd "$GluonRelease"
+
+patchdir="$opwd/$GluonRelease-repo-patches"
+
+for dir in $(find "$patchdir/" -type d || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
+	if [ "$patchdir/" == "$dir" ]; then
+		continue
+	fi
+	for patch in $(find "$patchdir/$dir" -type f >/dev/null 2>&1 || printf "WARN: No patches in patchset $(echo $dir | rev | cut -d / -f 1 | rev) found.\n" >&2 ); do
+		printf "INFO: applying patch $patch...\n" >&1
+		patch < "$patchdir/$dir/$patch" || printf "ERROR: can't apply patch $patchdir/$dir/$patch.\n" >&2 && exit 1
+	done
+done
+
+
