@@ -36,4 +36,14 @@ if [ "${$2:-1}" == "/" ];l
 # step 2 copy templates with no-template names to folder
 # step 3 copy subdirectory for community to folder
 # step 4 apply vars via sed to template-files
+
+vars=("abc" "def")
+
+. ./abc/def/gef
+
+for e in $vars; do
+        sed -i -e "s/+++$e+++/$sdsdhasjd/" /sdksjdkaj
+done
+
+
 # step 5 remove vars file
