@@ -19,7 +19,7 @@ if [ "$2" == "stable" ]; then
 elif [ "$2" == "nightly" ] && [ "$2" == "alpha" ] && [ "$2" == "beta" ] && [ "$2" == "rc" ]; then
 	updatepath='unstable/$2'
 else
-	echo "First command-line parameter has to be stable, nightly, alpha, beta or rc"
+	echo "Second command-line parameter has to be stable, nightly, alpha, beta or rc"
 	exit 1
 fi
 
