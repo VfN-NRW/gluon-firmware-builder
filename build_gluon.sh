@@ -2,6 +2,8 @@
 
 set -e
 
+DIR="$(pwd)"
+
 if [ -z "$1" ]; then
 	printf 'ERROR: no gluon-release was specified.\n' >&2
 	exit 1
@@ -39,11 +41,17 @@ if [ "$selected_found" -ne "1" ]; then
 	exit 1
 fi
 
+./get-gluon $GluonRelease
 
 if [ ! -d "$GluonRelease" ]; then
 	printf 'ERROR: Gluon-Folder could not be located.\n' >&2
 	exit 1
 fi
+
+./copy-patches $GluonRelease
+./apply-patchsets $GluonRelease
+
+cd $DIR
 
 echo "setting default site..."
 ./set-site $sel_gluon_release vfnnrw/leverkusen 2>&1 >/dev/null
@@ -55,7 +63,6 @@ profiles="$(ls -1 site-modules/vfnnrw | grep -vE 'all|LICENSE|README.md|version'
 
 branches="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic" #x86-kvm_guest
 
-DIR="$(pwd)"
 cd ./$GluonRelease
 
 version="$(echo $(cat ./site/site.mk | grep "^DEFAULT_GLUON_RELEASE" | cut -d = -f 2 |  awk '{gsub(/^ +| +$/,"")} {print $0 }'))"
