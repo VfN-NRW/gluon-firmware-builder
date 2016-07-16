@@ -43,12 +43,14 @@ cd "$GluonRelease"
 
 patchdir="$opwd/$GluonRelease-repo-patches"
 
+git checkout -B patching base
+
 for dir in $(find "$patchdir/" -type d || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
 	if [ "$patchdir/" == "$dir" ]; then
 		continue
 	fi
 	for patch in $(find "$dir" -type f || printf "WARN: Error reading patchset $(echo $dir | rev | cut -d / -f 1 | rev) found.\n" >&2 ); do
-		git checkout -B patching base
+		
 
 		if ! git -c user.name='Gluon Patch Manager' -c user.email='gluon@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patch"; then
 			git am --abort
