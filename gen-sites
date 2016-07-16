@@ -87,11 +87,13 @@ cp -ax "$template_folder/"* "./$GluonRelease/site/"
 vars=("sitename" "sitecode" "city" "city2" "prefix4" "prefix6" "ntpserver" "ssid" "meshmac" "meshid" "ip4nn" "ip6nn" "fastdmethods" "fastdmtu" "fastdpeergroups" "updateprobability" "pubkeys" "updateprobabilityrc" "additional_conf")
 
 . "./$GluonRelease/site/vars"
-
+oIFS=$IFS
+IFS=$'\n'
 for e in $vars; do
     sed -i -e "s/+++$e+++/${!e}/" "./$GluonRelease/site/site.conf"
 done
-
+IFS=$oIFS
+unset oIFS
 
 # step 5 remove vars file
 rm -f "./$GluonRelease/site/vars"
