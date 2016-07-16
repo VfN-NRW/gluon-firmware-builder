@@ -53,8 +53,8 @@ fi
 
 cd $DIR
 
-echo "setting default site..."
-./set-site $sel_gluon_release vfnnrw/leverkusen 2>&1 >/dev/null
+echo "generating default site..."
+./gen-site $sel_gluon_release vfnnrw/leverkusen 2>&1 >/dev/null
 
 echo "fetching profiles..."
 profiles="$(ls -1 site-modules/vfnnrw | grep -vE 'all|LICENSE|README.md|version')"
@@ -77,7 +77,7 @@ for profile in $profiles; do
 	echo "    cleaning images-folder..."
 	( rm -fR ./output/images/* || true ) 2>&1 >/dev/null
 	echo "      setting site..."
-	( cd ..; ./set-site $sel_gluon_release vfnnrw/$profile ) 2>&1 >/dev/null
+	( cd ..; ./gen-site $sel_gluon_release vfnnrw/$profile ) 2>&1 >/dev/null
 		for branch in $branches; do
 		echo "        building architecture $branch"
 		echo "          building..."
