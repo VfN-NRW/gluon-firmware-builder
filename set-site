@@ -6,13 +6,13 @@ DIR="$(pwd)"
 
 SITE="$2"
 if [ -z "$SITE" ]; then
-    printf 'no site selected, set site via first parameter'>&2
-    exit 1
+	printf 'no site selected, set site via first parameter'>&2
+	exit 1
 fi
 
 if [ -z "$1" ]; then
 	printf 'ERROR: no gluon-release was specified.\n' >&2
-    exit 1
+	exit 1
 fi
 
 
@@ -41,8 +41,8 @@ fi
 
 
 if [ ! -d "$GluonRelease" ]; then
-    printf 'ERROR: Gluon-Folder could not be located.\n' >&2
-    exit 1
+	printf 'ERROR: Gluon-Folder could not be located.\n' >&2
+	exit 1
 fi
 
 echo "fetching sites-repo..."
@@ -50,8 +50,8 @@ echo "fetching sites-repo..."
 cd "$DIR"
 
 if [ ! -d "site-modules/$SITE" ]; then
-    echo "selected site ($SITE) not found"
-    exit 1
+	echo "selected site ($SITE) not found"
+	exit 1
 fi
 
 rm -fdR "./$GluonRelease/site/"
