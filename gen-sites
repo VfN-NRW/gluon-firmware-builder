@@ -1,49 +1,102 @@
 #!/bin/bash
 
-# parameter 1: templatefolder
-# parameter 2: all-folder
-# parameter 3: destination folder
+set -e
 
-if [ -z "$1" ]; then
+DIR="$(pwd)"
+
+sel_gluon_release="$1"
+if [ -z "$sel_gluon_release" ]; then
+	printf 'ERROR: no gluon-release was specified.\n' >&2
+	exit 1
+fi
+
+SITE="$2"
+if [ -z "$SITE" ]; then
+	printf 'no site selected, set site via second parameter'>&2
+	exit 1
+fi
+
+
+if ! [ -f './gluon' ]; then
+	printf 'ERROR: "./gluon"-file could not be found in wd, please cwd to the right directory.\n' >&2
+	exit 1
+fi
+
+. ./gluon
+
+
+selected_found=0
+
+for GluonRelease in $GLUON_RELEASES; do
+	if ! [ "$GluonRelease" == "$sel_gluon_release" ]; then
+		continue
+	else
+		selected_found=1
+	fi
+done
+
+if [ "$selected_found" -ne "1" ]; then
+	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
+	exit 1
+fi
+
+
+if [ ! -d "$GluonRelease" ]; then
+	printf 'ERROR: Gluon-Folder could not be located.\n' >&2
+	exit 1
+fi
+
+template_folder=$3
+all_folder=$4
+
+if [ -z "$template_folder" ]; then
         printf 'ERROR: no templatefolder was specified.\n' >&2
     exit 1
-elif ! [ -d "$1" ]; then
+elif ! [ -d "$template_folder" ]; then
         printf 'ERROR: templatefolder was not found on filesystem.\n' >&2
     exit 1
 fi
 
 
-if [ -z "$2" ]; then
+if [ -z "$all_folder" ]; then
         printf 'ERROR: no all-folder was specified.\n' >&2
     exit 1
-elif ! [ -d "$2" ]; then
+elif ! [ -d "$all_folder" ]; then
         printf 'ERROR: all-folder was not found on filesystem.\n' >&2
     exit 1
 fi
 
 
-if [ -z "$3" ]; then
-        printf 'ERROR: no destination folder was specified.\n' >&2
-    exit 1
-elif ! [ -d "$2" ]; then
-        printf 'ERROR: destination folder was not found on filesystem.\n' >&2
-    exit 1
+# step 1  copy all to destination folder
+if [ "${$all_folder:-1}" == "/" ]; then
+        all_folder=${all_folder%.*}
 fi
 
-# step 1copy all to destination folder
-if [ "${$2:-1}" == "/" ];l
+cp -ax "$all_folder/*" "./$GluonRelease/site/"
 
-# step 2 copy templates with no-template names to folder
+# step 2 copy templates with no-template names to destination folder
+mkdir -p "./$GluonRelease/site/i18n/"
+mv "./$GluonRelease/site/de.po.template" "./$GluonRelease/site/i18n/de.po"
+mv "./$GluonRelease/site/en.po.template" "./$GluonRelease/site/i18n/en.po"
+mv "./$GluonRelease/site/site.conf.template" "./$GluonRelease/site/site.conf"
+
 # step 3 copy subdirectory for community to folder
+cp -ax "$template_folder/*" "./$GluonRelease/site/"
+
 # step 4 apply vars via sed to template-files
 
-vars=("abc" "def")
+vars=("sitename" "sitecode" "city" "city2" "prefix4" "prefix6" "ntpserver" "ssid" "meshmac" "meshid" "ip4nn" "ip6nn" "fastdmethods" "fastdmtu" "fastdpeergroups" "updateprobability" "pubkeys" "updateprobabilityrc" "additional_conf")
 
-. ./abc/def/gef
+. "./$GluonRelease/site/vars"
 
 for e in $vars; do
-        sed -i -e "s/+++$e+++/$sdsdhasjd/" /sdksjdkaj
+        sed -i -e "s/+++$e+++/${!e}/" "./$GluonRelease/site/site.conf"
 done
 
 
 # step 5 remove vars file
+rm -f "./$GluonRelease/site/vars"
+
+
+
+cd "$DIR"
