@@ -24,8 +24,6 @@ fi
 
 . ./gluon
 
-cd "$DIR"
-
 selected_found=0
 
 for GluonRelease in $GLUON_RELEASES; do
