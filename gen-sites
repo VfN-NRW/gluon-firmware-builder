@@ -46,32 +46,30 @@ if [ ! -d "$GluonRelease" ]; then
 	exit 1
 fi
 
-template_folder=$3
-all_folder=$4
+template_folder="./site-modules/$(echo $SITE|cut -d '/' -f1)/$sel_gluon_release/$(echo $SITE|cut -d '/' -f2)"
+all_folder="./site-modules/$(echo $SITE|cut -d '/' -f1)/$sel_gluon_release/all"
 
 if [ -z "$template_folder" ]; then
-        printf 'ERROR: no templatefolder was specified.\n' >&2
+    printf 'ERROR: no templatefolder was specified.\n' >&2
     exit 1
 elif ! [ -d "$template_folder" ]; then
-        printf 'ERROR: templatefolder was not found on filesystem.\n' >&2
+    printf 'ERROR: templatefolder was not found on filesystem.\n' >&2
     exit 1
 fi
 
 
 if [ -z "$all_folder" ]; then
-        printf 'ERROR: no all-folder was specified.\n' >&2
+    printf 'ERROR: no all-folder was specified.\n' >&2
     exit 1
 elif ! [ -d "$all_folder" ]; then
-        printf 'ERROR: all-folder was not found on filesystem.\n' >&2
+    printf 'ERROR: all-folder was not found on filesystem.\n' >&2
     exit 1
 fi
 
 
 # step 1  copy all to destination folder
-if [ "${$all_folder:-1}" == "/" ]; then
-        all_folder=${all_folder%.*}
-fi
-
+rm -Rdf "./$GluonRelease/site/"
+mkdir -p "./$GluonRelease/site/"
 cp -ax "$all_folder/*" "./$GluonRelease/site/"
 
 # step 2 copy templates with no-template names to destination folder
@@ -90,7 +88,7 @@ vars=("sitename" "sitecode" "city" "city2" "prefix4" "prefix6" "ntpserver" "ssid
 . "./$GluonRelease/site/vars"
 
 for e in $vars; do
-        sed -i -e "s/+++$e+++/${!e}/" "./$GluonRelease/site/site.conf"
+    sed -i -e "s/+++$e+++/${!e}/" "./$GluonRelease/site/site.conf"
 done
 
 
