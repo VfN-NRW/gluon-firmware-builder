@@ -48,9 +48,14 @@ for dir in $(find "$patchdir/" -type d || printf 'WARN: No patchsets found.\n' >
 		continue
 	fi
 	for patch in $(find "$patchdir/$dir" -type f >/dev/null 2>&1 || printf "WARN: No patches in patchset $(echo $dir | rev | cut -d / -f 1 | rev) found.\n" >&2 ); do
-		printf "INFO: applying patch $patch...\n" >&1
-		patch < "$patchdir/$dir/$patch" || printf "ERROR: can't apply patch $patchdir/$dir/$patch.\n" >&2 && exit 1
+		git checkout -B patching base
+
+		if ! git -c user.name='Gluon Patch Manager' -c user.email='gluon@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patchdir/$dir/$patch"; then
+			git am --abort
+			git checkout patched
+			git branch -D patching
+			exit 1
+		fi
 	done
 done
-
-
+git branch -M patched
