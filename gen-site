@@ -45,6 +45,10 @@ if [ ! -d "$GluonRelease" ]; then
 	exit 1
 fi
 
+echo "fetching sites-repo..."
+. ./get-sites
+cd "$DIR"
+
 template_folder="./site-modules/$(echo $SITE|cut -d '/' -f1)/$sel_gluon_release/$(echo $SITE|cut -d '/' -f2)"
 all_folder="./site-modules/$(echo $SITE|cut -d '/' -f1)/$sel_gluon_release/all"
 
@@ -52,10 +56,9 @@ if [ -z "$template_folder" ]; then
     printf 'ERROR: no templatefolder was specified.\n' >&2
     exit 1
 elif ! [ -d "$template_folder" ]; then
-    printf 'ERROR: templatefolder was not found on filesystem.\n' >&2
+    printf 'ERROR: selected site ($SITE) not found.\n' >&2
     exit 1
 fi
-
 
 if [ -z "$all_folder" ]; then
     printf 'ERROR: no all-folder was specified.\n' >&2
@@ -64,7 +67,6 @@ elif ! [ -d "$all_folder" ]; then
     printf 'ERROR: all-folder was not found on filesystem.\n' >&2
     exit 1
 fi
-
 
 # step 1  copy all to destination folder
 rm -Rdf "./$GluonRelease/site/"
@@ -94,6 +96,6 @@ done
 # step 5 remove vars file
 rm -f "./$GluonRelease/site/vars"
 
-
+echo "Site generated: $SITE"
 
 cd "$DIR"
