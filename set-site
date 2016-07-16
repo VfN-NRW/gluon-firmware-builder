@@ -4,13 +4,13 @@ set -e
 
 DIR="$(pwd)"
 
-SITE="$1"
+SITE="$2"
 if [ -z "$SITE" ]; then
     printf 'no site selected, set site via first parameter'>&2
     exit 1
 fi
 
-if [ -z "$2" ]; then
+if [ -z "$1" ]; then
 	printf 'ERROR: no gluon-release was specified.\n' >&2
     exit 1
 fi
@@ -23,7 +23,7 @@ fi
 
 . ./gluon
 
-sel_gluon_release="$2"
+sel_gluon_release="$1"
 selected_found=0
 
 for GluonRelease in $GLUON_RELEASES; do
