@@ -1,0 +1,124 @@
+From 483153c36f04c8013c13088ba3e7a9b0bf09396b Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Sun, 17 Jul 2016 17:09:34 +0200
+Subject: [PATCH] added address field and labels / translations for geo
+ location
+
+---
+ .../gluon/config-mode/wizard/0400-geo-location.lua |  2 +-
+ .../gluon/config-mode/wizard/0410-geo-location.lua | 38 ++++++++++++++++++++++
+ package/gluon-config-mode-geo-location/i18n/de.po  | 16 +++++++--
+ .../i18n/gluon-config-mode-geo-location.pot        | 11 ++++++-
+ 4 files changed, 63 insertions(+), 4 deletions(-)
+ create mode 100644 package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0410-geo-location.lua
+
+diff --git a/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
+index e8c9976..3d740f7 100644
+--- a/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
++++ b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
+@@ -13,7 +13,7 @@ function M.section(form)
+ 
+   local o
+ 
+-  o = s:option(cbi.Flag, "_location", i18n.translate("Show node on the map"))
++  o = s:option(cbi.Flag, "_location", i18n.translate("Enter your own coordinates"))
+   o.default = uci:get_first("gluon-node-info", "location", "share_location", o.disabled)
+   o.rmempty = false
+ 
+diff --git a/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0410-geo-location.lua b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0410-geo-location.lua
+new file mode 100644
+index 0000000..9eec1bd
+--- /dev/null
++++ b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0410-geo-location.lua
+@@ -0,0 +1,38 @@
++local cbi = require "luci.cbi"
++local i18n = require "luci.i18n"
++local uci = luci.model.uci.cursor()
++
++local M = {}
++
++function M.section(form)
++  local s = form:section(cbi.SimpleSection, nil, i18n.translate(
++    'If you are not aware of any coordinates, add here the address '
++    'of the location, we will identify it\'s coordinates. Your node '
++    'is added there on the map.'
++    )
++  )
++
++  local o
++
++  o = s:option(cbi.Value, "_address", i18n.translate("Location address"))
++  o.default = uci:get_first("gluon-node-info", "location", "address")
++  o.rmempty = true
++  o.datatype = "string"
++  o.description = i18n.translatef("An address in format as: Sample Street 13, 52042 Musterstadt")
++  o.maxlen = 60
++end
++
++function M.handle(data)
++  local sname = uci:get_first("gluon-node-info", "location")
++
++  if data._address ~= nil then
++    uci:set("gluon-node-info", sname, "address", data._address)
++  else
++    uci:delete("gluon-node-info", sname, "address")
++  end
++  uci:save("gluon-node-info")
++  uci:commit("gluon-node-info")
++end
++
++return M
++
+diff --git a/package/gluon-config-mode-geo-location/i18n/de.po b/package/gluon-config-mode-geo-location/i18n/de.po
+index a2850d5..679189d 100644
+--- a/package/gluon-config-mode-geo-location/i18n/de.po
++++ b/package/gluon-config-mode-geo-location/i18n/de.po
+@@ -29,8 +29,20 @@ msgstr "Längengrad"
+ msgid "Altitude"
+ msgstr "Höhe"
+ 
+-msgid "Show node on the map"
+-msgstr "Knoten auf der Karte anzeigen"
++msgid "Enter your own coordinates"
++msgstr "Koordinaten selbst festlegen"
+ 
+ msgid "e.g. %s"
+ msgstr "z.B. %s"
++
++msgid ""
++"If you are not aware of any coordinates, add here the address "
++"of the location, we will identify it's coordinates. Your node "
++"is added there on the map."
++msgstr ""
++"Wenn du die Koordinaten nicht kennst, dann füge hier die postalische "
++"Adresse des Knotens ein. Wir werden dann auf Basis der Adresse die "
++"Koordinaten berechnen und den Knoten auf der Karte darstellen"
++
++msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
++msgstr "Eine Adresse hat das Format: Musterstraße 13, 52042 Musterstadt"
+diff --git a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+index a2be4fd..9d24db9 100644
+--- a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
++++ b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+@@ -16,8 +16,17 @@ msgstr ""
+ msgid "Altitude"
+ msgstr ""
+ 
+-msgid "Show node on the map"
++msgid "Enter your own coordinates"
+ msgstr ""
+ 
+ msgid "e.g. %s"
+ msgstr ""
++
++msgid ""
++"If you are not aware of any coordinates, add here the address "
++"of the location, we will identify it's coordinates. Your node "
++"is added there on the map."
++msgstr ""
++
++msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
++msgstr ""
+-- 
+2.5.5
+
