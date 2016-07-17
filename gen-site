@@ -84,7 +84,7 @@ cp -ax "$template_folder/"* "./$GluonRelease/site/"
 
 # step 4 apply vars via sed to template-files
 
-vars=("sitename" "sitecode" "city" "city2" "prefix4" "prefix6" "ntpserver" "ssid" "meshmac" "meshid" "ip4nn" "ip6nn" "fastdmethods" "fastdmtu" "fastdpeergroups" "updateprobability" "pubkeys" "updateprobabilityrc" "additional_conf")
+vars=("sitename" "sitecode" "city" "city2" "domain" "prefix4" "prefix6" "ntpserver" "ssid" "meshmac" "meshid" "ip4nn" "ip6nn" "fastdmethods" "fastdmtu" "fastdpeergroups" "updateprobability" "pubkeys" "updateprobabilityrc" "additional_conf")
 
 . "./$GluonRelease/site/vars"
 

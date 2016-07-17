@@ -41,7 +41,9 @@ index 0000000..8a13fb7
 +  if data._contact_advisor ~= nil then
 +    uci:set("gluon-node-info", uci:get_first("gluon-node-info", "advisor"), "contact", data._contact_advisor)
 +  else
-+    uci:delete("gluon-node-info", uci:get_first("gluon-node-info", "advisor"), "contact")
++    if uci:get_first("gluon-node-info", "advisor") ~= nil then
++      uci:delete("gluon-node-info", uci:get_first("gluon-node-info", "advisor"), "contact")
++    end
 +  end
 +  uci:save("gluon-node-info")
 +  uci:commit("gluon-node-info")
