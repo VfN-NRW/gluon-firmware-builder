@@ -1,18 +1,28 @@
-From 0f0c8baa793950ba91bd0bab8eba25969bdcb817 Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Sat, 16 Jul 2016 18:41:43 +0200
-Subject: [PATCH 2/2] add all wifi tweaks and reenable >ht20 modes
+From 21eeadd8e1a48fa6d27d43a918c65864adaeedb8 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Sun, 17 Jul 2016 18:20:37 +0200
+Subject: [PATCH] add all wifi tweaks and reenable >ht20 modes
 
 ---
- .../gluon-core/files/lib/gluon/upgrade/200-wireless   | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ .../files/lib/gluon/upgrade/200-wireless           | 25 ++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/package/gluon-core/files/lib/gluon/upgrade/200-wireless b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
-index 77cd04d..5f1d2b2 100755
+index 5a98a70..77247a5 100755
 --- a/package/gluon-core/files/lib/gluon/upgrade/200-wireless
 +++ b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
-@@ -18,9 +18,24 @@ local function configure_radio(radio, index, config)
+@@ -10,13 +10,34 @@ if not sysconfig.gluon_version then
+   uci:delete_all('wireless', 'wifi-iface')
+ end
+ 
++local function get_channel(radio, config)
++  return uci:get('wireless', radio, 'channel') or config.channel
++end
++
+ local function configure_radio(radio, index, config)
    if config then
++    local channel = get_channel(radio, config)
++
      uci:delete('wireless', radio, 'disabled')
  
 -    uci:set('wireless', radio, 'channel', config.channel)
@@ -39,5 +49,5 @@ index 77cd04d..5f1d2b2 100755
  end
  
 -- 
-2.9.0
+2.5.5
 
