@@ -1,0 +1,50 @@
+From 5104bcb1a502cd5268dff1d94aa84dd3479a2082 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Sun, 17 Jul 2016 16:37:57 +0200
+Subject: [PATCH] new translation from @grmp
+
+---
+ package/gluon-config-mode-contact-info/i18n/de.po | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/package/gluon-config-mode-contact-info/i18n/de.po b/package/gluon-config-mode-contact-info/i18n/de.po
+index 53f7634..2e603ce 100644
+--- a/package/gluon-config-mode-contact-info/i18n/de.po
++++ b/package/gluon-config-mode-contact-info/i18n/de.po
+@@ -11,16 +11,30 @@ msgstr ""
+ "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+ 
+ msgid "Contact info"
+-msgstr "Deine Emailadresse"
++msgstr "Deine E-Mail-Adresse"
+ 
+ msgid ""
+ "Please enter a valid Email addresse, where we can reach you. We will send "
+ "you an validation mail, to confirm it. After confirmation we will activate "
+ "your Mesh-VPN-account."
+ msgstr ""
+-"Gib hier eine gültige Email-Adresse an, wo wir dich erreichen können. "
++"Gib hier eine gültige E-Mail-Adresse an, wo wir dich erreichen können. "
+ "Wir werden dir eine Validierungsnachricht schicken, um sie zu bestätigen. "
+ "Nach der Bestätigung, werden wir deinen Mesh-VPN-Account aktivieren. "
+ 
+ msgid "your Email address"
+-msgstr "Eine gültige Email-Adresse"
++msgstr "Eine gültige E-Mail-Adresse"
++
++msgid ""
++"If you set up this node for someone else, enter your "
++"email address here, so that you receive the "
++"validation message. Otherwise, leave this "
++"field empty."
++msgstr ""
++"Wenn du den Knoten für jemand anderen installierst, "
++"dann gebe hier bitte deine E-Mail-Adresse an, sodass du "
++"die Validierungsnachricht erhalten kannst. Ansonsten lasse "
++"das Feld leer."
++
++msgid "a valid email address"
++msgstr "Eine gültige E-Mail-Adresse"
+-- 
+2.5.5
+
