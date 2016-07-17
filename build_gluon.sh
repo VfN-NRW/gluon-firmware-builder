@@ -59,9 +59,9 @@ echo "generating default site..."
 echo "fetching profiles..."
 profiles="$(ls -1 site-modules/vfnnrw | grep -vE 'all|LICENSE|README.md|version')"
 
-#profiles="x" #only build profile x
+profiles="remscheid" #only build profile x
 
-branches="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic" #x86-kvm_guest
+branches="ar71xx-generic" # ar71xx-nand mpc85xx-generic x86-generic" #x86-kvm_guest
 
 cd ./$GluonRelease
 
@@ -101,7 +101,7 @@ for profile in $profiles; do
 
 	echo "  uploading images..."
 
-	( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$version/ 2>&1 >/dev/null )
+	( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$version/$2/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$version/$2/ 2>&1 >/dev/null )
 	echo "    images for $profile has been uploaded."
 done
 
