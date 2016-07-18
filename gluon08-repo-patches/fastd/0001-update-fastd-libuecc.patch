@@ -1,360 +1,257 @@
-From 4dd28aacb2a9be9df8f29ef1c35f045fb7898769 Mon Sep 17 00:00:00 2001
+From 54766fb0298af6ae5753d3ea4cf6f82fd0fbe0b8 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Mon, 18 Jul 2016 15:11:04 +0200
+Date: Mon, 18 Jul 2016 16:19:25 +0200
 Subject: [PATCH] update fastd/libuecc
 
 ---
- ...python-host-to-HOST_BUILD_DEPENDS-as-well.patch | 18 +++++
- .../0002-lua-cjson-add-host-build-support.patch    | 32 ++++++++
- .../openwrt/0003-libuecc-update-to-v7.patch        | 34 +++++++++
- .../openwrt/0004-fastd-update-to-v18.patch         | 88 ++++++++++++++++++++++
- .../openwrt/0005-node-update-to-v0.12.14.patch     | 49 ++++++++++++
- ...haviour-leading-to-broken-code-with-GCC-6.patch | 80 ++++++++++++++++++++
- 6 files changed, 301 insertions(+)
- create mode 100644 patches/packages/openwrt/0001-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
- create mode 100644 patches/packages/openwrt/0002-lua-cjson-add-host-build-support.patch
- create mode 100644 patches/packages/openwrt/0003-libuecc-update-to-v7.patch
- create mode 100644 patches/packages/openwrt/0004-fastd-update-to-v18.patch
- create mode 100644 patches/packages/openwrt/0005-node-update-to-v0.12.14.patch
- create mode 100644 patches/packages/openwrt/0006-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
+ .../openwrt/0001-libuecc-update-to-v6.patch        | 27 --------
+ ...python-host-to-HOST_BUILD_DEPENDS-as-well.patch | 18 -----
+ .../0003-lua-cjson-add-host-build-support.patch    | 32 ---------
+ .../openwrt/0004-node-update-to-v0.12.14.patch     | 49 -------------
+ ...haviour-leading-to-broken-code-with-GCC-6.patch | 80 ----------------------
+ 5 files changed, 206 deletions(-)
+ delete mode 100644 patches/packages/openwrt/0001-libuecc-update-to-v6.patch
+ delete mode 100644 patches/packages/openwrt/0002-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
+ delete mode 100644 patches/packages/openwrt/0003-lua-cjson-add-host-build-support.patch
+ delete mode 100644 patches/packages/openwrt/0004-node-update-to-v0.12.14.patch
+ delete mode 100644 patches/packages/openwrt/0005-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
 
-diff --git a/patches/packages/openwrt/0001-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch b/patches/packages/openwrt/0001-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
-new file mode 100644
-index 0000000..f0c746a
---- /dev/null
-+++ b/patches/packages/openwrt/0001-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
-@@ -0,0 +1,18 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Wed, 28 Oct 2015 01:10:09 +0100
-+Subject: node: add python/host to HOST_BUILD_DEPENDS as well
-+
-+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
-+
-+diff --git a/lang/node/Makefile b/lang/node/Makefile
-+index 65a5390..243c8a5 100644
-+--- a/lang/node/Makefile
-++++ b/lang/node/Makefile
-+@@ -14,6 +14,7 @@ PKG_RELEASE:=1
-+ PKG_SOURCE:=node-$(PKG_VERSION).tar.gz
-+ PKG_SOURCE_URL:=http://nodejs.org/dist/${PKG_VERSION}
-+ 
-++HOST_BUILD_DEPENDS:=python/host
-+ PKG_BUILD_DEPENDS:=python/host
-+ PKG_INSTALL:=1
-+ PKG_USE_MIPS16:=0
-diff --git a/patches/packages/openwrt/0002-lua-cjson-add-host-build-support.patch b/patches/packages/openwrt/0002-lua-cjson-add-host-build-support.patch
-new file mode 100644
-index 0000000..08fba88
---- /dev/null
-+++ b/patches/packages/openwrt/0002-lua-cjson-add-host-build-support.patch
-@@ -0,0 +1,32 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Wed, 30 Dec 2015 01:00:49 +0100
-+Subject: lua-cjson: add host build support
-+
-+diff --git a/lang/lua-cjson/Makefile b/lang/lua-cjson/Makefile
-+index fbdcf17..1adfeb3 100644
-+--- a/lang/lua-cjson/Makefile
-++++ b/lang/lua-cjson/Makefile
-+@@ -20,6 +20,7 @@ PKG_MD5SUM:=24f270663e9f6ca8ba2a02cef19f7963
-+ 
-+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-+ 
-++include $(INCLUDE_DIR)/host-build.mk
-+ include $(INCLUDE_DIR)/package.mk
-+ include $(INCLUDE_DIR)/cmake.mk
-+ 
-+@@ -39,6 +40,9 @@ endef
-+ CMAKE_OPTIONS += \
-+ 	-DUSE_LUA=ON
-+ 
-++CMAKE_HOST_OPTIONS += \
-++	-DLUA_MATH_LIBRARY=m
-++
-+ define Package/lua-cjson/install
-+ 	$(INSTALL_DIR) $(1)/usr/lib/lua
-+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/cjson.so $(1)/usr/lib/lua/
-+@@ -47,4 +51,5 @@ define Package/lua-cjson/install
-+ 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lua/cjson/util.lua $(1)/usr/lib/lua/cjson
-+ endef
-+ 
-++$(eval $(call HostBuild))
-+ $(eval $(call BuildPackage,lua-cjson))
-diff --git a/patches/packages/openwrt/0003-libuecc-update-to-v7.patch b/patches/packages/openwrt/0003-libuecc-update-to-v7.patch
-new file mode 100644
-index 0000000..379e0a2
---- /dev/null
-+++ b/patches/packages/openwrt/0003-libuecc-update-to-v7.patch
-@@ -0,0 +1,34 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Sun, 25 Oct 2015 17:11:30 +0100
-+Subject: libuecc: update to v7
-+
-+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
-+
-+diff --git a/libs/libuecc/Makefile b/libs/libuecc/Makefile
-+index 63b6ebe..c1ba53f 100644
-+--- a/libs/libuecc/Makefile
-++++ b/libs/libuecc/Makefile
-+@@ -1,5 +1,5 @@
-+ #
-+-# Copyright (C) 2012-2015 OpenWrt.org
-++# Copyright (C) 2012-2016 OpenWrt.org
-+ #
-+ # This is free software, licensed under the GNU General Public License v2.
-+ # See /LICENSE for more information.
-+@@ -8,13 +8,13 @@
-+ include $(TOPDIR)/rules.mk
-+ 
-+ PKG_NAME:=libuecc
-+-PKG_VERSION:=5
-++PKG_VERSION:=7
-+ PKG_RELEASE:=1
-+ 
-+ PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
-+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-+-PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/80
-+-PKG_MD5SUM:=cd03c947931c2f4b0eea0bf45654bd34
-++PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/85
-++PKG_MD5SUM:=5cd543cb8e7bce83a22c07a0579c95a1
-+ 
-+ PKG_LICENSE:=BSD-2-Clause
-+ PKG_LICENSE_FILES:=COPYRIGHT
-diff --git a/patches/packages/openwrt/0004-fastd-update-to-v18.patch b/patches/packages/openwrt/0004-fastd-update-to-v18.patch
-new file mode 100644
-index 0000000..fd94721
---- /dev/null
-+++ b/patches/packages/openwrt/0004-fastd-update-to-v18.patch
-@@ -0,0 +1,88 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Tue, 29 Mar 2016 00:24:00 +0200
-+Subject: fastd: update to v18
-+
-+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
-+
-+diff --git a/net/fastd/Config.in b/net/fastd/Config.in
-+index 5820b97..3350eb3 100644
-+--- a/net/fastd/Config.in
-++++ b/net/fastd/Config.in
-+@@ -74,6 +74,12 @@ config FASTD_ENABLE_MAC_UHASH
-+ 	default y
-+ 
-+ 
-++config FASTD_WITH_CAPABILITIES
-++	bool "Enable POSIX capability support"
-++	depends on PACKAGE_fastd
-++	default n
-++
-++
-+ config FASTD_WITH_CMDLINE_USER
-+ 	bool "Include support for setting user/group related options on the command line"
-+ 	depends on PACKAGE_fastd
-+diff --git a/net/fastd/Makefile b/net/fastd/Makefile
-+index 027f549..5c550d8 100644
-+--- a/net/fastd/Makefile
-++++ b/net/fastd/Makefile
-+@@ -8,13 +8,13 @@
-+ include $(TOPDIR)/rules.mk
-+ 
-+ PKG_NAME:=fastd
-+-PKG_VERSION:=17
-++PKG_VERSION:=18
-+ PKG_RELEASE:=1
-+ 
-+ PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
-+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-+-PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/81
-+-PKG_MD5SUM:=bad4f1948702f418b799578f83a0edb8
-++PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/86
-++PKG_MD5SUM:=e53236d3049f64f7955ad9556da099eb
-+ 
-+ PKG_LICENSE:=BSD-2-Clause
-+ PKG_LICENSE_FILES:=COPYRIGHT
-+@@ -34,6 +34,7 @@ PKG_CONFIG_DEPENDS:=\
-+ 	CONFIG_FASTD_ENABLE_CIPHER_SALSA2012 \
-+ 	CONFIG_FASTD_ENABLE_MAC_GHASH \
-+ 	CONFIG_FASTD_ENABLE_MAC_UHASH \
-++	CONFIG_FASTD_WITH_CAPABILITIES \
-+ 	CONFIG_FASTD_WITH_CMDLINE_USER \
-+ 	CONFIG_FASTD_WITH_CMDLINE_LOGGING \
-+ 	CONFIG_FASTD_WITH_CMDLINE_OPERATION \
-+@@ -50,7 +51,7 @@ include $(INCLUDE_DIR)/cmake.mk
-+ define Package/fastd
-+   SECTION:=net
-+   CATEGORY:=Network
-+-  DEPENDS:=+kmod-tun +librt +libpthread +FASTD_WITH_STATUS_SOCKET:libjson-c
-++  DEPENDS:=+kmod-tun +librt +libpthread +FASTD_WITH_STATUS_SOCKET:libjson-c +FASTD_WITH_CAPABILITIES:libcap
-+   TITLE:=Fast and Secure Tunneling Daemon
-+   URL:=https://projects.universe-factory.net/projects/fastd
-+   SUBMENU:=VPN
-+@@ -79,13 +80,13 @@ CMAKE_OPTIONS += \
-+ 	-DWITH_CIPHER_SALSA2012:BOOL=FALSE \
-+ 	-DWITH_MAC_GHASH:BOOL=FALSE \
-+ 	-DWITH_MAC_UHASH:BOOL=FALSE \
-++	-DWITH_CAPABILITIES:BOOL=FALSE \
-+ 	-DWITH_CMDLINE_USER:BOOL=FALSE \
-+ 	-DWITH_CMDLINE_LOGGING:BOOL=FALSE \
-+ 	-DWITH_CMDLINE_OPERATION:BOOL=FALSE \
-+ 	-DWITH_CMDLINE_COMMANDS:BOOL=FALSE \
-+ 	-DWITH_DYNAMIC_PEERS:BOOL=FALSE \
-+ 	-DWITH_STATUS_SOCKET:BOOL=FALSE \
-+-	-DWITH_CAPABILITIES:BOOL=FALSE \
-+ 	-DENABLE_SYSTEMD:BOOL=FALSE \
-+ 	-DENABLE_LIBSODIUM:BOOL=FALSE \
-+ 	-DENABLE_LTO:BOOL=TRUE
-+@@ -150,6 +151,11 @@ CMAKE_OPTIONS += -DWITH_MAC_UHASH:BOOL=TRUE
-+ endif
-+ 
-+ 
-++ifeq ($(CONFIG_FASTD_WITH_CAPABILITIES),y)
-++CMAKE_OPTIONS += -DWITH_CAPABILITIES:BOOL=TRUE
-++endif
-++
-++
-+ ifeq ($(CONFIG_FASTD_WITH_CMDLINE_USER),y)
-+ CMAKE_OPTIONS += -DWITH_CMDLINE_USER:BOOL=TRUE
-+ endif
-diff --git a/patches/packages/openwrt/0005-node-update-to-v0.12.14.patch b/patches/packages/openwrt/0005-node-update-to-v0.12.14.patch
-new file mode 100644
-index 0000000..be6b8a1
---- /dev/null
-+++ b/patches/packages/openwrt/0005-node-update-to-v0.12.14.patch
-@@ -0,0 +1,49 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Mon, 9 May 2016 15:57:18 +0200
-+Subject: node: update to v0.12.14
-+
-+While we're at it, also enable parallel builds.
-+
-+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
-+
-+diff --git a/lang/node/Makefile b/lang/node/Makefile
-+index 243c8a5..ed35e17 100644
-+--- a/lang/node/Makefile
-++++ b/lang/node/Makefile
-+@@ -8,17 +8,21 @@
-+ include $(TOPDIR)/rules.mk
-+ 
-+ PKG_NAME:=node
-+-PKG_VERSION:=v0.12.7
-++PKG_VERSION:=v0.12.14
-+ PKG_RELEASE:=1
-+ 
-+-PKG_SOURCE:=node-$(PKG_VERSION).tar.gz
-++PKG_SOURCE:=node-$(PKG_VERSION).tar.xz
-+ PKG_SOURCE_URL:=http://nodejs.org/dist/${PKG_VERSION}
-++PKG_MD5SUM:=27f1a2cf00af32cbfe9401ca4b1a805f
-+ 
-+ HOST_BUILD_DEPENDS:=python/host
-+ PKG_BUILD_DEPENDS:=python/host
-+ PKG_INSTALL:=1
-+ PKG_USE_MIPS16:=0
-+ 
-++HOST_BUILD_PARALLEL:=1
-++PKG_BUILD_PARALLEL:=1
-++
-+ PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
-+ PKG_LICENSE:=
-+ 
-+@@ -56,6 +60,12 @@ HOST_CONFIGURE_ARGS:= \
-+ 
-+ HOST_CONFIGURE_CMD:=python ./configure
-+ 
-++HOST_MAKE_FLAGS += CXXFLAGS='-std=c++11'
-++
-++define Host/Install
-++	$(MAKE) -C $(HOST_BUILD_DIR) $(HOST_MAKE_FLAGS) install
-++endef
-++
-+ define Build/InstallDev
-+ 	$(INSTALL_DIR) $(1)/usr/include
-+ 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
-diff --git a/patches/packages/openwrt/0006-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch b/patches/packages/openwrt/0006-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
-new file mode 100644
-index 0000000..ae5162e
---- /dev/null
-+++ b/patches/packages/openwrt/0006-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
-@@ -0,0 +1,80 @@
-+From: Matthias Schiffer <mschiffer@universe-factory.net>
-+Date: Mon, 9 May 2016 16:21:57 +0200
-+Subject: node: fix undefined behaviour leading to broken code with GCC 6
-+
-+Fixes segfaults occuring in the node host build when GCC 6 is used.
-+
-+Backport of upstream commit 96198d5bc710a4e3ca49eeeb3b3fa7b8cb61547d.
-+
-+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
-+
-+diff --git a/lang/node/patches/004-gcc6-undefined-behaviour.patch b/lang/node/patches/004-gcc6-undefined-behaviour.patch
-+new file mode 100644
-+index 0000000..dbbbcf0
-+--- /dev/null
-++++ b/lang/node/patches/004-gcc6-undefined-behaviour.patch
-+@@ -0,0 +1,64 @@
-++diff --git a/deps/v8/src/heap/incremental-marking.cc b/deps/v8/src/heap/incremental-marking.cc
-++index c922e83..2ead8be 100644
-++--- a/deps/v8/src/heap/incremental-marking.cc
-+++++ b/deps/v8/src/heap/incremental-marking.cc
-++@@ -379,7 +379,7 @@ void IncrementalMarking::DeactivateIncrementalWriteBarrier() {
-++   DeactivateIncrementalWriteBarrierForSpace(heap_->new_space());
-++ 
-++   LargePage* lop = heap_->lo_space()->first_page();
-++-  while (lop->is_valid()) {
-+++  while (LargePage::IsValid(lop)) {
-++     SetOldSpacePageFlags(lop, false, false);
-++     lop = lop->next_page();
-++   }
-++@@ -414,7 +414,7 @@ void IncrementalMarking::ActivateIncrementalWriteBarrier() {
-++   ActivateIncrementalWriteBarrier(heap_->new_space());
-++ 
-++   LargePage* lop = heap_->lo_space()->first_page();
-++-  while (lop->is_valid()) {
-+++  while (LargePage::IsValid(lop)) {
-++     SetOldSpacePageFlags(lop, true, is_compacting_);
-++     lop = lop->next_page();
-++   }
-++diff --git a/deps/v8/src/heap/spaces-inl.h b/deps/v8/src/heap/spaces-inl.h
-++index 56c2bad..1a45096 100644
-++--- a/deps/v8/src/heap/spaces-inl.h
-+++++ b/deps/v8/src/heap/spaces-inl.h
-++@@ -148,7 +148,7 @@ Page* Page::Initialize(Heap* heap, MemoryChunk* chunk, Executability executable,
-++ 
-++ bool PagedSpace::Contains(Address addr) {
-++   Page* p = Page::FromAddress(addr);
-++-  if (!p->is_valid()) return false;
-+++  if (!Page::IsValid(p)) return false;
-++   return p->owner() == this;
-++ }
-++ 
-++diff --git a/deps/v8/src/heap/spaces.cc b/deps/v8/src/heap/spaces.cc
-++index e197f5a..2fe10eb 100644
-++--- a/deps/v8/src/heap/spaces.cc
-+++++ b/deps/v8/src/heap/spaces.cc
-++@@ -2918,7 +2918,7 @@ LargePage* LargeObjectSpace::FindPage(Address a) {
-++   if (e != NULL) {
-++     DCHECK(e->value != NULL);
-++     LargePage* page = reinterpret_cast<LargePage*>(e->value);
-++-    DCHECK(page->is_valid());
-+++    DCHECK(LargePage::IsValid(page));
-++     if (page->Contains(a)) {
-++       return page;
-++     }
-++diff --git a/deps/v8/src/heap/spaces.h b/deps/v8/src/heap/spaces.h
-++index 312d75f..1054672 100644
-++--- a/deps/v8/src/heap/spaces.h
-+++++ b/deps/v8/src/heap/spaces.h
-++@@ -283,9 +283,9 @@ class MemoryChunk {
-++   // Only works for addresses in pointer spaces, not data or code spaces.
-++   static inline MemoryChunk* FromAnyPointerAddress(Heap* heap, Address addr);
-++ 
-++-  Address address() { return reinterpret_cast<Address>(this); }
-+++  static bool IsValid(MemoryChunk* chunk) { return chunk != nullptr; }
-++ 
-++-  bool is_valid() { return address() != NULL; }
-+++  Address address() { return reinterpret_cast<Address>(this); }
-++ 
-++   MemoryChunk* next_chunk() const {
-++     return reinterpret_cast<MemoryChunk*>(base::Acquire_Load(&next_chunk_));
+diff --git a/patches/packages/openwrt/0001-libuecc-update-to-v6.patch b/patches/packages/openwrt/0001-libuecc-update-to-v6.patch
+deleted file mode 100644
+index b83a6c6..0000000
+--- a/patches/packages/openwrt/0001-libuecc-update-to-v6.patch
++++ /dev/null
+@@ -1,27 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Sun, 25 Oct 2015 17:11:30 +0100
+-Subject: libuecc: update to v6
+-
+-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+-
+-diff --git a/libs/libuecc/Makefile b/libs/libuecc/Makefile
+-index 63b6ebe..fb26933 100644
+---- a/libs/libuecc/Makefile
+-+++ b/libs/libuecc/Makefile
+-@@ -8,13 +8,13 @@
+- include $(TOPDIR)/rules.mk
+- 
+- PKG_NAME:=libuecc
+--PKG_VERSION:=5
+-+PKG_VERSION:=6
+- PKG_RELEASE:=1
+- 
+- PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
+- PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+--PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/80
+--PKG_MD5SUM:=cd03c947931c2f4b0eea0bf45654bd34
+-+PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/83
+-+PKG_MD5SUM:=cba68339ff46482ec4090303de18fff4
+- 
+- PKG_LICENSE:=BSD-2-Clause
+- PKG_LICENSE_FILES:=COPYRIGHT
+diff --git a/patches/packages/openwrt/0002-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch b/patches/packages/openwrt/0002-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
+deleted file mode 100644
+index f0c746a..0000000
+--- a/patches/packages/openwrt/0002-node-add-python-host-to-HOST_BUILD_DEPENDS-as-well.patch
++++ /dev/null
+@@ -1,18 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Wed, 28 Oct 2015 01:10:09 +0100
+-Subject: node: add python/host to HOST_BUILD_DEPENDS as well
+-
+-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+-
+-diff --git a/lang/node/Makefile b/lang/node/Makefile
+-index 65a5390..243c8a5 100644
+---- a/lang/node/Makefile
+-+++ b/lang/node/Makefile
+-@@ -14,6 +14,7 @@ PKG_RELEASE:=1
+- PKG_SOURCE:=node-$(PKG_VERSION).tar.gz
+- PKG_SOURCE_URL:=http://nodejs.org/dist/${PKG_VERSION}
+- 
+-+HOST_BUILD_DEPENDS:=python/host
+- PKG_BUILD_DEPENDS:=python/host
+- PKG_INSTALL:=1
+- PKG_USE_MIPS16:=0
+diff --git a/patches/packages/openwrt/0003-lua-cjson-add-host-build-support.patch b/patches/packages/openwrt/0003-lua-cjson-add-host-build-support.patch
+deleted file mode 100644
+index 08fba88..0000000
+--- a/patches/packages/openwrt/0003-lua-cjson-add-host-build-support.patch
++++ /dev/null
+@@ -1,32 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Wed, 30 Dec 2015 01:00:49 +0100
+-Subject: lua-cjson: add host build support
+-
+-diff --git a/lang/lua-cjson/Makefile b/lang/lua-cjson/Makefile
+-index fbdcf17..1adfeb3 100644
+---- a/lang/lua-cjson/Makefile
+-+++ b/lang/lua-cjson/Makefile
+-@@ -20,6 +20,7 @@ PKG_MD5SUM:=24f270663e9f6ca8ba2a02cef19f7963
+- 
+- PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+- 
+-+include $(INCLUDE_DIR)/host-build.mk
+- include $(INCLUDE_DIR)/package.mk
+- include $(INCLUDE_DIR)/cmake.mk
+- 
+-@@ -39,6 +40,9 @@ endef
+- CMAKE_OPTIONS += \
+- 	-DUSE_LUA=ON
+- 
+-+CMAKE_HOST_OPTIONS += \
+-+	-DLUA_MATH_LIBRARY=m
+-+
+- define Package/lua-cjson/install
+- 	$(INSTALL_DIR) $(1)/usr/lib/lua
+- 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/cjson.so $(1)/usr/lib/lua/
+-@@ -47,4 +51,5 @@ define Package/lua-cjson/install
+- 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lua/cjson/util.lua $(1)/usr/lib/lua/cjson
+- endef
+- 
+-+$(eval $(call HostBuild))
+- $(eval $(call BuildPackage,lua-cjson))
+diff --git a/patches/packages/openwrt/0004-node-update-to-v0.12.14.patch b/patches/packages/openwrt/0004-node-update-to-v0.12.14.patch
+deleted file mode 100644
+index be6b8a1..0000000
+--- a/patches/packages/openwrt/0004-node-update-to-v0.12.14.patch
++++ /dev/null
+@@ -1,49 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Mon, 9 May 2016 15:57:18 +0200
+-Subject: node: update to v0.12.14
+-
+-While we're at it, also enable parallel builds.
+-
+-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+-
+-diff --git a/lang/node/Makefile b/lang/node/Makefile
+-index 243c8a5..ed35e17 100644
+---- a/lang/node/Makefile
+-+++ b/lang/node/Makefile
+-@@ -8,17 +8,21 @@
+- include $(TOPDIR)/rules.mk
+- 
+- PKG_NAME:=node
+--PKG_VERSION:=v0.12.7
+-+PKG_VERSION:=v0.12.14
+- PKG_RELEASE:=1
+- 
+--PKG_SOURCE:=node-$(PKG_VERSION).tar.gz
+-+PKG_SOURCE:=node-$(PKG_VERSION).tar.xz
+- PKG_SOURCE_URL:=http://nodejs.org/dist/${PKG_VERSION}
+-+PKG_MD5SUM:=27f1a2cf00af32cbfe9401ca4b1a805f
+- 
+- HOST_BUILD_DEPENDS:=python/host
+- PKG_BUILD_DEPENDS:=python/host
+- PKG_INSTALL:=1
+- PKG_USE_MIPS16:=0
+- 
+-+HOST_BUILD_PARALLEL:=1
+-+PKG_BUILD_PARALLEL:=1
+-+
+- PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
+- PKG_LICENSE:=
+- 
+-@@ -56,6 +60,12 @@ HOST_CONFIGURE_ARGS:= \
+- 
+- HOST_CONFIGURE_CMD:=python ./configure
+- 
+-+HOST_MAKE_FLAGS += CXXFLAGS='-std=c++11'
+-+
+-+define Host/Install
+-+	$(MAKE) -C $(HOST_BUILD_DIR) $(HOST_MAKE_FLAGS) install
+-+endef
+-+
+- define Build/InstallDev
+- 	$(INSTALL_DIR) $(1)/usr/include
+- 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
+diff --git a/patches/packages/openwrt/0005-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch b/patches/packages/openwrt/0005-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
+deleted file mode 100644
+index ae5162e..0000000
+--- a/patches/packages/openwrt/0005-node-fix-undefined-behaviour-leading-to-broken-code-with-GCC-6.patch
++++ /dev/null
+@@ -1,80 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Mon, 9 May 2016 16:21:57 +0200
+-Subject: node: fix undefined behaviour leading to broken code with GCC 6
+-
+-Fixes segfaults occuring in the node host build when GCC 6 is used.
+-
+-Backport of upstream commit 96198d5bc710a4e3ca49eeeb3b3fa7b8cb61547d.
+-
+-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+-
+-diff --git a/lang/node/patches/004-gcc6-undefined-behaviour.patch b/lang/node/patches/004-gcc6-undefined-behaviour.patch
+-new file mode 100644
+-index 0000000..dbbbcf0
+---- /dev/null
+-+++ b/lang/node/patches/004-gcc6-undefined-behaviour.patch
+-@@ -0,0 +1,64 @@
+-+diff --git a/deps/v8/src/heap/incremental-marking.cc b/deps/v8/src/heap/incremental-marking.cc
+-+index c922e83..2ead8be 100644
+-+--- a/deps/v8/src/heap/incremental-marking.cc
+-++++ b/deps/v8/src/heap/incremental-marking.cc
+-+@@ -379,7 +379,7 @@ void IncrementalMarking::DeactivateIncrementalWriteBarrier() {
+-+   DeactivateIncrementalWriteBarrierForSpace(heap_->new_space());
+-+ 
+-+   LargePage* lop = heap_->lo_space()->first_page();
+-+-  while (lop->is_valid()) {
+-++  while (LargePage::IsValid(lop)) {
+-+     SetOldSpacePageFlags(lop, false, false);
+-+     lop = lop->next_page();
+-+   }
+-+@@ -414,7 +414,7 @@ void IncrementalMarking::ActivateIncrementalWriteBarrier() {
+-+   ActivateIncrementalWriteBarrier(heap_->new_space());
+-+ 
+-+   LargePage* lop = heap_->lo_space()->first_page();
+-+-  while (lop->is_valid()) {
+-++  while (LargePage::IsValid(lop)) {
+-+     SetOldSpacePageFlags(lop, true, is_compacting_);
+-+     lop = lop->next_page();
+-+   }
+-+diff --git a/deps/v8/src/heap/spaces-inl.h b/deps/v8/src/heap/spaces-inl.h
+-+index 56c2bad..1a45096 100644
+-+--- a/deps/v8/src/heap/spaces-inl.h
+-++++ b/deps/v8/src/heap/spaces-inl.h
+-+@@ -148,7 +148,7 @@ Page* Page::Initialize(Heap* heap, MemoryChunk* chunk, Executability executable,
+-+ 
+-+ bool PagedSpace::Contains(Address addr) {
+-+   Page* p = Page::FromAddress(addr);
+-+-  if (!p->is_valid()) return false;
+-++  if (!Page::IsValid(p)) return false;
+-+   return p->owner() == this;
+-+ }
+-+ 
+-+diff --git a/deps/v8/src/heap/spaces.cc b/deps/v8/src/heap/spaces.cc
+-+index e197f5a..2fe10eb 100644
+-+--- a/deps/v8/src/heap/spaces.cc
+-++++ b/deps/v8/src/heap/spaces.cc
+-+@@ -2918,7 +2918,7 @@ LargePage* LargeObjectSpace::FindPage(Address a) {
+-+   if (e != NULL) {
+-+     DCHECK(e->value != NULL);
+-+     LargePage* page = reinterpret_cast<LargePage*>(e->value);
+-+-    DCHECK(page->is_valid());
+-++    DCHECK(LargePage::IsValid(page));
+-+     if (page->Contains(a)) {
+-+       return page;
+-+     }
+-+diff --git a/deps/v8/src/heap/spaces.h b/deps/v8/src/heap/spaces.h
+-+index 312d75f..1054672 100644
+-+--- a/deps/v8/src/heap/spaces.h
+-++++ b/deps/v8/src/heap/spaces.h
+-+@@ -283,9 +283,9 @@ class MemoryChunk {
+-+   // Only works for addresses in pointer spaces, not data or code spaces.
+-+   static inline MemoryChunk* FromAnyPointerAddress(Heap* heap, Address addr);
+-+ 
+-+-  Address address() { return reinterpret_cast<Address>(this); }
+-++  static bool IsValid(MemoryChunk* chunk) { return chunk != nullptr; }
+-+ 
+-+-  bool is_valid() { return address() != NULL; }
+-++  Address address() { return reinterpret_cast<Address>(this); }
+-+ 
+-+   MemoryChunk* next_chunk() const {
+-+     return reinterpret_cast<MemoryChunk*>(base::Acquire_Load(&next_chunk_));
 -- 
 2.9.0
 
