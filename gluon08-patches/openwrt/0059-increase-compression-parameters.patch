@@ -1,0 +1,25 @@
+From eecaf49bdf6042ea29645f51d3e8d8688a519e61 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Tue, 19 Jul 2016 21:31:18 +0200
+Subject: [PATCH] increase compression parameters
+
+---
+ include/image.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/image.mk b/include/image.mk
+index bc383e6..8ca6cf2 100644
+--- a/include/image.mk
++++ b/include/image.mk
+@@ -58,7 +58,7 @@ SQUASHFS_BLOCKSIZE := $(CONFIG_TARGET_SQUASHFS_BLOCK_SIZE)k
+ SQUASHFSOPT := -b $(SQUASHFS_BLOCKSIZE)
+ SQUASHFSOPT += -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
+ SQUASHFSCOMP := gzip
+-LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 0 -Xlp 2 -Xpb 2
++LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 3 -Xlp 2 -Xpb 2
+ ifeq ($(CONFIG_SQUASHFS_LZMA),y)
+   SQUASHFSCOMP := lzma $(LZMA_XZ_OPTIONS)
+ endif
+-- 
+2.9.0
+
