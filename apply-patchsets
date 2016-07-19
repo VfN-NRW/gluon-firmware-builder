@@ -46,7 +46,7 @@ patchdir="$opwd/$GluonRelease-repo-patches"
 
 git checkout -B patching base
 
-for dir in $(find "$patchdir/" -type d || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
+for dir in $(find "$patchdir/" -type d | sort || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
 	if [ "$patchdir/" == "$dir" ]; then
 		continue
 	fi
