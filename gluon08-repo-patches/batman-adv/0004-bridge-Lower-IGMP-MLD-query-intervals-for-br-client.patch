@@ -1,0 +1,25 @@
+From 4732f899d201bbcc1e1f85230e244fd2bc170f14 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Tue, 19 Jul 2016 16:17:48 +0200
+Subject: [PATCH] bridge: Lower IGMP/MLD query intervals for br-client
+
+---
+ .../files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh         | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+index c13fab4..7530cd8 100755
+--- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
++++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+@@ -38,6 +38,8 @@ end
+ uci:set('network', 'client', 'proto', 'dhcpv6')
+ uci:set('network', 'client', 'reqprefix', 'no')
+ uci:set('network', 'client', 'igmp_snooping', 1)
++uci:set('network', 'client', 'query_interval', 2000)
++uci:set('network', 'client', 'query_response_interval', 500)
+ uci:set('network', 'client', 'peerdns', 1)
+ uci:set('network', 'client', 'sourcefilter', 0)
+ 
+-- 
+2.5.5
+
