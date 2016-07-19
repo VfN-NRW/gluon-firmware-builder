@@ -15,11 +15,11 @@ index 0000000..854bff5
 --- /dev/null
 +++ b/targets/ipq806x/profiles.mk
 @@ -0,0 +1,6 @@
-+ifneq ($(BROKEN),)
++#ifneq ($(BROKEN),)
 +# Archer C2600
-+#$(eval $(call GluonProfile,C2600,kmod-ath10k ath10k-firmware-qca99x0))
++$(eval $(call GluonProfile,C2600,kmod-ath10k ath10k-firmware-qca99x0))
 +$(eval $(call GluonModel,C2600,archer-c2600,tp-link-archer-c2600-v1)) # BROKEN: ath10k
-+endif
++#endif
 +
 diff --git a/targets/targets.mk b/targets/targets.mk
 index 95b868b..2c25953 100644
