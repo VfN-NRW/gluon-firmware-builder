@@ -1,0 +1,76 @@
+From 3448a3277be2496181bfa73cfc44faec06992648 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Tue, 19 Jul 2016 17:32:56 +0200
+Subject: [PATCH] remove wget from busybox
+
+---
+ package/utils/busybox/config/networking/Config.in | 55 -----------------------
+ 1 file changed, 55 deletions(-)
+
+diff --git a/package/utils/busybox/config/networking/Config.in b/package/utils/busybox/config/networking/Config.in
+index b3dd8c8..9e7e5f6 100644
+--- a/package/utils/busybox/config/networking/Config.in
++++ b/package/utils/busybox/config/networking/Config.in
+@@ -1047,59 +1047,4 @@ config BUSYBOX_CONFIG_VCONFIG
+ 	help
+ 	  Creates, removes, and configures VLAN interfaces
+ 
+-config BUSYBOX_CONFIG_WGET
+-	bool "wget"
+-	default BUSYBOX_DEFAULT_WGET
+-	help
+-	  wget is a utility for non-interactive download of files from HTTP
+-	  and FTP servers.
+-
+-config BUSYBOX_CONFIG_FEATURE_WGET_STATUSBAR
+-	bool "Enable a nifty process meter (+2k)"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_STATUSBAR
+-	depends on BUSYBOX_CONFIG_WGET
+-	help
+-	  Enable the transfer progress bar for wget transfers.
+-
+-config BUSYBOX_CONFIG_FEATURE_WGET_AUTHENTICATION
+-	bool "Enable HTTP authentication"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_AUTHENTICATION
+-	depends on BUSYBOX_CONFIG_WGET
+-	help
+-	  Support authenticated HTTP transfers.
+-
+-config BUSYBOX_CONFIG_FEATURE_WGET_LONG_OPTIONS
+-	bool "Enable long options"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_LONG_OPTIONS
+-	depends on BUSYBOX_CONFIG_WGET && BUSYBOX_CONFIG_LONG_OPTS
+-	help
+-	  Support long options for the wget applet.
+-
+-config BUSYBOX_CONFIG_FEATURE_WGET_TIMEOUT
+-	bool "Enable timeout option -T SEC"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_TIMEOUT
+-	depends on BUSYBOX_CONFIG_WGET
+-	help
+-	  Supports network read and connect timeouts for wget,
+-	  so that wget will give up and timeout, through the -T
+-	  command line option.
+-
+-	  Currently only connect and network data read timeout are
+-	  supported (i.e., timeout is not applied to the DNS query). When
+-	  FEATURE_WGET_LONG_OPTIONS is also enabled, the --timeout option
+-	  will work in addition to -T.
+-
+-config BUSYBOX_CONFIG_ZCIP
+-	bool "zcip"
+-	default BUSYBOX_DEFAULT_ZCIP
+-	select BUSYBOX_CONFIG_PLATFORM_LINUX
+-	select BUSYBOX_CONFIG_FEATURE_SYSLOG
+-	help
+-	  ZCIP provides ZeroConf IPv4 address selection, according to RFC 3927.
+-	  It's a daemon that allocates and defends a dynamically assigned
+-	  address on the 169.254/16 network, requiring no system administrator.
+-
+-	  See http://www.zeroconf.org for further details, and "zcip.script"
+-	  in the busybox examples.
+-
+ endmenu
+-- 
+2.9.0
+
