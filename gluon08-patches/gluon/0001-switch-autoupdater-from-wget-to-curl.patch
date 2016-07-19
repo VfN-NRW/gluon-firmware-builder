@@ -4,22 +4,9 @@ Date: Tue, 19 Jul 2016 17:04:55 +0200
 Subject: [PATCH] switch autoupdater from wget to curl
 
 ---
- admin/autoupdater/Makefile                   | 2 +-
  admin/autoupdater/files/usr/sbin/autoupdater | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/admin/autoupdater/Makefile b/admin/autoupdater/Makefile
-index 5f13db4..c409c26 100644
---- a/admin/autoupdater/Makefile
-+++ b/admin/autoupdater/Makefile
-@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/package.mk
- define Package/autoupdater
-   SECTION:=admin
-   CATEGORY:=Administration
--  DEPENDS:=+lua-platform-info +libuci-lua +luci-lib-nixio +ecdsautils +!BUSYBOX_CONFIG_SHA512SUM:coreutils-sha512sum
-+  DEPENDS:=+lua-platform-info +libuci-lua +luci-lib-nixio +ecdsautils +curl +!BUSYBOX_CONFIG_SHA512SUM:coreutils-sha512sum
-   TITLE:=Automatically update firmware
- endef
  
 diff --git a/admin/autoupdater/files/usr/sbin/autoupdater b/admin/autoupdater/files/usr/sbin/autoupdater
 index 0bbc919..e6041f9 100755
