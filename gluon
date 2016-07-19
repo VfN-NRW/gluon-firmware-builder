@@ -1,5 +1,10 @@
-GLUON_RELEASES="gluon08"
+GLUON_RELEASES="gluon08 gluon09"
 
 GLUON08_REPO='https://github.com/freifunk-gluon/gluon.git'
 GLUON08_COMMIT=88fba507ba334ef65bab34d0b12f70df5d80c448
 GLUON08_BRANCH='v2016.1.x'
+
+
+GLUON09_REPO='https://github.com/freifunk-gluon/gluon.git'
+GLUON09_COMMIT=8f5a7c90019085dd8f02f96ab0e7a905f82e1be0
+GLUON09_BRANCH='master'
