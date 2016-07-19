@@ -61,7 +61,7 @@ profiles="$(ls -1 site-modules/vfnnrw | grep -vE 'all|LICENSE|README.md|version'
 
 profiles="remscheid" #only build profile x
 
-branches="ar71xx-generic" # ar71xx-nand mpc85xx-generic x86-generic" #x86-kvm_guest
+branches="ar71xx-generic" # ipq806x ar71xx-nand mpc85xx-generic x86-generic " #x86-kvm_guest
 
 cd ./$GluonRelease
 
