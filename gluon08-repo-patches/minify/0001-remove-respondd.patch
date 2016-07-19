@@ -1,0 +1,119 @@
+From 0715e294f3766a0de62defc73f67a26abf4d7043 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Tue, 19 Jul 2016 19:42:35 +0200
+Subject: [PATCH] remove respondd
+
+---
+ package/gluon-autoupdater/Makefile          | 4 ----
+ package/gluon-mesh-batman-adv-core/Makefile | 5 +----
+ package/gluon-node-info/Makefile            | 3 ---
+ package/gluon-status-page-api/Makefile      | 6 +-----
+ 4 files changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/package/gluon-autoupdater/Makefile b/package/gluon-autoupdater/Makefile
+index 40120fa..7d952d0 100644
+--- a/package/gluon-autoupdater/Makefile
++++ b/package/gluon-autoupdater/Makefile
+@@ -5,7 +5,6 @@ PKG_VERSION:=4
+ PKG_RELEASE:=$(GLUON_BRANCH)
+ 
+ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+-PKG_BUILD_DEPENDS := respondd
+ 
+ include $(GLUONDIR)/include/package.mk
+ 
+@@ -24,9 +23,6 @@ endef
+ define Package/gluon-autoupdater/install
+ 	$(CP) ./files/* $(1)/
+ 
+-	$(INSTALL_DIR) $(1)/lib/gluon/respondd
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/autoupdater.so
+-
+ 	if [ '$(GLUON_BRANCH)' ]; then \
+ 		$(INSTALL_DIR) $(1)/lib/gluon/autoupdater; \
+ 		echo '$(GLUON_BRANCH)' > $(1)/lib/gluon/autoupdater/default_branch; \
+diff --git a/package/gluon-mesh-batman-adv-core/Makefile b/package/gluon-mesh-batman-adv-core/Makefile
+index 365ccbc..879f246 100644
+--- a/package/gluon-mesh-batman-adv-core/Makefile
++++ b/package/gluon-mesh-batman-adv-core/Makefile
+@@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-batman-adv-core
+ PKG_VERSION:=1
+ 
+ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+-PKG_BUILD_DEPENDS := respondd
+ 
+ include $(GLUONDIR)/include/package.mk
+ 
+@@ -12,7 +11,7 @@ define Package/gluon-mesh-batman-adv-core
+   SECTION:=gluon
+   CATEGORY:=Gluon
+   TITLE:=Support for batman-adv meshing (core)
+-  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +firewall +libiwinfo +batman-adv-visdata
++  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +firewall +libiwinfo
+ endef
+ 
+ define Build/Prepare
+@@ -23,8 +22,6 @@ endef
+ define Package/gluon-mesh-batman-adv-core/install
+ 	$(CP) ./files/* $(1)/
+ 
+-	$(INSTALL_DIR) $(1)/lib/gluon/respondd
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/mesh-batman-adv-core.so
+ endef
+ 
+ define Package/gluon-mesh-batman-adv-core/postinst
+diff --git a/package/gluon-node-info/Makefile b/package/gluon-node-info/Makefile
+index a5ac8dd..7d917a7 100644
+--- a/package/gluon-node-info/Makefile
++++ b/package/gluon-node-info/Makefile
+@@ -5,7 +5,6 @@ PKG_VERSION:=1
+ PKG_RELEASE:=1
+ 
+ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+-PKG_BUILD_DEPENDS := respondd
+ 
+ include $(GLUONDIR)/include/package.mk
+ 
+@@ -24,8 +23,6 @@ endef
+ define Package/gluon-node-info/install
+ 	$(CP) ./files/* $(1)/
+ 
+-	$(INSTALL_DIR) $(1)/lib/gluon/respondd
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/node-info.so
+ endef
+ 
+ define Package/gluon-node-info/postinst
+diff --git a/package/gluon-status-page-api/Makefile b/package/gluon-status-page-api/Makefile
+index 17abab2..4722685 100644
+--- a/package/gluon-status-page-api/Makefile
++++ b/package/gluon-status-page-api/Makefile
+@@ -5,7 +5,6 @@ PKG_VERSION:=1
+ PKG_RELEASE:=1
+ 
+ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+-PKG_BUILD_DEPENDS := respondd
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+@@ -13,7 +12,7 @@ define Package/gluon-status-page-api
+   SECTION:=gluon
+   CATEGORY:=Gluon
+   TITLE:=API for gluon-status-page
+-  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +batman-adv-visdata +gluon-neighbour-info +gluon-respondd +libiwinfo +libjson-c
++  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +gluon-neighbour-info +libiwinfo +libjson-c
+ endef
+ 
+ define Build/Prepare
+@@ -26,9 +25,6 @@ define Package/gluon-status-page-api/install
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/neighbours-batadv $(1)/lib/gluon/status-page/providers/
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/stations $(1)/lib/gluon/status-page/providers/
+ 
+-	$(INSTALL_DIR) $(1)/lib/gluon/respondd
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/status-page-api.so
+-
+ 	$(CP) ./files/* $(1)/
+ endef
+ 
+-- 
+2.5.5
+
