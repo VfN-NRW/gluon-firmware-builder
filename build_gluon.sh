@@ -33,6 +33,7 @@ for GluonRelease in $GLUON_RELEASES; do
 		continue
 	else
 		selected_found=1
+		break
 	fi
 done
 
