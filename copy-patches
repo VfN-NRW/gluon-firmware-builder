@@ -19,7 +19,7 @@ sel_gluon_release="$1"
 selected_found=0
 
 for GluonRelease in $GLUON_RELEASES; do
-	if ! [ "$GluonRelease" == "$sel_gluon_release" ]; then
+	if ! [ "$GluonRelease" != "$sel_gluon_release" ]; then
 		continue
 	else
 		selected_found=1
