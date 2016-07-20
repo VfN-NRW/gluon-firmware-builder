@@ -1,0 +1,37 @@
+From b6cdfb21856e8d6816ba6d6cc09e3603b98a4fca Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Wed, 20 Jul 2016 10:14:36 +0200
+Subject: [PATCH] change setup-mode ip to 192.168.0.1
+
+---
+ package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network | 2 +-
+ package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S60dnsmasq | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network b/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network
+index ef4cc4a..1e5dfa3 100755
+--- a/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network
++++ b/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S20network
+@@ -1,6 +1,6 @@
+ #!/bin/sh /etc/rc.common
+ 
+-SETUP_MODE_ADDR=192.168.1.1
++SETUP_MODE_ADDR=192.168.0.1
+ SETUP_MODE_NETMASK=255.255.255.0
+ 
+ START=20
+diff --git a/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S60dnsmasq b/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S60dnsmasq
+index d275b4b..0d57081 100755
+--- a/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S60dnsmasq
++++ b/package/gluon-setup-mode/files/lib/gluon/setup-mode/rc.d/S60dnsmasq
+@@ -1,6 +1,6 @@
+ #!/bin/sh /etc/rc.common
+ 
+-SETUP_MODE_DHCP_RANGE=192.168.1.2,192.168.1.254
++SETUP_MODE_DHCP_RANGE=192.168.0.2,192.168.0.254
+ 
+ 
+ START=60
+-- 
+2.9.0
+
