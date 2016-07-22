@@ -1,26 +1,26 @@
-From 35493aebe67e729f118c0593460a328d63080534 Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Sat, 16 Jul 2016 20:32:12 +0200
+From fba44d572a1d01c2a4557283f5102f2b0ed1b081 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Fri, 22 Jul 2016 23:31:17 +0200
 Subject: [PATCH] add support for offline-ssid-script
 
 ---
- .../files/lib/gluon/upgrade/320-gluon-mesh-batman-adv-core-wireless    | 3 ++-
+ .../files/lib/gluon/upgrade/320-gluon-client-bridge-wireless           | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/320-gluon-mesh-batman-adv-core-wireless b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/320-gluon-mesh-batman-adv-core-wireless
-index a73912b..31ab958 100755
---- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/320-gluon-mesh-batman-adv-core-wireless
-+++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/320-gluon-mesh-batman-adv-core-wireless
-@@ -58,7 +58,8 @@ local function configure_ibss(config, radio, index, suffix, disabled)
+diff --git a/package/gluon-client-bridge/files/lib/gluon/upgrade/320-gluon-client-bridge-wireless b/package/gluon-client-bridge/files/lib/gluon/upgrade/320-gluon-client-bridge-wireless
+index 8d5c718..6665fad 100755
+--- a/package/gluon-client-bridge/files/lib/gluon/upgrade/320-gluon-client-bridge-wireless
++++ b/package/gluon-client-bridge/files/lib/gluon/upgrade/320-gluon-client-bridge-wireless
+@@ -27,7 +27,8 @@ local function configure_client(config, radio, index, suffix)
          device = radio,
-         network = name,
-         mode = 'adhoc',
+         network = 'client',
+         mode = 'ap',
 -        ssid = config.ssid,
 +        ssid = 'Freifunk-Node startet...',
 +        ssid_online = config.ssid,
-         bssid = config.bssid,
-         macaddr = util.generate_mac(3, index),
-         mcast_rate = config.mcast_rate,
+         macaddr = util.generate_mac(2, index),
+         ifname = suffix and 'client' .. suffix,
+         disabled = disabled,
 -- 
 2.9.0
 
