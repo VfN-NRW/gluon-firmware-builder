@@ -29,10 +29,10 @@ index 5a98a70..77247a5 100755
 -    uci:set('wireless', radio, 'htmode', 'HT20')
 +    local htmode = uci:get('wireless', radio, 'htmode')
 +    if htmode ~= 'VHT80' then --enable VHT80 on AC-Devices
-+      uci:set('wireless', radio, 'htmode', htmode)
++      uci:set('wireless', radio, 'htmode', config.htmode)
 +    else
 +      if config.htmode == 'HT40-' then --disable VHT80 if second channel is below...
-+        uci:set('wireless', radio, 'htmode', htmode)
++        uci:set('wireless', radio, 'htmode', config.htmode)
 +      end
 +    end
 +    uci:set('wireless', radio, 'channel', config.channel)
