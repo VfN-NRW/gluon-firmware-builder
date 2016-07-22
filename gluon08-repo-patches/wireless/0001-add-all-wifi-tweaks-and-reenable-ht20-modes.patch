@@ -35,7 +35,7 @@ index 5a98a70..77247a5 100755
 +        uci:set('wireless', radio, 'htmode', htmode)
 +      end
 +    end
-+    uci:set('wireless', radio, 'channel', channel)
++    uci:set('wireless', radio, 'channel', config.channel)
 +    uci:set('wireless', radio, 'noscan', '1')
      uci:set('wireless', radio, 'country', site.regdom)
 +    local hwmode = uci:get('wireless', radio, 'hwmode')
