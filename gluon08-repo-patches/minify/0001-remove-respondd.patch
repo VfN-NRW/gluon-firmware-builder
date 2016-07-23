@@ -1,10 +1,10 @@
-From f780b30369c2f046cc968d2a116d99dba1b7cfe7 Mon Sep 17 00:00:00 2001
+From f1e351009861a83743a895df6240106c14cd9da4 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@vfn-nrw.de>
 Date: Tue, 19 Jul 2016 19:42:35 +0200
 Subject: [PATCH] remove respondd
 
 ---
- package/gluon-autoupdater/Makefile                |   5 -
+ package/gluon-autoupdater/Makefile                |  11 +-
  package/gluon-autoupdater/src/Makefile            |   6 -
  package/gluon-autoupdater/src/respondd.c          |  79 ---
  package/gluon-mesh-batman-adv-core/Makefile       |  12 +-
@@ -13,11 +13,11 @@ Subject: [PATCH] remove respondd
  package/gluon-mesh-vpn-fastd/Makefile             |   7 +-
  package/gluon-mesh-vpn-fastd/src/Makefile         |   6 -
  package/gluon-mesh-vpn-fastd/src/respondd.c       | 305 -----------
- package/gluon-node-info/Makefile                  |   4 -
+ package/gluon-node-info/Makefile                  |  10 +-
  package/gluon-node-info/src/Makefile              |   6 -
  package/gluon-node-info/src/respondd.c            | 144 ------
  package/gluon-status-page-api/Makefile            |   6 +-
- 13 files changed, 14 insertions(+), 1176 deletions(-)
+ 13 files changed, 26 insertions(+), 1176 deletions(-)
  delete mode 100644 package/gluon-autoupdater/src/Makefile
  delete mode 100644 package/gluon-autoupdater/src/respondd.c
  delete mode 100644 package/gluon-mesh-batman-adv-core/src/Makefile
@@ -28,7 +28,7 @@ Subject: [PATCH] remove respondd
  delete mode 100644 package/gluon-node-info/src/respondd.c
 
 diff --git a/package/gluon-autoupdater/Makefile b/package/gluon-autoupdater/Makefile
-index 40120fa..2db570b 100644
+index 40120fa..f912eae 100644
 --- a/package/gluon-autoupdater/Makefile
 +++ b/package/gluon-autoupdater/Makefile
 @@ -5,7 +5,6 @@ PKG_VERSION:=4
@@ -39,8 +39,16 @@ index 40120fa..2db570b 100644
  
  include $(GLUONDIR)/include/package.mk
  
-@@ -18,15 +17,11 @@ endef
+@@ -16,17 +15,19 @@ define Package/gluon-autoupdater
+   TITLE:=Automatically update firmware
+ endef
  
++define Build/Configure
++endef
++
++define Build/Compile
++endef
++
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
@@ -1157,7 +1165,7 @@ index 3045c77..0000000
 -	{}
 -};
 diff --git a/package/gluon-node-info/Makefile b/package/gluon-node-info/Makefile
-index a5ac8dd..51ad2d4 100644
+index a5ac8dd..0817f7f 100644
 --- a/package/gluon-node-info/Makefile
 +++ b/package/gluon-node-info/Makefile
 @@ -5,7 +5,6 @@ PKG_VERSION:=1
@@ -1168,8 +1176,16 @@ index a5ac8dd..51ad2d4 100644
  
  include $(GLUONDIR)/include/package.mk
  
-@@ -18,14 +17,11 @@ endef
+@@ -16,16 +15,19 @@ define Package/gluon-node-info
+   DEPENDS:=+gluon-core +libgluonutil
+ endef
  
++define Build/Configure
++endef
++
++define Build/Compile
++endef
++
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
