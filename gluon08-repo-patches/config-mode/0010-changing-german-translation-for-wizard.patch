@@ -1,0 +1,25 @@
+From 1d92e60ee6c79e6c6e399960bfe77305b012157d Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sun, 24 Jul 2016 03:10:32 +0200
+Subject: [PATCH] changing german translation for wizard
+
+---
+ package/gluon-config-mode-core/i18n/de.po | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/package/gluon-config-mode-core/i18n/de.po b/package/gluon-config-mode-core/i18n/de.po
+index 58d2389..f062c0b 100644
+--- a/package/gluon-config-mode-core/i18n/de.po
++++ b/package/gluon-config-mode-core/i18n/de.po
+@@ -18,7 +18,7 @@ msgid "Welcome!"
+ msgstr "Willkommen!"
+ 
+ msgid "Wizard"
+-msgstr "Wizard"
++msgstr "Assistent"
+ 
+ msgid "Your node's setup is now complete."
+ msgstr "Dein Knoten ist nun fertig eingerichtet."
+-- 
+2.5.5
+
