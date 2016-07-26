@@ -58,7 +58,7 @@ echo "generating default site..."
 ./gen-site $sel_gluon_release vfnnrw/leverkusen 2>&1 >/dev/null
 
 echo "fetching profiles..."
-profiles="$(ls -1 site-modules/vfnnrw | grep -vE 'all|LICENSE|README.md|version')"
+profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -vE 'all|LICENSE|README.md')"
 
 #profiles="" #only build profile x
 
