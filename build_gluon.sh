@@ -37,8 +37,10 @@ for GluonRelease in $GLUON_RELEASES; do
 	fi
 done
 
+unset sel_gluon_release
+
 if [ "$selected_found" -ne "1" ]; then
-	printf 'ERROR: "$sel_gluon_release" could not be found in ./gluon file.\n' >&2
+	printf 'ERROR: "$GluonRelease" could not be found in ./gluon file.\n' >&2
 	exit 1
 fi
 
@@ -55,7 +57,7 @@ fi
 cd $DIR
 
 echo "generating default site..."
-./gen-site $sel_gluon_release vfnnrw/leverkusen 2>&1 >/dev/null
+./gen-site $GluonRelease vfnnrw/leverkusen 2>&1 >/dev/null
 
 echo "fetching profiles..."
 profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -vE 'all|LICENSE|README.md')"
@@ -78,7 +80,7 @@ for profile in $profiles; do
 	echo "    cleaning images-folder..."
 	( rm -fR ./output/images/* || true ) 2>&1 >/dev/null
 	echo "      setting site..."
-	( cd ..; ./gen-site $sel_gluon_release vfnnrw/$profile ) 2>&1 >/dev/null
+	( cd ..; ./gen-site $GluonRelease vfnnrw/$profile ) 2>&1 >/dev/null
 		for branch in $branches; do
 		echo "        building architecture $branch"
 		echo "          building..."
