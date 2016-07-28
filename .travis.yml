@@ -7,7 +7,7 @@ script:
  - ./copy-patches gluon08
  - ./apply-patchsets gluon08
  - ./get-sites gluon08
- - cd ..; ./gen-site gluon08 vfnnrw/badbentheim
+ - ./gen-site gluon08 vfnnrw/badbentheim
  - cd ./gluon08 && make update
  - cd ..; ./gen-site gluon08 vfnnrw/bergneustadt
  - cd ./gluon08 && make update
