@@ -70,7 +70,7 @@ elif ! [ -d "$all_folder" ]; then
 fi
 
 # step 1  copy all to destination folder
-rm -Rdf "./$GluonRelease/site/"
+rm -fR "./$GluonRelease/site/"
 mkdir -p "./$GluonRelease/site/"
 cp -ax "$all_folder/"* "./$GluonRelease/site/"
 
