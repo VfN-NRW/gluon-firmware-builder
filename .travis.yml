@@ -7,37 +7,37 @@ script:
  - ./copy-patches gluon08
  - ./apply-patchsets gluon08
  - ./get-sites gluon08
- - ./gen-site gluon08 vfnnrw/badbentheim
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/bergneustadt
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/bottrop
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/engelskirchen
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/gronau
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/gummersbach
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/hueckeswagen
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/kuerten
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/leverkusen
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/lindlar
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/marienheide
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/muelheim
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/neutral
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/remscheid
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/solingen
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/wermelskirchen
- - cd ./gluon08 && make update && cd ..
- - ./gen-site gluon08 vfnnrw/wipperfuerth
- - cd ./gluon08 && make update && cd ..
+ - cd ..; ./gen-site gluon08 vfnnrw/badbentheim
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/bergneustadt
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/bottrop
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/engelskirchen
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/gronau
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/gummersbach
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/hueckeswagen
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/kuerten
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/leverkusen
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/lindlar
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/marienheide
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/muelheim
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/neutral
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/remscheid
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/solingen
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/wermelskirchen
+ - cd ./gluon08 && make update
+ - cd ..; ./gen-site gluon08 vfnnrw/wipperfuerth
+ - cd ./gluon08 && make update
