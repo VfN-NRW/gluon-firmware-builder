@@ -2,6 +2,8 @@ language: bash
 sudo: false
 notifications:
   slack: vfnnrw:8Xxsz5koOsxIwN9zlLyIcL9Y
+    on_success: never
+  email: false
 script: 
  - ./get-gluon gluon08
  - ./copy-patches gluon08
