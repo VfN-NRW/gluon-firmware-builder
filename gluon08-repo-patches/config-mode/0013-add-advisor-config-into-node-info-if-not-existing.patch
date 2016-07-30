@@ -1,0 +1,26 @@
+From 52357e8f0a4cd5bf34be02371a5a57d578ec473e Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sat, 30 Jul 2016 16:36:30 +0200
+Subject: [PATCH] add advisor config into node-info if not existing
+
+---
+ .../gluon-node-info/files/lib/gluon/upgrade/500-node-info-system    | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/package/gluon-node-info/files/lib/gluon/upgrade/500-node-info-system b/package/gluon-node-info/files/lib/gluon/upgrade/500-node-info-system
+index a70eb28..f62c42e 100755
+--- a/package/gluon-node-info/files/lib/gluon/upgrade/500-node-info-system
++++ b/package/gluon-node-info/files/lib/gluon/upgrade/500-node-info-system
+@@ -8,3 +8,9 @@ if not uci:get_first(config, 'system') then
+   uci:section(config, 'system')
+   uci:save(config)
+ end
++
++if not uci:get_first(config, 'advisor') then
++  uci:section(config, 'advisor')
++  uci:save(config)
++end
++
+-- 
+2.5.5
+
