@@ -60,7 +60,7 @@ echo "generating default site..."
 ./gen-site $GluonRelease vfnnrw/leverkusen 2>&1 >/dev/null
 
 echo "fetching profiles..."
-profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -v 'all' )"
+profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -vw 'all' )"
 
 #profiles="" #only build profile x
 
