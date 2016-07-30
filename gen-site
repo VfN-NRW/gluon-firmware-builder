@@ -12,7 +12,7 @@ fi
 
 SITE="$2"
 if [ -z "$SITE" ]; then
-	printf 'no site selected, set site via second parameter'>&2
+	printf 'no site selected, set site via second parameter\n'>&2
 	exit 1
 fi
 
