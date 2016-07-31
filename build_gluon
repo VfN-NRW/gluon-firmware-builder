@@ -9,23 +9,44 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-if [ -z "$2" ]; then
+sel_gluon_release="$1"
+shift
+
+if [ -z "$1" ]; then
 	printf 'you have to select stable, nightly, alpha, beta or rc\n' >&2
 	exit 1
 fi
 
-if [ "$2" == "stable" ]; then
+if [ "$1" == "stable" ]; then
 	updatepath='$2'
-elif [ "$2" == "nightly" ] || [ "$2" == "alpha" ] || [ "$2" == "beta" ] || [ "$2" == "rc" ]; then
-	updatepath='unstable/$2'
+elif [ "$1" == "nightly" ] || [ "$1" == "alpha" ] || [ "$1" == "beta" ] || [ "$1" == "rc" ]; then
+	updatepath='unstable/$1'
 else
 	echo "Second command-line parameter has to be stable, nightly, alpha, beta or rc"
 	exit 1
 fi
+shift
+
+if ! [ -z "./build_communitys" ]; then
+	echo "loading communitys from file"
+	profiles="$(cat ./build_communitys)"
+fi
+
+if ! [ -z "./build_branches" ]; then
+	echo "loading branches from file"
+	branches="$(cat ./build_branches)"
+fi
+
+if ! [ -z "./build_noupload" ]; then
+	echo "not uploading build"
+	noupload=1
+else
+	noupload=0
+fi
 
 . ./gluon
 
-sel_gluon_release="$1"
+
 selected_found=0
 
 for GluonRelease in $GLUON_RELEASES; do
@@ -60,11 +81,13 @@ echo "generating default site..."
 ./gen-site $GluonRelease vfnnrw/leverkusen 2>&1 >/dev/null
 
 echo "fetching profiles..."
-profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -vw 'all' )"
+if [ -z "$profiles" ]; then
+	profiles="$(ls -1 site-modules/vfnnrw/$GluonRelease | grep -vw 'all' )"
+fi
 
-#profiles="" #only build profile x
-
-branches="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic" # ipq806x x86-kvm_guest
+if [ -z "$branches" ]; then
+	branches="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic" # ipq806x x86-kvm_guest
+fi
 
 cd ./$GluonRelease
 
@@ -101,11 +124,14 @@ for profile in $profiles; do
 	echo "  generating manifest..."
 
 	( make manifest GLUON_BRANCH=stable; exit $? ) 2>&1 >/dev/null
+	if [ "$noupload" -eq 1 ]; then
+		echo "  uploading images..."
 
-	echo "  uploading images..."
-
-	( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$2/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$2/$version/ 2>&1 >/dev/null )
-	echo "    images for $profile has been uploaded."
+		( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$2/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$2/$version/ 2>&1 >dev/null )
+		echo "    images for $profile has been uploaded."
+	else
+		echo "build completed."
+	fi
 done
 
 cd $DIR
