@@ -27,22 +27,31 @@ else
 fi
 shift
 
-if ! [ -z "./build_communitys" ]; then
+if [ -f "./build_communitys" ]; then
 	echo "loading communitys from file"
 	profiles="$(cat ./build_communitys)"
 fi
 
-if ! [ -z "./build_branches" ]; then
+if [ -f "./build_branches" ]; then
 	echo "loading branches from file"
 	branches="$(cat ./build_branches)"
 fi
 
-if ! [ -z "./build_noupload" ]; then
+if [ -f "./build_noupload" ]; then
 	echo "not uploading build"
 	noupload=1
 else
 	noupload=0
 fi
+
+if [ -f "./build_dryrun" ]; then
+	echo "not actually building anything."
+	dryrun=1
+	noupload=1
+else
+	dryrun=0
+fi
+
 
 . ./gluon
 
@@ -102,9 +111,13 @@ for profile in $profiles; do
 	echo "  creating images for $profile"
 	echo "    cleaning images-folder..."
 	( rm -fR ./output/images/* || true ) 2>&1 >/dev/null
-	echo "      setting site..."
+	echo "      generating site..."
 	( cd ..; ./gen-site $GluonRelease vfnnrw/$profile ) 2>&1 >/dev/null
 		for branch in $branches; do
+		if [ "$dryrun" -eq 1 ]; then
+			echo "        NOT building architecture $branch"
+			continue
+		fi
 		echo "        building architecture $branch"
 		echo "          building..."
 
@@ -121,16 +134,22 @@ for profile in $profiles; do
 		fi
 	done
 
-	echo "  generating manifest..."
+	if [ "$dryrun" -eq 0 ]; then
+		echo "  generating manifest..."
 
-	( make manifest GLUON_BRANCH=stable; exit $? ) 2>&1 >/dev/null
-	if [ "$noupload" -eq 1 ]; then
+		( make manifest GLUON_BRANCH=stable; exit $? ) 2>&1 >/dev/null
+	fi
+	if [ "$noupload" -eq 0 ]; then
 		echo "  uploading images..."
 
 		( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$2/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$2/$version/ 2>&1 >dev/null )
 		echo "    images for $profile has been uploaded."
 	else
-		echo "build completed."
+		if [ "$dryrun" -eq 1 ]; then
+			echo "dryrun completed."
+		else
+			echo "build completed."
+		fi
 	fi
 done
 

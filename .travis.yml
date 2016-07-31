@@ -1,7 +1,7 @@
 language: bash
 sudo: false
 notifications:
-  slack: 
+  slack:
     rooms:
      - "vfnnrw:8Xxsz5koOsxIwN9zlLyIcL9"
     on_success: never
@@ -9,26 +9,6 @@ notifications:
   email:
     on_success: change
     on_failure: always
-script: 
- - ./get-gluon gluon08
- - ./copy-patches gluon08
- - ./apply-patchsets gluon08
- - ./get-sites gluon08
- - ./gen-site gluon08 vfnnrw/badbentheim
- - cd ./gluon08 && make update
- - cd ..; ./gen-site gluon08 vfnnrw/bergneustadt
- - ./gen-site gluon08 vfnnrw/bottrop
- - ./gen-site gluon08 vfnnrw/engelskirchen
- - ./gen-site gluon08 vfnnrw/gronau
- - ./gen-site gluon08 vfnnrw/gummersbach
- - ./gen-site gluon08 vfnnrw/hueckeswagen
- - ./gen-site gluon08 vfnnrw/kuerten
- - ./gen-site gluon08 vfnnrw/leverkusen
- - ./gen-site gluon08 vfnnrw/lindlar
- - ./gen-site gluon08 vfnnrw/marienheide
- - ./gen-site gluon08 vfnnrw/muelheim
- - ./gen-site gluon08 vfnnrw/neutral
- - ./gen-site gluon08 vfnnrw/remscheid
- - ./gen-site gluon08 vfnnrw/solingen
- - ./gen-site gluon08 vfnnrw/wermelskirchen
- - ./gen-site gluon08 vfnnrw/wipperfuerth
+script:
+ - touch build_dryrun
+ - ./build_gluon gluon08 nightly
