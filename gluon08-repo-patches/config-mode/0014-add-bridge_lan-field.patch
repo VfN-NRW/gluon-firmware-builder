@@ -17,7 +17,7 @@ index a72b71f..806d57a 100644
  config system
 +
 +config void 'bridge_lan'
-+	option enabled '1'
++	option enabled '0'
 -- 
 2.9.2
 
