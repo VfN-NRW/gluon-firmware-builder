@@ -142,7 +142,7 @@ for profile in $profiles; do
 	if [ "$noupload" -eq 0 ]; then
 		echo "  uploading images..."
 
-		( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$2/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$2/$version/ 2>&1 >/dev/null )
+		( ssh odin.vfn-nrw.de -p4337 "mkdir -p /srv/http/gluon/$profile/$updatepath/$version/" ) 2>&1 >/dev/null && ( scp -rP4337 output/images/* odin.vfn-nrw.de:/srv/http/gluon/$profile/$updatepath/$version/ 2>&1 >/dev/null )
 		echo "    images for $profile has been uploaded."
 	else
 		if [ "$dryrun" -eq 1 ]; then
