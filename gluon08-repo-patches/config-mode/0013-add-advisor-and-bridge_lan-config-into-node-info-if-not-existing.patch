@@ -21,6 +21,15 @@ index a70eb28..f62c42e 100755
 +  uci:save(config)
 +end
 +
++if not uci:get('gluon-node-info', 'bridge_lan') then
++  local config = {
++    enabled = 0,
++  }
+
++  uci:section('gluon-node-info', 'void', 'bridge_lan', config)
++  uci:save('gluon-node-info')
++end
++
 -- 
 2.5.5
 
