@@ -1,0 +1,23 @@
+From b4eda46253d20a89f6b79fd1b7f95c98e50b296c Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Tue, 2 Aug 2016 22:53:00 +0200
+Subject: [PATCH] add bridge_lan field
+
+---
+ package/gluon-node-info/files/etc/config/gluon-node-info | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/package/gluon-node-info/files/etc/config/gluon-node-info b/package/gluon-node-info/files/etc/config/gluon-node-info
+index a72b71f..806d57a 100644
+--- a/package/gluon-node-info/files/etc/config/gluon-node-info
++++ b/package/gluon-node-info/files/etc/config/gluon-node-info
+@@ -6,3 +6,6 @@ config owner
+ config advisor
+ 
+ config system
++
++config void 'bridge_lan'
++	option enabled '1'
+-- 
+2.9.2
+
