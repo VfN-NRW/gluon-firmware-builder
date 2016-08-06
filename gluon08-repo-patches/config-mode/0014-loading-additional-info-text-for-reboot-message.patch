@@ -1,0 +1,22 @@
+From 1848c47e077f3ba3773b68df4262d849d3ee0935 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sat, 6 Aug 2016 21:02:38 +0200
+Subject: [PATCH] loading additional info text for reboot message
+
+---
+ .../files/lib/gluon/config-mode/reboot/0901-msg-ad_info.lua            | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 package/gluon-config-mode-core/files/lib/gluon/config-mode/reboot/0901-msg-ad_info.lua
+
+diff --git a/package/gluon-config-mode-core/files/lib/gluon/config-mode/reboot/0901-msg-ad_info.lua b/package/gluon-config-mode-core/files/lib/gluon/config-mode/reboot/0901-msg-ad_info.lua
+new file mode 100644
+index 0000000..753b1a1
+--- /dev/null
++++ b/package/gluon-config-mode-core/files/lib/gluon/config-mode/reboot/0901-msg-ad_info.lua
+@@ -0,0 +1,3 @@
++local i18n = require 'luci.i18n'
++
++return function () luci.template.render_string(i18n.translate('gluon-config-mode:adinfo')) end
+-- 
+2.5.5
+
