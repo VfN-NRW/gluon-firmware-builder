@@ -18,9 +18,9 @@ if [ -z "$1" ]; then
 fi
 
 if [ "$1" == "stable" ]; then
-	updatepath='$2'
+	updatepath="$2"
 elif [ "$1" == "nightly" ] || [ "$1" == "alpha" ] || [ "$1" == "beta" ] || [ "$1" == "rc" ]; then
-	updatepath='unstable/$1'
+	updatepath="unstable/$1"
 else
 	echo "Second command-line parameter has to be stable, nightly, alpha, beta or rc"
 	exit 1
