@@ -1,5 +1,5 @@
 SITE_FEEDS="vfnnrw"
 
 VFNNRW_REPO='https://github.com/VfN-NRW/gluon-sites.git'
-VFNNRW_COMMIT=1f1f072cdecce115852bd5c58e8be292d95c401f
+VFNNRW_COMMIT=e5a140f1af7381c184db8a7c0249ba493851d897
 VFNNRW_BRANCH=master
