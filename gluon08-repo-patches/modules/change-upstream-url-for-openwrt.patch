@@ -1,0 +1,23 @@
+From 492d561908e39a629d5d12dadb0ab739b665d948 Mon Sep 17 00:00:00 2001
+From: "@RubenKelevra" <ruben@vfn-nrw.de>
+Date: Sun, 7 Aug 2016 22:29:53 +0200
+Subject: [PATCH] modules: change url from openwrt.org to github one
+
+---
+ modules | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules b/modules
+index 9e8a411..ed336d0 100644
+--- a/modules
++++ b/modules
+@@ -1,7 +1,8 @@
+ GLUON_FEEDS='openwrt gluon routing luci'
+ 
+-OPENWRT_REPO=git://git.openwrt.org/15.05/openwrt.git
++OPENWRT_REPO=git://github.com/openwrt/openwrt.git
+ OPENWRT_COMMIT=eadf19c0b43d2f75f196ea8d875a08c7c348530c
++OPENWRT_BRANCH=chaos_calmer
+ 
+ PACKAGES_OPENWRT_REPO=git://github.com/openwrt/packages.git
+ PACKAGES_OPENWRT_COMMIT=9622fe984bba3a4547f48bc507ebaba7637eb2b0
