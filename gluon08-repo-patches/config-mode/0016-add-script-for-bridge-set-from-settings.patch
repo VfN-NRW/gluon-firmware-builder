@@ -6,7 +6,7 @@ Subject: [PATCH] add script for bridge set from settings
 ---
  .../files/lib/gluon/upgrade/499-update-bridge-tag-setting         | 8 ++++++++
  1 file changed, 8 insertions(+)
- create mode 100644 package/gluon-node-info/files/lib/gluon/upgrade/499-update-bridge-tag-setting
+ create mode 100755 package/gluon-node-info/files/lib/gluon/upgrade/499-update-bridge-tag-setting
 
 diff --git a/package/gluon-node-info/files/lib/gluon/upgrade/499-update-bridge-tag-setting b/package/gluon-node-info/files/lib/gluon/upgrade/499-update-bridge-tag-setting
 new file mode 100644
