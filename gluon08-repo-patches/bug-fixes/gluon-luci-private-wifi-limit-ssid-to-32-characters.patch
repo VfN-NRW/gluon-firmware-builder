@@ -1,0 +1,22 @@
+From f83ca828cd518193de85656d84063be868f5a5a3 Mon Sep 17 00:00:00 2001
+From: kb-light <freifunk@kb-light.de>
+Date: Sun, 7 Aug 2016 14:24:19 +0200
+Subject: [PATCH] gluon-luci-private-wifi: limit ssid to 32 characters
+
+fixes #845
+---
+ .../luasrc/usr/lib/lua/luci/model/cbi/admin/privatewifi.lua              | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/gluon-luci-private-wifi/luasrc/usr/lib/lua/luci/model/cbi/admin/privatewifi.lua b/package/gluon-luci-private-wifi/luasrc/usr/lib/lua/luci/model/cbi/admin/privatewifi.lua
+index 0e04b67..f05eaa4 100644
+--- a/package/gluon-luci-private-wifi/luasrc/usr/lib/lua/luci/model/cbi/admin/privatewifi.lua
++++ b/package/gluon-luci-private-wifi/luasrc/usr/lib/lua/luci/model/cbi/admin/privatewifi.lua
+@@ -24,6 +24,7 @@ o.rmempty = false
+ 
+ o = s:option(Value, "ssid", translate("Name (SSID)"))
+ o:depends("enabled", '1')
++o.datatype = "maxlength(32)"
+ o.default = ssid
+ 
+ o = s:option(Value, "key", translate("Key"), translate("8-63 characters"))
