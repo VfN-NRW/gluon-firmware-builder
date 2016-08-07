@@ -13,12 +13,14 @@ new file mode 100755
 index 0000000..00c1343
 --- /dev/null
 +++ b/package/gluon-node-info/files/lib/gluon/upgrade/499-update-bridge-tag-setting
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,10 @@
 +#!/usr/bin/sh
 +
 +if [ $(uci get network.client.ifname | grep "$(lua -e 'print(require("gluon.sysconfig").lan_ifname)')" | wc -l) -gt 0 ]; then
 +    uci set gluon-node-info.bridge_lan.enabled='0' || true
++    uci set gluon-node-info.bridge_lan='void' || true
 +elif [ $(uci get network.wan.ifname | grep "$(lua -e 'print(require("gluon.sysconfig").lan_ifname)')" | wc -l) -gt 0 ]; then
++    uci set gluon-node-info.bridge_lan='void' || true
 +    uci set gluon-node-info.bridge_lan.enabled='1' || true
 +fi
 +
