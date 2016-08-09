@@ -1,0 +1,70 @@
+From 1dc334aa26572119c7eb829a03e1ba574deab868 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 20:20:09 +0200
+Subject: [PATCH] gluon-mesh-batman-adv-core: disable bridge port learning on bat0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The bridge fdb is kind of redundant to the batman-adv global translation
+table here. Therefore this patch tries to reduce memory footprint by
+following an approach similar to the IGMP/MLD split patchset approach:
+
+Make the bridge oblivious not only regarding multicast listeners towards
+the mesh but with this patch unicast hosts on the mesh, too.
+
+If the destination of an ethernet frame is known by the bridge to be a
+local one, then the frame is forwarded to the according port. If it is
+unknown, then the frame is forwarded to the wifi AP interface and bat0.
+
+mac80211 and batman-adv then know whether to drop or forward a frame
+further through their own book-keeping.
+
+Note that unicast-flood is not disabled for the wifi AP bridge port, nor
+is learning disabled on the wifi AP. This is mainly to keep the
+configuration in UCI and according setup scripts simple ;). However, not
+disalbling unicast-flood on the wifi AP interface might also give a
+minor latency improvement for newly joining wifi clients.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Portation to stable branch by RubenKelevra <ruben@vfn-nrw.de>
+---
+ .../lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh    | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+index 27b155f..3444a18 100755
+--- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
++++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+@@ -21,6 +21,7 @@ uci:section('batman-adv', 'mesh', 'bat0',
+ 		    gw_sel_class = gw_sel_class,
+ 		    hop_penalty = 15,
+ 		    multicast_mode = 1,
++                    learning = 0,
+ 	    }
+ )
+ uci:save('batman-adv')
+@@ -54,9 +55,20 @@ uci:section('network', 'interface', 'bat0',
+ 		    ifname = 'bat0',
+ 		    proto = 'none',
+ 		    macaddr = sysconfig.primary_mac,
++                    learning = 0,
+ 	    }
+ )
+ 
++uci:delete('network', 'client_lan')
++if sysconfig.lan_ifname then
++	uci:section('network', 'interface', 'client_lan',
++		    {
++			    unicast_flood = 0,
++		    }
++	)
++	uci:set('network', 'client_lan', 'ifname', sysconfig.lan_ifname)
++end
++
+ uci:save('network')
+ 
+ 
+-- 
+2.9.2
+
