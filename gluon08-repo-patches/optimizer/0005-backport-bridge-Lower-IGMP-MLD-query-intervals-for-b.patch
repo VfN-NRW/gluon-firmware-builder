@@ -1,0 +1,26 @@
+From 53fb520dda6012aa8ec0fbed2208281892007bd2 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:06:32 +0200
+Subject: [PATCH 2/7] backport: bridge: Lower IGMP/MLD query intervals for
+ br-client
+
+---
+ .../files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh         | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+index 0502f86..22c2a41 100755
+--- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
++++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+@@ -40,6 +40,8 @@ uci:set('network', 'client', 'proto', 'dhcpv6')
+ uci:set('network', 'client', 'reqprefix', 'no')
+ uci:set('network', 'client', 'igmp_snooping', 0)
+ uci:set('network', 'client', 'robustness', 3)
++uci:set('network', 'client', 'query_interval', 2000)
++uci:set('network', 'client', 'query_response_interval', 500)
+ 
+ if not site.ntp_servers then
+ 	uci:set('network', 'client', 'peerdns', 1)
+-- 
+2.9.2
+
