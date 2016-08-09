@@ -30,20 +30,12 @@ Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Portation to stable branch by RubenKelevra <ruben@vfn-nrw.de>
 ---
  .../lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh    | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ 1 file changed, 11 insertions(+)
 
 diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
 index 27b155f..3444a18 100755
 --- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
 +++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
-@@ -21,6 +21,7 @@ uci:section('batman-adv', 'mesh', 'bat0',
- 		    gw_sel_class = gw_sel_class,
- 		    hop_penalty = 15,
- 		    multicast_mode = 1,
-+                    learning = 0,
- 	    }
- )
- uci:save('batman-adv')
 @@ -54,9 +55,20 @@ uci:section('network', 'interface', 'bat0',
  		    ifname = 'bat0',
  		    proto = 'none',
