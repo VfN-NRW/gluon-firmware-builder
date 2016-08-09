@@ -1,0 +1,275 @@
+From 986ef9386a084f2e70abae6b2fd33a171edb61f6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Tue, 8 Mar 2016 08:10:20 +0100
+Subject: [PATCH 5/7] ebtables-segment-mld: Segment IGMP/MLD domain
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This patch adds a new gluon-ebtables package to filter IGMP/MLD messages
+via ebtables.
+
+For one thing this reduces multicast overhead: About one third of all
+ICMPv6 multicast traffic in Lübeck or Hamburg is MLD.
+
+Furthermore it removes a potential Distributed Denial-of-Service vector
+(see Gluon ticket #553).
+
+Finally, it is a prerequisite for enabling bridge multicast snooping in
+a decentral and robust fashion.
+
+Note that IGMP/MLD are filtered for multicast traffic coming from
+the mesh, too (new MULTICAST_IN), as unfortunately there seem to
+be other queriers somewhere in the mesh at least for Freifunk
+Lübeck. Also adding these rules to be prepared to anyone intentionally
+or unintentionally disabling these filters on his/her node.
+
+Node operators not running Gluon (for instance gateway nodes) should
+make sure to either enable multicast_router towards bat0 or disable
+multicast snooping entirely if they have a bridge on top of bat0.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ docs/package/gluon-ebtables-segment-mld.rst        | 16 +++++++
+ .../files/lib/gluon/ebtables/100-mcast-chain       |  1 -
+ .../lib/gluon/ebtables/110-mcast-allow-icmpv6      |  6 +--
+ .../files/lib/gluon/ebtables/300-mcast             |  2 -
+ .../files/lib/gluon/ebtables/355-mcast-drop        |  1 +
+ package/gluon-ebtables-segment-mld/Makefile        | 51 ++++++++++++++++++++++
+ .../files/lib/gluon/ebtables/100-mcast-in-chain    |  2 +
+ .../files/lib/gluon/ebtables/101-mcast-in-rule     |  2 +
+ .../files/lib/gluon/ebtables/105-mcast-drop-igmp   |  2 +
+ .../files/lib/gluon/ebtables/105-mcast-drop-mld    |  9 ++++
+ .../gluon-ebtables/files/etc/init.d/gluon-ebtables | 15 ++++---
+ .../files/lib/gluon/ebtables/100-dir-chain         |  3 ++
+ .../files/lib/gluon/ebtables/350-mcast-dir-rules   |  4 ++
+ 13 files changed, 102 insertions(+), 12 deletions(-)
+ create mode 100644 docs/package/gluon-ebtables-segment-mld.rst
+ delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
+ delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
+ create mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
+ create mode 100644 package/gluon-ebtables-segment-mld/Makefile
+ create mode 100644 package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/100-mcast-in-chain
+ create mode 100644 package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/101-mcast-in-rule
+ create mode 100644 package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-igmp
+ create mode 100644 package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-mld
+ create mode 100644 package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
+
+diff --git a/docs/package/gluon-ebtables-segment-mld.rst b/docs/package/gluon-ebtables-segment-mld.rst
+new file mode 100644
+index 0000000..7e197ec
+--- /dev/null
++++ b/docs/package/gluon-ebtables-segment-mld.rst
+@@ -0,0 +1,16 @@
++gluon-ebtables-segment-mld
++==========================
++
++These filters drop IGMP/MLD packets before they enter the mesh and
++filter any IGMP/MLD packets coming from the mesh.
++
++IGMP/MLD have the concept of a local, elected Querier. For more
++decentralization and increased robustness, the idea of this package is
++to split the IGMP/MLD domain a querier is responsible for, allowing to
++have a querier per node. The split IGMP/MLD domain will also reduce
++overhead for this packet type, increasing scalability.
++
++Beware of the consequences of using this package though: You might need
++to explicitly, manually mark ports on snooping switches leading towards
++your mesh node as multicast router ports for now (Multicast Router
++Discovery, MRD, not implemented yet).
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
+deleted file mode 100644
+index ec0013a..0000000
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
++++ /dev/null
+@@ -1 +0,0 @@
+-chain('MULTICAST_OUT', 'DROP')
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6 b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
+index cb35815..0058ed8 100644
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
+@@ -1,3 +1,3 @@
+-rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type echo-request -j DROP'
+-rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 139 -j DROP'
+-rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN'
++rule 'MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type echo-request -j RETURN'
++rule 'MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 139 -j RETURN' -- ICMP Node Information Query
++rule 'MULTICAST_OUT_ICMPV6 -j ACCEPT'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
+deleted file mode 100644
+index c52f122..0000000
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
++++ /dev/null
+@@ -1,2 +0,0 @@
+-rule 'FORWARD --logical-out br-client -o bat0 -d Multicast -j MULTICAST_OUT'
+-rule 'OUTPUT --logical-out br-client -o bat0 -d Multicast -j MULTICAST_OUT'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
+new file mode 100644
+index 0000000..46ac01a
+--- /dev/null
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
+@@ -0,0 +1 @@
++rule ('MULTICAST_OUT -j DROP')
+diff --git a/package/gluon-ebtables-segment-mld/Makefile b/package/gluon-ebtables-segment-mld/Makefile
+new file mode 100644
+index 0000000..e3aacde
+--- /dev/null
++++ b/package/gluon-ebtables-segment-mld/Makefile
+@@ -0,0 +1,51 @@
++include $(TOPDIR)/rules.mk
++
++PKG_NAME:=gluon-ebtables-segment-mld
++PKG_VERSION:=1
++PKG_RELEASE:=1
++
++PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
++
++include $(INCLUDE_DIR)/package.mk
++
++define Package/gluon-ebtables-segment-mld
++  SECTION:=gluon
++  CATEGORY:=Gluon
++  TITLE:=Ebtables filters for IGMP/MLD packets
++  DEPENDS:=+gluon-core +gluon-ebtables
++endef
++
++define Package/gluon-ebtables-segment-mld/description
++	Gluon community wifi mesh firmware framework: Ebtables filters for
++	IGMP/MLD packets
++
++	These filters drop IGMP/MLD packets before they enter the mesh and
++	filter any IGMP/MLD packets coming from the mesh.
++
++	IGMP/MLD have the concept of a local, elected Querier. For more
++	decentralization and increased robustness, the idea of this package is
++	to split the IGMP/MLD domain a querier is responsible for, allowing to
++	have a querier per node. The split IGMP/MLD domain will also reduce
++	overhead for this packet type, increasing scalability.
++
++	Beware of the consequences of using this package though: You might need
++	to explicitly, manually mark ports on snooping switches leading towards
++	your mesh node as multicast router ports for now (Multicast Router
++	Discovery, MRD, not implemented yet).
++endef
++
++define Build/Prepare
++	mkdir -p $(PKG_BUILD_DIR)
++endef
++
++define Build/Configure
++endef
++
++define Build/Compile
++endef
++
++define Package/gluon-ebtables-segment-mld/install
++	$(CP) ./files/* $(1)/
++endef
++
++$(eval $(call BuildPackage,gluon-ebtables-segment-mld))
+diff --git a/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/100-mcast-in-chain b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/100-mcast-in-chain
+new file mode 100644
+index 0000000..69d6bf1
+--- /dev/null
++++ b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/100-mcast-in-chain
+@@ -0,0 +1,2 @@
++chain('MULTICAST_IN', 'RETURN', 'nat')
++chain('MULTICAST_IN_ICMPV6', 'RETURN', 'nat')
+diff --git a/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/101-mcast-in-rule b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/101-mcast-in-rule
+new file mode 100644
+index 0000000..4eef2e7
+--- /dev/null
++++ b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/101-mcast-in-rule
+@@ -0,0 +1,2 @@
++rule ('PREROUTING -d Multicast --logical-in br-client -i bat0 -j MULTICAST_IN', 'nat')
++rule ('MULTICAST_IN -p IPv6 --ip6-protocol ipv6-icmp -j MULTICAST_IN_ICMPV6', 'nat')
+diff --git a/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-igmp b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-igmp
+new file mode 100644
+index 0000000..0805272
+--- /dev/null
++++ b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-igmp
+@@ -0,0 +1,2 @@
++rule('MULTICAST_OUT -p IPv4 --ip-protocol igmp -j DROP')
++rule('MULTICAST_IN -p IPv4 --ip-protocol igmp -j DROP', 'nat')
+diff --git a/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-mld b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-mld
+new file mode 100644
+index 0000000..b6090c2
+--- /dev/null
++++ b/package/gluon-ebtables-segment-mld/files/lib/gluon/ebtables/105-mcast-drop-mld
+@@ -0,0 +1,9 @@
++rule('MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 130 -j DROP') -- MLD Query
++rule('MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 131 -j DROP') -- MLDv1 Report
++rule('MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 132 -j DROP') -- MLDv1 Done
++rule('MULTICAST_OUT_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 143 -j DROP') -- MLDv2 Report
++
++rule('MULTICAST_IN_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 130 -j DROP', 'nat') -- MLD Query
++rule('MULTICAST_IN_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 131 -j DROP', 'nat') -- MLDv1 Report
++rule('MULTICAST_IN_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 132 -j DROP', 'nat') -- MLDv1 Done
++rule('MULTICAST_IN_ICMPV6 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 143 -j DROP', 'nat') -- MLDv2 Report
+diff --git a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+index 5a77045..e6bffe9 100755
+--- a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
++++ b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+@@ -24,12 +24,15 @@ exec_file() {
+ 	local file="$1"
+ 
+ 	/usr/bin/lua -e "
+-		function rule(command)
++		function rule(command, table)
++			table = table or 'filter'
+ 			os.execute($EBTABLES_RULE)
+ 		end
+-		function chain(name, policy)
++		function chain(name, policy, table)
++			table = table or 'filter'
+ 			os.execute($EBTABLES_CHAIN)
+ 		end
++
+ 	" "$file"
+ }
+ 
+@@ -48,8 +51,8 @@ exec_all() {
+ 
+ start() {
+ 	(
+-		export EBTABLES_RULE='"ebtables -A " .. command'
+-		export EBTABLES_CHAIN='"ebtables -N " .. name .. " -P " .. policy'
++		export EBTABLES_RULE='"ebtables -t " .. table .. " -A " .. command'
++		export EBTABLES_CHAIN='"ebtables -t " .. table .. "  -N " .. name .. " -P " .. policy'
+ 
+ 		if [ -z "$1" ]; then
+ 			exec_all ''
+@@ -61,8 +64,8 @@ start() {
+ 
+ stop() {
+ 	(
+-		export EBTABLES_RULE='"ebtables -D " .. command'
+-		export EBTABLES_CHAIN='"ebtables -X " .. name'
++		export EBTABLES_RULE='"ebtables -t " ..	table .. " -D " .. command'
++		export EBTABLES_CHAIN='"ebtables -t " .. table .. " -X " .. name'
+ 
+ 		if [ -z "$1" ]; then
+ 			exec_all '-r'
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+index 31c19c5..e6bf98e 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+@@ -1,2 +1,5 @@
+ chain('IN_ONLY', 'RETURN')
+ chain('OUT_ONLY', 'RETURN')
++
++chain('MULTICAST_OUT', 'RETURN')
++chain('MULTICAST_OUT_ICMPV6', 'RETURN')
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules b/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
+new file mode 100644
+index 0000000..0160906
+--- /dev/null
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
+@@ -0,0 +1,4 @@
++rule 'OUTPUT -d Multicast --logical-out br-client -o bat0 -j MULTICAST_OUT'
++rule 'FORWARD -d Multicast --logical-out br-client -o bat0 -j MULTICAST_OUT'
++
++rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j MULTICAST_OUT_ICMPV6'
+-- 
+2.9.2
+
