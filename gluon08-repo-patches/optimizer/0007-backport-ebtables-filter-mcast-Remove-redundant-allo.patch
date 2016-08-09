@@ -1,0 +1,35 @@
+From de8fe18bef068d15e5afaa2377f9e2c0c596a6dc Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:11:35 +0200
+Subject: [PATCH 4/7] backport: ebtables-filter-mcast: Remove redundant
+ allow-filter for hop-by-hop
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+ebtables actually skips any IPv6 extension headers like the hop-by-hop
+one. So this rule is actually void.
+
+The intend back then was to allow passing MLD messages into the mesh.
+Since extension headers are skipped, the general icmpv6 rule will
+actually match MLD messages. So the hop-by-hop rule is unnecessary,
+too.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ .../files/lib/gluon/ebtables/110-mcast-allow-icmpv6                     | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6 b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
+index 8d3b7ec..cb35815 100644
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-icmpv6
+@@ -1,5 +1,3 @@
+ rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type echo-request -j DROP'
+ rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 139 -j DROP'
+ rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN'
+-
+-rule 'MULTICAST_OUT -p IPv6 --ip6-protocol 0 -j RETURN' -- hop-by-hop
+-- 
+2.9.2
+
