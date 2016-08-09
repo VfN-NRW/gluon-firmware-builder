@@ -1,0 +1,25 @@
+From 55798d2d515995353520102144e642a9ddd853f2 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:05:27 +0200
+Subject: [PATCH 1/7] backport: bridge: Increase IGMP/MLD robustness parameter
+ to three for br-client
+
+---
+ .../files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh          | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+index 3444a18..0502f86 100755
+--- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
++++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+@@ -39,6 +39,7 @@ end
+ uci:set('network', 'client', 'proto', 'dhcpv6')
+ uci:set('network', 'client', 'reqprefix', 'no')
+ uci:set('network', 'client', 'igmp_snooping', 0)
++uci:set('network', 'client', 'robustness', 3)
+ 
+ if not site.ntp_servers then
+ 	uci:set('network', 'client', 'peerdns', 1)
+-- 
+2.9.2
+
