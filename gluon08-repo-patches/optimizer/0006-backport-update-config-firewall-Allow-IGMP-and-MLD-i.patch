@@ -1,0 +1,49 @@
+From 4755ff5d6ed02a87fbdaffa0002419d60ba5583a Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:09:34 +0200
+Subject: [PATCH 3/7] backport: update config: "firewall: Allow IGMP and MLD
+ input on WAN" (r45613)
+
+---
+ .../gluon-core/files/lib/gluon/upgrade/110-network | 26 ++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/110-network b/package/gluon-core/files/lib/gluon/upgrade/110-network
+index a201ae8..fc15b6d 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/110-network
++++ b/package/gluon-core/files/lib/gluon/upgrade/110-network
+@@ -55,5 +55,31 @@ uci:section('network', 'route6', 'wan6_unreachable',
+ uci:save('network')
+ 
+ 
++uci:section('firewall', 'rule', 'wan_igmp',
++	    {
++	       name = 'Allow-IGMP',
++	       src = 'wan',
++	       proto = 'igmp',
++	       family = 'ipv4',
++	       target = 'ACCEPT',
++	    }
++)
++
++uci:section('firewall', 'rule', 'wan_mld',
++	    {
++	       name = 'Allow-MLD',
++	       src = 'wan',
++	       proto = 'icmp',
++	       src_ip = 'fe80::/10',
++	       icmp_type = { '130/0', '131/0', '132/0', '143/0', },
++	       family = 'ipv6',
++	       target = 'ACCEPT',
++	    }
++)
++
++uci:save('firewall')
++uci:commit('firewall')
++
++
+ sysctl.set('net.ipv6.conf.all.accept_ra', 0)
+ sysctl.set('net.ipv6.conf.default.accept_ra', 0)
+-- 
+2.9.2
+
