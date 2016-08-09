@@ -1,0 +1,39 @@
+From 9e97214740a19ffd214e559d1e90a1a53d6a1e7d Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 20:49:41 +0200
+Subject: [PATCH] add flag option in uci to keep channel, otherwise use the
+ site.conf channel
+
+---
+ package/gluon-core/files/etc/config/gluon-core          | 1 +
+ package/gluon-core/files/lib/gluon/upgrade/200-wireless | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+ create mode 100644 package/gluon-core/files/etc/config/gluon-core
+
+diff --git a/package/gluon-core/files/etc/config/gluon-core b/package/gluon-core/files/etc/config/gluon-core
+new file mode 100644
+index 0000000..9787ccc
+--- /dev/null
++++ b/package/gluon-core/files/etc/config/gluon-core
+@@ -0,0 +1 @@
++config wireless
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/200-wireless b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+index 38b3602..15843ef 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/200-wireless
++++ b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+@@ -11,7 +11,11 @@ if not sysconfig.gluon_version then
+ end
+ 
+ local function get_channel(radio, config)
+-  return uci:get('wireless', radio, 'channel') or config.channel
++  if uci:get_first('gluon-core', 'wireless', 'preserve_channels') then
++    return uci:get('wireless', radio, 'channel') or config.channel
++  else
++    return config.channel
++  end
+ end
+ 
+ local function configure_radio(radio, index, config)
+-- 
+2.9.2
+
