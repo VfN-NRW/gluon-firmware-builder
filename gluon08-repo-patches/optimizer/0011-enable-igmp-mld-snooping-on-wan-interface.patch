@@ -1,0 +1,25 @@
+From 5d7cac5caa02219f0e7c1cf8bb314b0faaf4da1c Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:52:16 +0200
+Subject: [PATCH] enable igmp / mld snooping on wan-interface
+
+---
+ package/gluon-core/files/lib/gluon/upgrade/110-network | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/110-network b/package/gluon-core/files/lib/gluon/upgrade/110-network
+index fc15b6d..d887271 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/110-network
++++ b/package/gluon-core/files/lib/gluon/upgrade/110-network
+@@ -9,7 +9,7 @@ uci:section('network', 'interface', 'wan',
+ 	    {
+ 	      ifname = sysconfig.wan_ifname,
+ 	      type = 'bridge',
+-	      igmp_snooping = 0,
++	      igmp_snooping = 1,
+ 	      peerdns = 0,
+ 	      auto = 1,
+ 	    }
+-- 
+2.9.2
+
