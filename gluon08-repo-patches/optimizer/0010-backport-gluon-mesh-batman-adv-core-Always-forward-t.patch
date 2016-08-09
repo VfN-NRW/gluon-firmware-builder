@@ -1,0 +1,40 @@
+From c4c745a510e312df8f0ab0c0589939affa864798 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 9 Aug 2016 22:22:08 +0200
+Subject: [PATCH 7/7] backport: gluon-mesh-batman-adv-core: Always forward
+ towards mesh/batman-adv
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+An IGMP/MLD domain split will prevent us from being able to track
+multicast listeners on other nodes.
+
+Therefore we need to always hand any multicast packets we received from
+local clients to batman-adv. With bridge multicast snooping disabled,
+the current setting in Gluon, this is already the case.
+
+However, in preparation to enabling multicast snooping, we need to
+enforce forwarding towards batman-adv by setting the bridge port
+option multicast_router to 2.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ .../files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh          | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+index aa5a2c0..a7bcd65 100755
+--- a/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
++++ b/package/gluon-mesh-batman-adv-core/files/lib/gluon/upgrade/310-gluon-mesh-batman-adv-core-mesh
+@@ -58,6 +58,7 @@ uci:section('network', 'interface', 'bat0',
+ 		    ifname = 'bat0',
+ 		    proto = 'none',
+ 		    macaddr = sysconfig.primary_mac,
++                    multicast_router = 2,
+                     learning = 0,
+ 	    }
+ )
+-- 
+2.9.2
+
