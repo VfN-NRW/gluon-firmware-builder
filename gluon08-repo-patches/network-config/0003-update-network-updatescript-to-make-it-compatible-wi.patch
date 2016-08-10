@@ -1,0 +1,39 @@
+From 4bea63afba62c130a3ab8a03e402240f4b745685 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Wed, 10 Aug 2016 17:28:35 +0200
+Subject: [PATCH] update network updatescript to make it compatible with the
+ lan-wan-bridge feature
+
+---
+ package/gluon-core/files/lib/gluon/upgrade/110-network | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/110-network b/package/gluon-core/files/lib/gluon/upgrade/110-network
+index d887271..15f20d8 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/110-network
++++ b/package/gluon-core/files/lib/gluon/upgrade/110-network
+@@ -4,10 +4,8 @@ local uci = require('luci.model.uci').cursor()
+ local sysctl = require 'gluon.sysctl'
+ local sysconfig = require 'gluon.sysconfig'
+ 
+-
+ uci:section('network', 'interface', 'wan',
+ 	    {
+-	      ifname = sysconfig.wan_ifname,
+ 	      type = 'bridge',
+ 	      igmp_snooping = 1,
+ 	      peerdns = 0,
+@@ -15,6 +13,10 @@ uci:section('network', 'interface', 'wan',
+ 	    }
+ )
+ 
++if not uci:get('network', 'wan', 'ifname') then
++  uci:set('network', 'wan', 'ifname', sysconfig.wan_ifname)
++end
++
+ if not uci:get('network', 'wan', 'proto') then
+   uci:set('network', 'wan', 'proto', 'dhcp')
+ end
+-- 
+2.9.2
+
