@@ -21,7 +21,7 @@ index d887271..15f20d8 100755
  	    {
 -	      ifname = sysconfig.wan_ifname,
  	      type = 'bridge',
- 	      igmp_snooping = 1,
+ 	      igmp_snooping = 0,
  	      peerdns = 0,
 @@ -15,6 +13,10 @@ uci:section('network', 'interface', 'wan',
  	    }
