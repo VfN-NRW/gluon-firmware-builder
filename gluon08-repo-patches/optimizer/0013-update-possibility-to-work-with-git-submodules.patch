@@ -1,0 +1,20 @@
+From 13658879e5e4bd9622196af88cc3f0d7e092f6a4 Mon Sep 17 00:00:00 2001
+From: Johannes Rudolph <johannes.rudolph@gmx.com>
+Date: Sun, 6 Mar 2016 03:09:09 +0100
+Subject: [PATCH] git submodules
+
+Possibility to work with git submodules
+---
+ scripts/update.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/scripts/update.sh b/scripts/update.sh
+index 5f0e684..fa5f431 100755
+--- a/scripts/update.sh
++++ b/scripts/update.sh
+@@ -16,4 +16,5 @@ for module in $GLUON_MODULES; do
+ 
+ 	git checkout $commit 2>/dev/null || git fetch $repo $branch
+ 	git checkout -B base $commit
++	git submodule update --init --recursive
+ done

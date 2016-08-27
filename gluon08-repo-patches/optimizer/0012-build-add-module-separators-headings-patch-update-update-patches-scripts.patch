@@ -1,0 +1,54 @@
+From d5f5ce74e8a2f7645b72bdf55ce45b86756914d6 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sat, 26 Mar 2016 00:00:35 +0100
+Subject: [PATCH] build: add module separators/headings to
+ patch/update/update-patches scripts
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Suggested-by: Steffen Möller <steffen_moeller@gmx.de>
+---
+ scripts/patch.sh          | 2 ++
+ scripts/update-patches.sh | 2 ++
+ scripts/update.sh         | 1 +
+ 3 files changed, 5 insertions(+)
+
+diff --git a/scripts/patch.sh b/scripts/patch.sh
+index b89d6eb..6b0fa23 100755
+--- a/scripts/patch.sh
++++ b/scripts/patch.sh
+@@ -6,6 +6,8 @@ shopt -s nullglob
+ . "$GLUONDIR"/scripts/modules.sh
+ 
+ for module in $GLUON_MODULES; do
++	echo "--- Patching module '$module' ---"
++
+ 	cd "$GLUONDIR"/$module
+ 	git checkout -B patching base
+ 
+diff --git a/scripts/update-patches.sh b/scripts/update-patches.sh
+index 4c9eaa9..cfdeb58 100755
+--- a/scripts/update-patches.sh
++++ b/scripts/update-patches.sh
+@@ -6,6 +6,8 @@ shopt -s nullglob
+ . "$GLUONDIR"/scripts/modules.sh
+ 
+ for module in $GLUON_MODULES; do
++	echo "--- Updating patches for module '$module' ---"
++
+ 	rm -f "$GLUONDIR"/patches/$module/*.patch
+ 	mkdir -p "$GLUONDIR"/patches/$module
+ 
+diff --git a/scripts/update.sh b/scripts/update.sh
+index fa5f431..86c6962 100755
+--- a/scripts/update.sh
++++ b/scripts/update.sh
+@@ -5,6 +5,7 @@ set -e
+ . "$GLUONDIR"/scripts/modules.sh
+ 
+ for module in $GLUON_MODULES; do
++	echo "--- Updating module '$module' ---"
+ 	var=$(echo $module | tr '[:lower:]/' '[:upper:]_')
+ 	eval repo=\${${var}_REPO}
+ 	eval branch=\${${var}_BRANCH}

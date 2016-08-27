@@ -1,0 +1,76 @@
+From bb3db1795b158b1f628fdf855c468f80a9f7e99c Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Tue, 9 Aug 2016 02:50:57 +0200
+Subject: [PATCH] update/patch: avoid applying patches directly in build repos
+
+Switching branches and applying patches in the build repos will
+unnecessarily touch many files, causing rebuilds of packages that didn't
+really change; furthermore, it is filling the reflog with many entries.
+
+Don't ever switch to base branch in the build repos and apply patches in
+a temporary clone to avoid these issues.
+
+In addition, GPG signing is generally disabled in the build repos to
+override potential global configuration (as signing doesn't make sense and
+will slow down rebases).
+---
+ scripts/patch.sh  | 26 +++++++++++++++++---------
+ scripts/update.sh |  5 ++---
+ 2 files changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/scripts/patch.sh b/scripts/patch.sh
+index 90d2de7..2b0aa29 100755
+--- a/scripts/patch.sh
++++ b/scripts/patch.sh
+@@ -5,19 +5,27 @@ shopt -s nullglob
+ 
+ . "$GLUONDIR"/scripts/modules.sh
+ 
++TMPDIR="$GLUON_BUILDDIR"/tmp
++
++mkdir -p "$TMPDIR"
++
++PATCHDIR="$TMPDIR"/patching
++trap 'rm -rf "$PATCHDIR"' EXIT
++
+ for module in $GLUON_MODULES; do
+ 	echo "--- Patching module '$module' ---"
+ 
+-	cd "$GLUONDIR"/$module
+-	git checkout -B patching base
++	git clone -s -b base --single-branch "$GLUONDIR"/$module "$PATCHDIR" 2>/dev/null
+ 
++	cd "$PATCHDIR"
+ 	for patch in "$GLUONDIR"/patches/$module/*.patch; do
+-		if ! git -c user.name='Gluon Patch Manager' -c user.email='gluon@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patch"; then
+-			git am --abort
+-			git checkout patched
+-			git branch -D patching
+-			exit 1
+-		fi
++		git -c user.name='Gluon Patch Manager' -c user.email='gluon@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patch"
+ 	done
+-	git branch -M patched
++
++	cd "$GLUONDIR"/$module
++	git fetch "$PATCHDIR" 2>/dev/null
++	git checkout -B patched FETCH_HEAD
++	git submodule update --init --recursive
++
++	rm -rf "$PATCHDIR"
+ done
+diff --git a/scripts/update.sh b/scripts/update.sh
+index 86c6962..8aa9873 100755
+--- a/scripts/update.sh
++++ b/scripts/update.sh
+@@ -14,8 +14,7 @@ for module in $GLUON_MODULES; do
+ 	mkdir -p "$GLUONDIR"/$module
+ 	cd "$GLUONDIR"/$module
+ 	git init
++	git config commit.gpgsign false
+ 
+-	git checkout $commit 2>/dev/null || git fetch $repo $branch
+-	git checkout -B base $commit
+-	git submodule update --init --recursive
++	git branch -f base $commit 2>/dev/null || git fetch -f $repo $branch:base
+ done
