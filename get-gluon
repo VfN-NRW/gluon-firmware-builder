@@ -41,6 +41,6 @@ eval commit=\${${var}_COMMIT}
 mkdir -p "$GluonRelease"
 cd "$GluonRelease"
 git init >/dev/null 2>&1
+git config commit.gpgsign false
 
-git checkout $commit 2>&1 >/dev/null || git fetch $repo $branch 2>&1 >/dev/null
-git checkout -B base $commit 2>&1 >/dev/null
+git branch -f base $commit 2>/dev/null || git fetch -f $repo $branch:base
