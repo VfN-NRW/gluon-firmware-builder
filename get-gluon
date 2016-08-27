@@ -43,7 +43,4 @@ cd "$GluonRelease"
 git init >/dev/null 2>&1
 git config commit.gpgsign false
 
-if ! git branch -f base $commit 2>&1 >/dev/null; then
-	git fetch $repo $branch 2>&1 >/dev/null
-	git branch -f base $commit 2>&1 >/dev/null
-fi
+git branch -f base $commit 2>/dev/null || git fetch -f $repo $branch:base
