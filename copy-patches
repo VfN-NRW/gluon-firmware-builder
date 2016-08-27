@@ -36,16 +36,15 @@ fi
 
 echo "resetting patches folder..."
 old_dir="$(pwd)"
-rm -fR "${GluonRelease}/patches/"
 cd "${GluonRelease}"
 git checkout patches || printf 'WARN: No patches folder in gluon-repo.\n' >&2 && true
 cd "$old_dir"
 
-mkdir -p "${GluonRelease}/patches/"
 if ! [ -d "$GluonRelease-patches" ]; then
-printf 'WARN: No patches found.\n' >&2
-exit 0
+	printf 'WARN: No patches found.\n' >&2
+	exit 0
 fi
+echo "copy patches folder..."
 cp -r $GluonRelease-patches/* $GluonRelease/patches/ > /dev/null 2>&1 || printf 'WARN: No patches found.\n' >&2 && exit 0
 
 

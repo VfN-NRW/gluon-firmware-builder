@@ -81,8 +81,8 @@ if [ ! -d "$GluonRelease" ]; then
 	exit 1
 fi
 
-./copy-patches $GluonRelease
 ./apply-patchsets $GluonRelease
+./copy-patches $GluonRelease
 
 cd $DIR
 
