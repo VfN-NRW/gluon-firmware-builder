@@ -1,0 +1,566 @@
+From 61cde569ad5a49ceb5eb55871adbdc1964f90374 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Mon, 22 Aug 2016 18:08:08 +0200
+Subject: [PATCH] ar71xx: backport fixes for better CPE210/510 support (again)
+
+This patchset enables the RX LNA for the CPE210/510, improving RX by about
+20dB. The profiles for CPE210 and CPE510 is split into two images.
+
+The problematic patch switching the CPE510 to the secondary ART is left
+out.
+---
+ ...-cpe510-enable-LNA-for-CPE210-220-510-520.patch |  35 ++++
+ ...profile-into-2-profiles-cpe210-and-cpe510.patch | 169 ++++++++++++++++++
+ ...safeloader.c-Add-support-for-Archer-C2600.patch | 188 +++++++++++++++++++++
+ ...feloader-split-CPE210-from-CPE510-profile.patch | 102 +++++++++++
+ targets/ar71xx-generic/profiles.mk                 |  13 +-
+ 5 files changed, 501 insertions(+), 6 deletions(-)
+ create mode 100644 patches/openwrt/0115-ar71xx-cpe510-enable-LNA-for-CPE210-220-510-520.patch
+ create mode 100644 patches/openwrt/0116-ar71xx-cpe510-split-profile-into-2-profiles-cpe210-and-cpe510.patch
+ create mode 100644 patches/openwrt/0117-fw-utils-tplink-safeloader.c-Add-support-for-Archer-C2600.patch
+ create mode 100644 patches/openwrt/0118-tools-tplink-safeloader-split-CPE210-from-CPE510-profile.patch
+
+diff --git a/patches/openwrt/0115-ar71xx-cpe510-enable-LNA-for-CPE210-220-510-520.patch b/patches/openwrt/0115-ar71xx-cpe510-enable-LNA-for-CPE210-220-510-520.patch
+new file mode 100644
+index 0000000..c5c278b
+--- /dev/null
++++ b/patches/openwrt/0115-ar71xx-cpe510-enable-LNA-for-CPE210-220-510-520.patch
+@@ -0,0 +1,35 @@
++From: Matthias Schiffer <mschiffer@universe-factory.net>
++Date: Thu, 9 Jun 2016 04:39:08 +0200
++Subject: ar71xx/cpe510: enable LNA for CPE210/220/510/520
++
++The LNA improves the rx path. Within a simple test setup
++it improved the signal from -60dbm to -40dbm.
++
++Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
++
++Backport of LEDE 94e23bf7409d6cc4c9efb55ed32aba8e5a497966
++
++diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
++index 8bf5c0f..5cb052a 100644
++--- a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
+++++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
++@@ -30,6 +30,9 @@
++ #define CPE510_GPIO_LED_L3	15
++ #define CPE510_GPIO_LED_L4	16
++ 
+++#define CPE510_GPIO_EXTERNAL_LNA0	18
+++#define CPE510_GPIO_EXTERNAL_LNA1	19
+++
++ #define CPE510_GPIO_BTN_RESET	4
++ 
++ #define CPE510_KEYS_POLL_INTERVAL	20 /* msecs */
++@@ -93,6 +96,9 @@ static void __init cpe510_setup(void)
++ 					ARRAY_SIZE(cpe510_gpio_keys),
++ 					cpe510_gpio_keys);
++ 
+++	ath79_wmac_set_ext_lna_gpio(0, CPE510_GPIO_EXTERNAL_LNA0);
+++	ath79_wmac_set_ext_lna_gpio(1, CPE510_GPIO_EXTERNAL_LNA1);
+++
++ 	ath79_register_m25p80(NULL);
++ 
++ 	ath79_register_mdio(1, 0);
+diff --git a/patches/openwrt/0116-ar71xx-cpe510-split-profile-into-2-profiles-cpe210-and-cpe510.patch b/patches/openwrt/0116-ar71xx-cpe510-split-profile-into-2-profiles-cpe210-and-cpe510.patch
+new file mode 100644
+index 0000000..eeaad63
+--- /dev/null
++++ b/patches/openwrt/0116-ar71xx-cpe510-split-profile-into-2-profiles-cpe210-and-cpe510.patch
+@@ -0,0 +1,169 @@
++From: Matthias Schiffer <mschiffer@universe-factory.net>
++Date: Thu, 9 Jun 2016 04:55:37 +0200
++Subject: ar71xx/cpe510: split profile into 2 profiles cpe210 and cpe510
++
++Split profile into 2GHz and 5GHz. The 5GHz devices are
++quite "special". The 2 GHz works perfect.
++
++Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
++
++Backport of LEDE c5ff273d85f69981e5b126eeaed3dee5b4061fb4
++
++diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_gpio-switches b/target/linux/ar71xx/base-files/etc/uci-defaults/01_gpio-switches
++index b41f275..0f7a415 100644
++--- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_gpio-switches
+++++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_gpio-switches
++@@ -15,6 +15,7 @@ nanostation-m)
++ nanostation-m-xw)
++ 	ucidef_set_gpio_switch "poe_passthrough" "PoE Passthrough" "2"
++ 	;;
+++cpe210|\
++ cpe510)
++ 	ucidef_set_gpio_switch "poe_passthrough" "PoE Passthrough" "20"
++ 	;;
++diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
++index 7c18346..0056520 100644
++--- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
+++++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
++@@ -78,6 +78,7 @@ carambola2)
++ 	ucidef_set_led_wlan "wlan" "WLAN" "carambola2:green:wlan" "phy0tpt"
++ 	;;
++ 
+++cpe210|\
++ cpe510)
++ 	ucidef_set_led_switch "lan0" "LAN0" "tp-link:green:lan0" "switch0" "0x20"
++ 	ucidef_set_led_switch "lan1" "LAN1" "tp-link:green:lan1" "switch0" "0x10"
++diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
++index d5603d7..dd6ca98 100755
++--- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
+++++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
++@@ -71,6 +71,7 @@ bsb)
++ 	ucidef_set_interface_wlan
++ 	;;
++ 
+++cpe210|\
++ cpe510)
++ 	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
++ 	ucidef_add_switch "switch0" "1" "1"
++diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
++index 480cf93..47ddd56 100755
++--- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
+++++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
++@@ -447,7 +447,11 @@ ar71xx_board_detect() {
++ 	*CAP4200AG)
++ 		name="cap4200ag"
++ 		;;
++-	*"CPE210/220/510/520")
+++	*"CPE210/220")
+++		name="cpe210"
+++		tplink_pharos_board_detect
+++		;;
+++	*"CPE510/520")
++ 		name="cpe510"
++ 		tplink_pharos_board_detect
++ 		;;
++diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
++index f50cd53..8594de6 100755
++--- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
+++++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
++@@ -264,6 +264,7 @@ platform_check_image() {
++ 		return 0
++ 		;;
++ 
+++	cpe210|\
++ 	cpe510)
++ 		tplink_pharos_check_image "$1" && return 0
++ 		return 1
++diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
++index 5cb052a..74daf43 100644
++--- a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
+++++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
++@@ -78,12 +78,8 @@ static struct gpio_keys_button cpe510_gpio_keys[] __initdata = {
++ 	}
++ };
++ 
++-
++-static void __init cpe510_setup(void)
+++static void __init cpe_setup(u8 *mac)
++ {
++-	u8 *mac = (u8 *) KSEG1ADDR(0x1f830008);
++-	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
++-
++ 	/* Disable JTAG, enabling GPIOs 0-3 */
++ 	/* Configure OBS4 line, for GPIO 4*/
++ 	ath79_gpio_function_setup(AR934X_GPIO_FUNC_JTAG_DISABLE,
++@@ -105,9 +101,31 @@ static void __init cpe510_setup(void)
++ 	ath79_init_mac(ath79_eth1_data.mac_addr, mac, 0);
++ 	ath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_GMII;
++ 	ath79_register_eth(1);
+++}
+++
+++
+++static void __init cpe210_setup(void)
+++{
+++	u8 *mac = (u8 *) KSEG1ADDR(0x1f830008);
+++	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
+++
+++	cpe_setup(mac);
++ 
++ 	ath79_register_wmac(ee, mac);
++ }
++ 
++-MIPS_MACHINE(ATH79_MACH_CPE510, "CPE510", "TP-LINK CPE210/220/510/520",
+++static void __init cpe510_setup(void)
+++{
+++	u8 *mac = (u8 *) KSEG1ADDR(0x1f830008);
+++	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
+++
+++	cpe_setup(mac);
+++
+++	ath79_register_wmac(ee, mac);
+++}
+++
+++MIPS_MACHINE(ATH79_MACH_CPE210, "CPE210", "TP-LINK CPE210/220",
+++	     cpe210_setup);
+++
+++MIPS_MACHINE(ATH79_MACH_CPE510, "CPE510", "TP-LINK CPE510/520",
++ 	     cpe510_setup);
++diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
++index f99ea2b..33a2da5 100644
++--- a/target/linux/ar71xx/image/Makefile
+++++ b/target/linux/ar71xx/image/Makefile
++@@ -2109,7 +2109,8 @@ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V2,tl-wr1043nd-v2,TL-WR10
++ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V3,tl-wr1043nd-v3,TL-WR1043ND-v2,ttyS0,115200,0x10430003,1,8M))
++ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR2543,tl-wr2543-v1,TL-WR2543N,ttyS0,115200,0x25430001,1,8Mlzma,-v 3.13.99))
++ 
++-$(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE510,cpe210-220-510-520,CPE510,ttyS0,115200,$$(cpe510_mtdlayout),CPE510))
+++$(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE210_220,cpe210-220,CPE210,ttyS0,115200,$$(cpe510_mtdlayout),CPE510))
+++$(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE510_520,cpe510-520,CPE510,ttyS0,115200,$$(cpe510_mtdlayout),CPE510))
++ 
++ $(eval $(call SingleProfile,UAPPRO,64k,UAPPRO,ubnt-uap-pro,UAP-PRO,ttyS0,115200,BZ,BZ,ar934x))
++ $(eval $(call SingleProfile,UAPPRO,64k,UBNTUNIFIOUTDOORPLUS,ubnt-unifi-outdoor-plus,UBNT-UOP,ttyS0,115200,BZ,BZ,ar7240))
++@@ -2173,6 +2174,7 @@ $(eval $(call MultiProfile,TLWR842,TLWR842V1))
++ $(eval $(call MultiProfile,TLWR941,TLWR941NV2 TLWR941NV3 TLWR941NV4))
++ $(eval $(call MultiProfile,TLWR1043,TLWR1043V1 TLWR1043V2 TLWR1043V3))
++ $(eval $(call MultiProfile,TLWDR4300,TLWDR3500V1 TLWDR3600V1 TLWDR4300V1 TLWDR4300V1IL TLWDR4310V1 MW4530RV1))
+++$(eval $(call MultiProfile,CPE510,CPE210_220 CPE510_520))
++ $(eval $(call MultiProfile,TUBE2H,TUBE2H8M TUBE2H16M))
++ $(eval $(call MultiProfile,UBNT,UBNTAIRROUTER UBNTRS UBNTRSPRO UBNTLSSR71 UBNTBULLETM UBNTROCKETM UBNTROCKETMXW UBNTNANOM UBNTNANOMXW UBNTLOCOXW UBNTUNIFI UBNTUNIFIOUTDOOR UBNTUNIFIOUTDOORPLUS UAPPRO UBNTAIRGW))
++ $(eval $(call MultiProfile,WNR612V2,REALWNR612V2 N150R))
++diff --git a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
++index d4b417b..c83ac2e 100644
++--- a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
+++++ b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
++@@ -1,6 +1,6 @@
++ --- a/arch/mips/ath79/machtypes.h
++ +++ b/arch/mips/ath79/machtypes.h
++-@@ -16,22 +16,203 @@
+++@@ -16,22 +16,204 @@
++  
++  enum ath79_mach_type {
++  	ATH79_MACH_GENERIC = 0,
++@@ -26,6 +26,7 @@
++ +	ATH79_MACH_BHU_BXU2000N2_A1,	/* BHU BXU2000n-2 A1 */
++ +	ATH79_MACH_CAP4200AG,		/* Senao CAP4200AG */
++ +	ATH79_MACH_CARAMBOLA2,		/* 8devices Carambola2 */
++++	ATH79_MACH_CPE210,		/* TP-LINK CPE210 */
++ +	ATH79_MACH_CPE510,		/* TP-LINK CPE510 */
++  	ATH79_MACH_DB120,		/* Atheros DB120 reference board */
++  	ATH79_MACH_PB44,		/* Atheros PB44 reference board */
+diff --git a/patches/openwrt/0117-fw-utils-tplink-safeloader.c-Add-support-for-Archer-C2600.patch b/patches/openwrt/0117-fw-utils-tplink-safeloader.c-Add-support-for-Archer-C2600.patch
+new file mode 100644
+index 0000000..0c33a4d
+--- /dev/null
++++ b/patches/openwrt/0117-fw-utils-tplink-safeloader.c-Add-support-for-Archer-C2600.patch
+@@ -0,0 +1,188 @@
++From: Matthias Schiffer <mschiffer@universe-factory.net>
++Date: Thu, 9 Jun 2016 05:02:18 +0200
++Subject: fw-utils/tplink-safeloader.c: Add support for Archer C2600
++
++Signed-off-by: Ash Benz <ash.benz@bk.ru>
++
++Backport of LEDE 955c341d3bec0eb4971a03924e99156367255d7b
++
++diff --git a/tools/firmware-utils/src/tplink-safeloader.c b/tools/firmware-utils/src/tplink-safeloader.c
++index 77a894b..2e204aa 100644
++--- a/tools/firmware-utils/src/tplink-safeloader.c
+++++ b/tools/firmware-utils/src/tplink-safeloader.c
++@@ -105,6 +105,8 @@ static const uint8_t md5_salt[16] = {
++ /** Vendor information for CPE210/220/510/520 */
++ static const char cpe510_vendor[] = "CPE510(TP-LINK|UN|N300-5):1.0\r\n";
++ 
+++/** Vendor information for C2600 */
+++static const char c2600_vendor[] = "";
++ 
++ /**
++     The flash partition table for CPE210/220/510/520;
++@@ -128,6 +130,39 @@ static const struct flash_partition_entry cpe510_partitions[] = {
++ };
++ 
++ /**
+++    The flash partition table for C2600;
+++    it is the same as the one used by the stock images.
+++*/
+++static const struct flash_partition_entry c2600_partitions[] = {
+++        {"SBL1", 0x00000, 0x20000},
+++        {"MIBIB", 0x20000, 0x20000},
+++        {"SBL2", 0x40000, 0x20000},
+++        {"SBL3", 0x60000, 0x30000},
+++        {"DDRCONFIG", 0x90000, 0x10000},
+++        {"SSD", 0xa0000, 0x10000},
+++        {"TZ", 0xb0000, 0x30000},
+++        {"RPM", 0xe0000, 0x20000},
+++        {"fs-uboot", 0x100000, 0x70000},
+++        {"uboot-env", 0x170000, 0x40000},
+++        {"radio", 0x1b0000, 0x40000},
+++        {"os-image", 0x1f0000, 0x200000},
+++        {"file-system", 0x3f0000, 0x1b00000},
+++        {"default-mac", 0x1ef0000, 0x00200},
+++        {"pin", 0x1ef0200, 0x00200},
+++        {"product-info", 0x1ef0400, 0x0fc00},
+++        {"partition-table", 0x1f00000, 0x10000},
+++        {"soft-version", 0x1f10000, 0x10000},
+++        {"support-list", 0x1f20000, 0x10000},
+++        {"profile", 0x1f30000, 0x10000},
+++        {"default-config", 0x1f40000, 0x10000},
+++        {"user-config", 0x1f50000, 0x40000},
+++        {"qos-db", 0x1f90000, 0x40000},
+++        {"usb-config", 0x1fd0000, 0x10000},
+++        {"log", 0x1fe0000, 0x20000},
+++	{NULL, 0, 0}
+++};
+++
+++/**
++    The support list for CPE210/220/510/520
++ */
++ static const char cpe510_support_list[] =
++@@ -141,6 +176,13 @@ static const char cpe510_support_list[] =
++ 	"CPE220(TP-LINK|UN|N300-2):1.0\r\n"
++ 	"CPE220(TP-LINK|UN|N300-2):1.1\r\n";
++ 
+++/**
+++   The support list for C2600
+++*/
+++static const char c2600_support_list[] =
+++	"SupportList:\r\n"
+++	"{product_name:Archer C2600,product_ver:1.0.0,special_id:00000000}\r\n";
+++
++ #define error(_ret, _errno, _str, ...)				\
++ 	do {							\
++ 		fprintf(stderr, _str ": %s\n", ## __VA_ARGS__,	\
++@@ -240,14 +282,14 @@ static struct image_partition_entry make_soft_version(uint32_t rev) {
++ }
++ 
++ /** Generates the support-list partition */
++-static struct image_partition_entry make_support_list(const char *support_list) {
+++static struct image_partition_entry make_support_list(const char *support_list, bool trailzero) {
++ 	size_t len = strlen(support_list);
++ 	struct image_partition_entry entry = alloc_image_partition("support-list", len + 9);
++ 
++ 	put32(entry.data, len);
++ 	memset(entry.data+4, 0, 4);
++ 	memcpy(entry.data+8, support_list, len);
++-	entry.data[len+8] = '\xff';
+++	entry.data[len+8] = trailzero ? '\x00' : '\xff';
++ 
++ 	return entry;
++ }
++@@ -436,6 +478,37 @@ static void * generate_sysupgrade_image(const struct flash_partition_entry *flas
++ 	return image;
++ }
++ 
+++static void * generate_sysupgrade_image_c2600(const struct flash_partition_entry *flash_parts, const struct image_partition_entry *image_parts, size_t *len) {
+++	const struct flash_partition_entry *flash_os_image = &flash_parts[11];
+++	const struct flash_partition_entry *flash_file_system = &flash_parts[12];
+++
+++	const struct image_partition_entry *image_os_image = &image_parts[3];
+++	const struct image_partition_entry *image_file_system = &image_parts[4];
+++
+++	assert(strcmp(flash_os_image->name, "os-image") == 0);
+++	assert(strcmp(flash_file_system->name, "file-system") == 0);
+++
+++	assert(strcmp(image_os_image->name, "os-image") == 0);
+++	assert(strcmp(image_file_system->name, "file-system") == 0);
+++
+++	if (image_os_image->size > flash_os_image->size)
+++		error(1, 0, "kernel image too big (more than %u bytes)", (unsigned)flash_os_image->size);
+++	if (image_file_system->size > flash_file_system->size)
+++		error(1, 0, "rootfs image too big (more than %u bytes)", (unsigned)flash_file_system->size);
+++
+++	*len = flash_file_system->base - flash_os_image->base + image_file_system->size;
+++
+++	uint8_t *image = malloc(*len);
+++	if (!image)
+++		error(1, errno, "malloc");
+++
+++	memset(image, 0xff, *len);
+++
+++	memcpy(image, image_os_image->data, image_os_image->size);
+++	memcpy(image + flash_file_system->base - flash_os_image->base, image_file_system->data, image_file_system->size);
+++
+++	return image;
+++}
++ 
++ /** Generates an image for CPE210/220/510/520 and writes it to a file */
++ static void do_cpe510(const char *output, const char *kernel_image, const char *rootfs_image, uint32_t rev, bool add_jffs2_eof, bool sysupgrade) {
++@@ -443,7 +516,7 @@ static void do_cpe510(const char *output, const char *kernel_image, const char *
++ 
++ 	parts[0] = make_partition_table(cpe510_partitions);
++ 	parts[1] = make_soft_version(rev);
++-	parts[2] = make_support_list(cpe510_support_list);
+++	parts[2] = make_support_list(cpe510_support_list,false);
++ 	parts[3] = read_file("os-image", kernel_image, false);
++ 	parts[4] = read_file("file-system", rootfs_image, add_jffs2_eof);
++ 
++@@ -470,6 +543,39 @@ static void do_cpe510(const char *output, const char *kernel_image, const char *
++ 		free_image_partition(parts[i]);
++ }
++ 
+++/** Generates an image for C2600 and writes it to a file */
+++static void do_c2600(const char *output, const char *kernel_image, const char *rootfs_image, uint32_t rev, bool add_jffs2_eof, bool sysupgrade) {
+++	struct image_partition_entry parts[6] = {};
+++
+++	parts[0] = make_partition_table(c2600_partitions);
+++	parts[1] = make_soft_version(rev);
+++	parts[2] = make_support_list(c2600_support_list,true);
+++	parts[3] = read_file("os-image", kernel_image, false);
+++	parts[4] = read_file("file-system", rootfs_image, add_jffs2_eof);
+++
+++	size_t len;
+++	void *image;
+++	if (sysupgrade)
+++		image = generate_sysupgrade_image_c2600(c2600_partitions, parts, &len);
+++	else
+++		image = generate_factory_image(c2600_vendor, parts, &len);
+++
+++	FILE *file = fopen(output, "wb");
+++	if (!file)
+++		error(1, errno, "unable to open output file");
+++
+++	if (fwrite(image, len, 1, file) != 1)
+++		error(1, 0, "unable to write output file");
+++
+++	fclose(file);
+++
+++	free(image);
+++
+++	size_t i;
+++	for (i = 0; parts[i].name; i++)
+++		free_image_partition(parts[i]);
+++}
+++
++ 
++ /** Usage output */
++ static void usage(const char *argv0) {
++@@ -552,6 +658,8 @@ int main(int argc, char *argv[]) {
++ 
++ 	if (strcmp(board, "CPE510") == 0)
++ 		do_cpe510(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade);
+++	else if (strcmp(board, "C2600") == 0)
+++		do_c2600(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade);
++ 	else
++ 		error(1, 0, "unsupported board %s", board);
++ 
+diff --git a/patches/openwrt/0118-tools-tplink-safeloader-split-CPE210-from-CPE510-profile.patch b/patches/openwrt/0118-tools-tplink-safeloader-split-CPE210-from-CPE510-profile.patch
+new file mode 100644
+index 0000000..6fb38a9
+--- /dev/null
++++ b/patches/openwrt/0118-tools-tplink-safeloader-split-CPE210-from-CPE510-profile.patch
+@@ -0,0 +1,102 @@
++From: Matthias Schiffer <mschiffer@universe-factory.net>
++Date: Thu, 9 Jun 2016 05:03:35 +0200
++Subject: tools/tplink-safeloader: split CPE210 from CPE510 profile
++
++The CPE210 was still described for the OEM upgrade as compatible,
++even the wireless configuration isn't compatible anymore between
++both series (2ghz and 5ghz).
++Update the CPE210 image profile to use the new profile.
++
++Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
++
++Backport of LEDE 824147960569f2c1cd22140c9074c62c3df911a5
++
++diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
++index 33a2da5..b288a1d 100644
++--- a/target/linux/ar71xx/image/Makefile
+++++ b/target/linux/ar71xx/image/Makefile
++@@ -2109,7 +2109,7 @@ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V2,tl-wr1043nd-v2,TL-WR10
++ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V3,tl-wr1043nd-v3,TL-WR1043ND-v2,ttyS0,115200,0x10430003,1,8M))
++ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR2543,tl-wr2543-v1,TL-WR2543N,ttyS0,115200,0x25430001,1,8Mlzma,-v 3.13.99))
++ 
++-$(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE210_220,cpe210-220,CPE210,ttyS0,115200,$$(cpe510_mtdlayout),CPE510))
+++$(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE210_220,cpe210-220,CPE210,ttyS0,115200,$$(cpe510_mtdlayout),CPE210))
++ $(eval $(call SingleProfile,TPLINK-SAFELOADER,64kraw,CPE510_520,cpe510-520,CPE510,ttyS0,115200,$$(cpe510_mtdlayout),CPE510))
++ 
++ $(eval $(call SingleProfile,UAPPRO,64k,UAPPRO,ubnt-uap-pro,UAP-PRO,ttyS0,115200,BZ,BZ,ar934x))
++diff --git a/tools/firmware-utils/src/tplink-safeloader.c b/tools/firmware-utils/src/tplink-safeloader.c
++index 2e204aa..4938f74 100644
++--- a/tools/firmware-utils/src/tplink-safeloader.c
+++++ b/tools/firmware-utils/src/tplink-safeloader.c
++@@ -163,6 +163,15 @@ static const struct flash_partition_entry c2600_partitions[] = {
++ };
++ 
++ /**
+++   The support list for CPE210/220
+++*/
+++static const char cpe210_support_list[] =
+++	"SupportList:\r\n"
+++	"CPE210(TP-LINK|UN|N300-2):1.0\r\n"
+++	"CPE210(TP-LINK|UN|N300-2):1.1\r\n"
+++	"CPE220(TP-LINK|UN|N300-2):1.0\r\n"
+++	"CPE220(TP-LINK|UN|N300-2):1.1\r\n";
+++/**
++    The support list for CPE210/220/510/520
++ */
++ static const char cpe510_support_list[] =
++@@ -170,11 +179,7 @@ static const char cpe510_support_list[] =
++ 	"CPE510(TP-LINK|UN|N300-5):1.0\r\n"
++ 	"CPE510(TP-LINK|UN|N300-5):1.1\r\n"
++ 	"CPE520(TP-LINK|UN|N300-5):1.0\r\n"
++-	"CPE520(TP-LINK|UN|N300-5):1.1\r\n"
++-	"CPE210(TP-LINK|UN|N300-2):1.0\r\n"
++-	"CPE210(TP-LINK|UN|N300-2):1.1\r\n"
++-	"CPE220(TP-LINK|UN|N300-2):1.0\r\n"
++-	"CPE220(TP-LINK|UN|N300-2):1.1\r\n";
+++	"CPE520(TP-LINK|UN|N300-5):1.1\r\n";
++ 
++ /**
++    The support list for C2600
++@@ -511,12 +516,18 @@ static void * generate_sysupgrade_image_c2600(const struct flash_partition_entry
++ }
++ 
++ /** Generates an image for CPE210/220/510/520 and writes it to a file */
++-static void do_cpe510(const char *output, const char *kernel_image, const char *rootfs_image, uint32_t rev, bool add_jffs2_eof, bool sysupgrade) {
+++static void do_cpe(const char *output,
+++		const char *kernel_image,
+++		const char *rootfs_image,
+++		uint32_t rev,
+++		bool add_jffs2_eof,
+++		bool sysupgrade,
+++		const char *support_list) {
++ 	struct image_partition_entry parts[6] = {};
++ 
++ 	parts[0] = make_partition_table(cpe510_partitions);
++ 	parts[1] = make_soft_version(rev);
++-	parts[2] = make_support_list(cpe510_support_list,false);
+++	parts[2] = make_support_list(support_list, false);
++ 	parts[3] = read_file("os-image", kernel_image, false);
++ 	parts[4] = read_file("file-system", rootfs_image, add_jffs2_eof);
++ 
++@@ -549,7 +560,7 @@ static void do_c2600(const char *output, const char *kernel_image, const char *r
++ 
++ 	parts[0] = make_partition_table(c2600_partitions);
++ 	parts[1] = make_soft_version(rev);
++-	parts[2] = make_support_list(c2600_support_list,true);
+++	parts[2] = make_support_list(c2600_support_list, true);
++ 	parts[3] = read_file("os-image", kernel_image, false);
++ 	parts[4] = read_file("file-system", rootfs_image, add_jffs2_eof);
++ 
++@@ -656,8 +667,10 @@ int main(int argc, char *argv[]) {
++ 	if (!output)
++ 		error(1, 0, "no output filename has been specified");
++ 
++-	if (strcmp(board, "CPE510") == 0)
++-		do_cpe510(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade);
+++	if (strcmp(board, "CPE210") == 0)
+++		do_cpe(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade, cpe210_support_list);
+++	else if (strcmp(board, "CPE510") == 0)
+++		do_cpe(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade, cpe510_support_list);
++ 	else if (strcmp(board, "C2600") == 0)
++ 		do_c2600(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade);
++ 	else
+diff --git a/targets/ar71xx-generic/profiles.mk b/targets/ar71xx-generic/profiles.mk
+index 67f9b48..856a239 100644
+--- a/targets/ar71xx-generic/profiles.mk
++++ b/targets/ar71xx-generic/profiles.mk
+@@ -4,14 +4,15 @@
+ 
+ # CPE210/220/510/520
+ $(eval $(call GluonProfile,CPE510,rssileds))
+-$(eval $(call GluonModel,CPE510,cpe210-220-510-520,tp-link-cpe510-v1.0))
+ 
+-$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe210-v1.0))
+-$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe220-v1.0))
+-$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe520-v1.0))
+-$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe210-v1.1))
+-$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe220-v1.1))
++$(eval $(call GluonModel,CPE510,cpe210-220,tp-link-cpe210-v1.0))
++$(eval $(call GluonModelAlias,CPE510,tp-link-cpe210-v1.0,tp-link-cpe210-v1.1))
++$(eval $(call GluonModelAlias,CPE510,tp-link-cpe210-v1.0,tp-link-cpe220-v1.0))
++$(eval $(call GluonModelAlias,CPE510,tp-link-cpe210-v1.0,tp-link-cpe220-v1.1))
++
++$(eval $(call GluonModel,CPE510,cpe510-520,tp-link-cpe510-v1.0))
+ $(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe510-v1.1))
++$(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe520-v1.0))
+ $(eval $(call GluonModelAlias,CPE510,tp-link-cpe510-v1.0,tp-link-cpe520-v1.1))
+ 
+ # TL-WA701N/ND v1, v2
