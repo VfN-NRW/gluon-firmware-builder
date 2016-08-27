@@ -42,28 +42,23 @@ fi
 
 cd "$GluonRelease"
 
-TMPDIR="./gfb_tmp"
-mkdir -p "$TMPDIR"
-PATCHDIR="$TMPDIR"/patching
-trap 'rm -rf "$PATCHDIR"' EXIT
+patchdir="$opwd/$GluonRelease-repo-patches"
 
-repopatches_dir="$opwd/$GluonRelease-repo-patches"
+git checkout -B patching base
 
-git clone -s -b base --single-branch . "$PATCHDIR" 2>/dev/null
-cd "$PATCHDIR"
-
-for dir in $(find "$repopatches_dir/" -type d | sort || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
-	if [ "$repopatches_dir/" == "$dir" ]; then
+for dir in $(find "$patchdir/" -type d | sort || printf 'WARN: No patchsets found.\n' >&2 && exit 0); do
+	if [ "$patchdir/" == "$dir" ]; then
 		continue
 	fi
 	for patch in $(find "$dir" -type f | sort || printf "WARN: Error reading patchset $(echo $dir | rev | cut -d / -f 1 | rev) found.\n" >&2 ); do
-		git -c user.name='GluonFirmwareBuilder Patch Manager' -c user.email='gfb@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patch"
+
+
+		if ! git -c user.name='Gluon Patch Manager' -c user.email='gluon@void.example.com' -c commit.gpgsign=false am --whitespace=nowarn --committer-date-is-author-date "$patch"; then
+			git am --abort
+			git checkout patched
+			git branch -D patching
+			exit 1
+		fi
 	done
 done
-
-cd ".."
-
-git fetch "$PATCHDIR" 2>/dev/null
-git checkout -B patched FETCH_HEAD
-git submodule update --init --recursive
-rm -rf "$PATCHDIR"
+git branch -M patched
