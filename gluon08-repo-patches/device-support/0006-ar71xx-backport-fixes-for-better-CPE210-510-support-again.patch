@@ -10,7 +10,7 @@ The problematic patch switching the CPE510 to the secondary ART is left
 out.
 ---
  ...-cpe510-enable-LNA-for-CPE210-220-510-520.patch |  35 ++++
- ...profile-into-2-profiles-cpe210-and-cpe510.patch | 169 ++++++++++++++++++
+ ...profile-into-2-profiles-cpe210-and-cpe510.patch | 157 ++++++++++++++++++
  ...safeloader.c-Add-support-for-Archer-C2600.patch | 188 +++++++++++++++++++++
  ...feloader-split-CPE210-from-CPE510-profile.patch | 102 +++++++++++
  targets/ar71xx-generic/profiles.mk                 |  13 +-
@@ -66,7 +66,7 @@ new file mode 100644
 index 0000000..eeaad63
 --- /dev/null
 +++ b/patches/openwrt/0116-ar71xx-cpe510-split-profile-into-2-profiles-cpe210-and-cpe510.patch
-@@ -0,0 +1,169 @@
+@@ -0,0 +1,157 @@
 +From: Matthias Schiffer <mschiffer@universe-factory.net>
 +Date: Thu, 9 Jun 2016 04:55:37 +0200
 +Subject: ar71xx/cpe510: split profile into 2 profiles cpe210 and cpe510
@@ -211,8 +211,8 @@ index 0000000..eeaad63
 +@@ -1,6 +1,6 @@
 + --- a/arch/mips/ath79/machtypes.h
 + +++ b/arch/mips/ath79/machtypes.h
-+-@@ -16,22 +16,203 @@
-++@@ -16,22 +16,204 @@
++-@@ -16,22 +16,201 @@
+++@@ -16,22 +16,202 @@
 +  
 +  enum ath79_mach_type {
 +  	ATH79_MACH_GENERIC = 0,
