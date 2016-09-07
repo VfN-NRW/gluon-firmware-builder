@@ -15,8 +15,7 @@ Fixes #860
  docs/user/site.rst                                 |   4 +
  ...-a4fc62bc0ea4010ddbfbd738453c9db70988a57c.patch | 855 +++++++++++++++++++++
  ...port-support-for-new-TP-Link-region-codes.patch |  38 +
- targets/ar71xx-generic/profiles.mk                 |  10 +-
- 5 files changed, 907 insertions(+), 3 deletions(-)
+ 4 files changed, 903 insertions(+), 3 deletions(-)
  create mode 100644 patches/openwrt/0034-firmware-utils-mktplinkfw-backport-from-LEDE-a4fc62bc0ea4010ddbfbd738453c9db70988a57c.patch
  create mode 100644 patches/openwrt/0035-ar71xx-backport-support-for-new-TP-Link-region-codes.patch
 
@@ -953,25 +952,3 @@ index 0000000..58f550f
 + endef
 + TARGET_DEVICES += archer-c5 archer-c7-v1 archer-c7-v2
 + 
-diff --git a/targets/ar71xx-generic/profiles.mk b/targets/ar71xx-generic/profiles.mk
-index 4a63667..cc3927e 100644
---- a/targets/ar71xx-generic/profiles.mk
-+++ b/targets/ar71xx-generic/profiles.mk
-@@ -149,10 +149,14 @@ $(eval $(call GluonModel,TLMR3420,tl-mr3420-v2,tp-link-tl-mr3420-v2))
- $(eval $(call GluonProfile,TLWR2543))
- $(eval $(call GluonModel,TLWR2543,tl-wr2543-v1,tp-link-tl-wr2543n-nd-v1))
- 
--ifeq ($(BROKEN),1)
--# Archer C5 v1, C7 v2
-+ifneq ($(BROKEN),)
-+# Archer C5 v1
-+$(eval $(call GluonProfile,ARCHERC5,kmod-ath10k ath10k-firmware-qca988x-ct,ARCHERC7))
-+$(eval $(call GluonModel,ARCHERC5,archer-c5,tp-link-archer-c5-v1)) # BROKEN: ath10k
-+
-+# Archer C7 v2
- $(eval $(call GluonProfile,ARCHERC7,kmod-ath10k ath10k-firmware-qca988x-ct))
--$(eval $(call GluonModel,ARCHERC7,archer-c5,tp-link-archer-c5-v1)) # BROKEN: ath10k
-+$(eval $(call GluonProfileFactorySuffix,ARCHERC7,-squashfs-factory$(if $(GLUON_REGION),-$(GLUON_REGION)),.bin))
- $(eval $(call GluonModel,ARCHERC7,archer-c7-v2,tp-link-archer-c7-v2)) # BROKEN: ath10k
- endif
- 
