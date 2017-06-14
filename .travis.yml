@@ -12,3 +12,4 @@ notifications:
 script:
  - touch build_dryrun
  - ./build_gluon gluon08 nightly
+ - ./build_gluon gluon10 nightly
