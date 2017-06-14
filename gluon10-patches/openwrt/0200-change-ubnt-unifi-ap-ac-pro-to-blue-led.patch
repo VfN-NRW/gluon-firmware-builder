@@ -1,0 +1,76 @@
+From d98244bd1166a8865b193b22e4863227cbc4d82b Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 30 Jul 2016 23:39:52 +0200
+Subject: [PATCH] change ubnt unifi ap ac pro to blue led
+
+---
+ target/linux/ar71xx/base-files/etc/diag.sh | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
+index 775aac6..6fae444 100644
+--- a/target/linux/ar71xx/base-files/etc/diag.sh
++++ b/target/linux/ar71xx/base-files/etc/diag.sh
+@@ -299,7 +299,7 @@ get_status_led() {
+ 	uap-pro | \
+ 	unifiac-lite | \
+ 	unifiac-pro)
+-		status_led="ubnt:white:dome"
++		status_led="ubnt:blue:dome"
+ 		;;
+ 	unifi-outdoor-plus)
+ 		status_led="ubnt:white:front"
+@@ -359,18 +359,34 @@ get_status_led() {
+ 	esac
+ }
+ 
++disable_wrong_led() {
++
++	case $(ar71xx_board_name) in                               
++	unifiac-pro)                                               
++		true_status_led=status_led                         
++		status_led="ubnt:white:dome"                       
++                status_led_off                                     
++                status_led=true_status_led                         
++                unset true_status_led                              
++                ;;                                                 
++	esac  
++}
++
+ set_state() {
+ 	get_status_led
+ 
+ 	case "$1" in
+ 	preinit)
+ 		status_led_blink_preinit
++		disable_wrong_led
+ 		;;
+ 	failsafe)
+ 		status_led_blink_failsafe
++		disable_wrong_led
+ 		;;
+ 	preinit_regular)
+ 		status_led_blink_preinit_regular
++		disable_wrong_led
+ 		;;
+ 	done)
+ 		status_led_on
+@@ -379,7 +395,15 @@ set_state() {
+ 			local n=$(fw_printenv activeregion | cut -d = -f 2)
+ 			fw_setenv "image${n}trynum" 0
+ 			;;
++		unifiac-pro)
++			true_status_led=status_led
++			status_led="ubnt:white:dome"
++			status_led_off
++			status_led=true_status_led
++			unset true_status_led
++			;;
+ 		esac
+ 		;;
+ 	esac
+ }
++
+-- 
+2.9.2
+

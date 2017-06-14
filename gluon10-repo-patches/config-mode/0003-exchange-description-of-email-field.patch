@@ -1,0 +1,103 @@
+From b434ac03f7eb16edc23f0d137d6ac19268861520 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 17 Jul 2016 12:45:15 +0200
+Subject: [PATCH] exchange description of email field
+
+---
+ .../gluon/config-mode/wizard/0500-contact-info.lua | 10 +++++-----
+ package/gluon-config-mode-contact-info/i18n/de.po  | 23 +++++++++++-----------
+ .../i18n/gluon-config-mode-contact-info.pot        |  8 ++++----
+ 3 files changed, 20 insertions(+), 21 deletions(-)
+
+diff --git a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+index e007c9e..99888a5 100644
+--- a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
++++ b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+@@ -6,10 +6,10 @@ local M = {}
+ 
+ function M.section(form)
+   local s = form:section(cbi.SimpleSection, nil, i18n.translate(
+-    'You can provide your contact information here to '
+-      .. 'allow others to contact you. Please note that '
+-      .. 'this information will be visible <em>publicly</em> '
+-      .. 'on the internet together with your node\'s coordinates.'
++    'Please enter a valid Email addresse, where we can reach '
++      .. 'you. We will send you an validation mail, '
++      .. 'to confirm it. After confirmation we will activate '
++      .. 'your Mesh-VPN-account.'
+     )
+   )
+ 
+@@ -17,7 +17,7 @@ function M.section(form)
+   o.default = uci:get_first("gluon-node-info", "owner", "contact", "")
+   o.rmempty = false
+   o.datatype = "string"
+-  o.description = i18n.translate("e.g. E-mail or phone number")
++  o.description = i18n.translate("your Email address")
+   o.maxlen = 140
+   o.minlen = 7
+ end
+diff --git a/package/gluon-config-mode-contact-info/i18n/de.po b/package/gluon-config-mode-contact-info/i18n/de.po
+index 719246f..53f7634 100644
+--- a/package/gluon-config-mode-contact-info/i18n/de.po
++++ b/package/gluon-config-mode-contact-info/i18n/de.po
+@@ -1,8 +1,8 @@
+ msgid ""
+ msgstr ""
+ "Project-Id-Version: PACKAGE VERSION\n"
+-"PO-Revision-Date: 2015-03-19 01:32+0100\n"
+-"Last-Translator: Matthias Schiffer <mschiffer@universe-factory.net>\n"
++"PO-Revision-Date: 2015-05-05 00:35+0100\n"
++"Last-Translator: RubenKelevra <ruben@vfn-nrw.de>\n"
+ "Language-Team: German\n"
+ "Language: de\n"
+ "MIME-Version: 1.0\n"
+@@ -11,17 +11,16 @@ msgstr ""
+ "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+ 
+ msgid "Contact info"
+-msgstr "Kontakt"
++msgstr "Deine Emailadresse"
+ 
+ msgid ""
+-"You can provide your contact information here to allow others to contact "
+-"you. Please note that this information will be visible <em>publicly</em> on "
+-"the internet together with your node's coordinates."
++"Please enter a valid Email addresse, where we can reach you. We will send "
++"you an validation mail, to confirm it. After confirmation we will activate "
++"your Mesh-VPN-account."
+ msgstr ""
+-"Hier kannst du einen <em>öffentlichen</em> Hinweis hinterlegen, um anderen "
+-"zu ermöglichen, Kontakt mit dir aufzunehmen. Bitte beachte, dass "
+-"dieser Hinweis auch öffentlich im Internet, zusammen mit den Koordinaten "
+-"deines Knotens, einsehbar sein wird."
++"Gib hier eine gültige Email-Adresse an, wo wir dich erreichen können. "
++"Wir werden dir eine Validierungsnachricht schicken, um sie zu bestätigen. "
++"Nach der Bestätigung, werden wir deinen Mesh-VPN-Account aktivieren. "
+ 
+-msgid "e.g. E-mail or phone number"
+-msgstr "z.B. E-Mail oder Telefonnummer"
++msgid "your Email address"
++msgstr "Eine gültige Email-Adresse"
+diff --git a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
+index 63939a8..c558906 100644
+--- a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
++++ b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
+@@ -5,10 +5,10 @@ msgid "Contact info"
+ msgstr ""
+ 
+ msgid ""
+-"You can provide your contact information here to allow others to contact "
+-"you. Please note that this information will be visible <em>publicly</em> on "
+-"the internet together with your node's coordinates."
++"Please enter a valid Email addresse, where we can reach you. We will send "
++"you an validation mail, to confirm it. After confirmation we will activate "
++"your Mesh-VPN-account."
+ msgstr ""
+ 
+-msgid "e.g. E-mail or phone number"
++msgid "your Email address"
+ msgstr ""
+-- 
+2.9.0
+

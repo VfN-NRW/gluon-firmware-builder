@@ -1,0 +1,97 @@
+From 1a0d756280d8fe19c6dd863c0918ccd4a83fcc28 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Thu, 21 Jul 2016 23:02:18 +0200
+Subject: [PATCH] libplatforminfo: add ipq806x support
+
+---
+ libs/libplatforminfo/Makefile              |  2 +-
+ libs/libplatforminfo/src/targets/ipq806x.c | 64 ++++++++++++++++++++++++++++++
+ 2 files changed, 65 insertions(+), 1 deletion(-)
+ create mode 100644 libs/libplatforminfo/src/targets/ipq806x.c
+
+diff --git a/libs/libplatforminfo/Makefile b/libs/libplatforminfo/Makefile
+index 3dc93a7..75b7abe 100644
+--- a/libs/libplatforminfo/Makefile
++++ b/libs/libplatforminfo/Makefile
+@@ -16,7 +16,7 @@ define Package/libplatforminfo
+   SECTION:=libs
+   CATEGORY:=Libraries
+   TITLE:=Platform information library
+-  DEPENDS:=@(TARGET_ar71xx_generic||TARGET_ar71xx_nand||TARGET_mpc85xx_generic||TARGET_x86_generic||TARGET_x86_kvm_guest||TARGET_x86_64||TARGET_x86_xen_domu||TARGET_ramips_rt305x||TARGET_brcm2708_bcm2708||TARGET_brcm2708_bcm2709||TARGET_sunxi)
++  DEPENDS:=@(TARGET_ar71xx_generic||TARGET_ar71xx_nand||TARGET_ipq806x||TARGET_mpc85xx_generic||TARGET_x86_generic||TARGET_x86_kvm_guest||TARGET_x86_64||TARGET_x86_xen_domu||TARGET_ramips_rt305x||TARGET_brcm2708_bcm2708||TARGET_brcm2708_bcm2709||TARGET_sunxi)
+ endef
+ 
+ CMAKE_OPTIONS += \
+diff --git a/libs/libplatforminfo/src/targets/ipq806x.c b/libs/libplatforminfo/src/targets/ipq806x.c
+new file mode 100644
+index 0000000..232495a
+--- /dev/null
++++ b/libs/libplatforminfo/src/targets/ipq806x.c
+@@ -0,0 +1,64 @@
++/*
++  Copyright (c) 2015, Matthias Schiffer <mschiffer@universe-factory.net>
++  All rights reserved.
++
++  Redistribution and use in source and binary forms, with or without
++  modification, are permitted provided that the following conditions are met:
++
++    1. Redistributions of source code must retain the above copyright notice,
++       this list of conditions and the following disclaimer.
++    2. Redistributions in binary form must reproduce the above copyright notice,
++       this list of conditions and the following disclaimer in the documentation
++       and/or other materials provided with the distribution.
++
++  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
++  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
++  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
++  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++*/
++
++
++#include <libplatforminfo.h>
++#include "../common.h"
++
++
++static char * board_name = NULL;
++static char * model = NULL;
++static char * image_name = NULL;
++
++
++__attribute__((constructor)) static void init(void) {
++        board_name = read_line("/tmp/sysinfo/board_name");
++        model = read_line("/tmp/sysinfo/model");
++
++        sanitize_image_name(&image_name, model);
++}
++
++__attribute__((destructor)) static void deinit(void) {
++        free(board_name);
++        free(model);
++        free(image_name);
++
++        board_name = NULL;
++        model = NULL;
++        image_name = NULL;
++}
++
++
++const char * platforminfo_get_board_name(void) {
++        return board_name;
++}
++
++const char * platforminfo_get_model(void) {
++        return model;
++}
++
++const char * platforminfo_get_image_name(void) {
++        return image_name;
++}
+-- 
+2.9.0
+

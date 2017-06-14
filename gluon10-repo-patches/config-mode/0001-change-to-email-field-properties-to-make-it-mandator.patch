@@ -1,0 +1,24 @@
+From fc01dc9a53f6d4e4f733caaa4970d887b9138c4d Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Sat, 16 Jul 2016 21:01:46 +0200
+Subject: [PATCH] change to email field-properties to make it mandatory
+
+---
+ .../files/lib/gluon/config-mode/wizard/0500-contact-info.lua             | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+index a2182f9..2ade520 100644
+--- a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
++++ b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+@@ -19,6 +19,7 @@ function M.section(form)
+   o.datatype = "string"
+   o.description = i18n.translate("e.g. E-mail or phone number")
+   o.maxlen = 140
++  o.minlen = 7
+ end
+ 
+ function M.handle(data)
+-- 
+2.9.0
+

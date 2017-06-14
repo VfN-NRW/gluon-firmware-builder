@@ -1,0 +1,25 @@
+From eb20bc0dea7d4ec175ece60d274cca8c499edc5d Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 17 Jul 2016 12:36:42 +0200
+Subject: [PATCH] email field must not be empty
+
+---
+ .../files/lib/gluon/config-mode/wizard/0500-contact-info.lua            | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+index 2ade520..e007c9e 100644
+--- a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
++++ b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
+@@ -15,7 +15,7 @@ function M.section(form)
+ 
+   local o = s:option(cbi.Value, "_contact", i18n.translate("Contact info"))
+   o.default = uci:get_first("gluon-node-info", "owner", "contact", "")
+-  o.rmempty = true
++  o.rmempty = false
+   o.datatype = "string"
+   o.description = i18n.translate("e.g. E-mail or phone number")
+   o.maxlen = 140
+-- 
+2.9.0
+

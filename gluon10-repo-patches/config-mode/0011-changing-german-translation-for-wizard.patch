@@ -1,0 +1,48 @@
+From 96a5c3a5ec15ab2043b92756a19ef25a4d97bb57 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sun, 24 Jul 2016 03:10:32 +0200
+Subject: [PATCH] changing german translation for wizard
+
+---
+ package/gluon-config-mode-core/i18n/de.po | 2 +-
+ package/gluon-luci-admin/i18n/de.po       | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/package/gluon-config-mode-core/i18n/de.po b/package/gluon-config-mode-core/i18n/de.po
+index 58d2389..f062c0b 100644
+--- a/package/gluon-config-mode-core/i18n/de.po
++++ b/package/gluon-config-mode-core/i18n/de.po
+@@ -18,7 +18,7 @@ msgid "Welcome!"
+ msgstr "Willkommen!"
+ 
+ msgid "Wizard"
+-msgstr "Wizard"
++msgstr "Assistent"
+ 
+ msgid "Your node's setup is now complete."
+ msgstr "Dein Knoten ist nun fertig eingerichtet."
+diff --git a/package/gluon-luci-admin/i18n/de.po b/package/gluon-luci-admin/i18n/de.po
+index ec109ae..af0fff3 100644
+--- a/package/gluon-luci-admin/i18n/de.po
++++ b/package/gluon-luci-admin/i18n/de.po
+@@ -27,7 +27,7 @@ msgid "Don't switch off the device in any circumstance!"
+ msgstr "Unterbrich auf keinen Fall die Stromversorgung!"
+ 
+ msgid "Expert Mode"
+-msgstr "Expert Mode"
++msgstr "Expertenmodus"
+ 
+ msgid "Firmware image"
+ msgstr "Firmware-Datei"
+@@ -63,7 +63,7 @@ msgid "SSH keys"
+ msgstr "SSH-Schlüssel"
+ 
+ msgid "Site"
+-msgstr "Site"
++msgstr "Community"
+ 
+ msgid ""
+ "The firmware image has been transmitted. Please ensure the MD5 checksum and "
+-- 
+2.5.5
+

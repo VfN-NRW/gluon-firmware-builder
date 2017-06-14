@@ -1,0 +1,35 @@
+From 1fa4e64752a302a1d8ddba3b7082992800866aff Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sun, 24 Jul 2016 03:44:52 +0200
+Subject: [PATCH] translations for location advisor
+
+---
+ package/gluon-config-mode-contact-info/i18n/de.po                      | 3 +++
+ .../i18n/gluon-config-mode-contact-info.pot                            | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/package/gluon-config-mode-contact-info/i18n/de.po b/package/gluon-config-mode-contact-info/i18n/de.po
+index 4431348..9d8d503 100644
+--- a/package/gluon-config-mode-contact-info/i18n/de.po
++++ b/package/gluon-config-mode-contact-info/i18n/de.po
+@@ -38,3 +38,6 @@ msgstr ""
+ 
+ msgid "a valid email address"
+ msgstr "Eine gültige E-Mail-Adresse"
++
++msgid "Location advisor contact info"
++msgstr "Betreuer E-Mail-Adresse"
+diff --git a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
+index c558906..2ae7b1f 100644
+--- a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
++++ b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
+@@ -12,3 +12,6 @@ msgstr ""
+ 
+ msgid "your Email address"
+ msgstr ""
++
++msgid "Location advisor contact info"
++msgstr ""
+-- 
+2.5.5
+

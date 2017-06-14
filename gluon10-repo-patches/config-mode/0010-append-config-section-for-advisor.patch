@@ -1,0 +1,20 @@
+From 4543220cc680d5092cbc901d06b1182866edfe22 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 8 Sep 2015 17:28:10 +0200
+Subject: [PATCH] append config-section for advisor
+
+---
+ package/gluon-node-info/files/etc/config/gluon-node-info | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/gluon-node-info/files/etc/config/gluon-node-info b/package/gluon-node-info/files/etc/config/gluon-node-info
+index 8f6f472..a72b71f 100644
+--- a/package/gluon-node-info/files/etc/config/gluon-node-info
++++ b/package/gluon-node-info/files/etc/config/gluon-node-info
+@@ -3,4 +3,6 @@ config location
+ 
+ config owner
+ 
++config advisor
++
+ config system

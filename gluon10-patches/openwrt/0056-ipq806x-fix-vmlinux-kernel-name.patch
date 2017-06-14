@@ -1,0 +1,25 @@
+From 9af30672904520b887bb57bb67e7cfc6ae78e431 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Sat, 14 May 2016 20:48:23 +0200
+Subject: [PATCH] ipq806x: Fix vmlinux kernel name
+
+---
+ target/linux/ipq806x/image/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/linux/ipq806x/image/Makefile b/target/linux/ipq806x/image/Makefile
+index a5fc836..45d0d4d 100644
+--- a/target/linux/ipq806x/image/Makefile
++++ b/target/linux/ipq806x/image/Makefile
+@@ -9,7 +9,7 @@ UBINIZE_OPTS = -m 2048 -p 128KiB
+ KERNEL_LOADADDR := 0x42208000
+ 
+ define Image/Prepare
+-	$(CP) $(LINUX_DIR)/vmlinux $(KDIR)/$(IMG_PREFIX)-vmlinux.elf
++	$(CP) $(LINUX_DIR)/vmlinux.o $(KDIR)/$(IMG_PREFIX)-vmlinux.elf
+ 	mkimage -A arm -O linux -T filesystem -C none \
+ 		-a $(KERNEL_LOADADDR) -e $(KERNEL_LOADADDR) \
+ 		-n 'ARM OpenWrt fakeroot' \
+-- 
+2.8.2
+
