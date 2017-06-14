@@ -1,0 +1,41 @@
+From cb2af56b7ffb7d6483604dd35ba261278a444d31 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Mon, 1 Aug 2016 19:55:16 +0200
+Subject: [PATCH] Revert "ar71xx-generic: switch default WAN/LAN assignment on
+ Ubiquiti UAP Pro"
+
+This reverts commit 9095c9a706f070ade012394ccbcc4e54df83f2ec.
+---
+ package/gluon-core/files/lib/gluon/upgrade/020-interfaces         | 2 +-
+ package/gluon-setup-mode/files/lib/gluon/upgrade/320-setup-ifname | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/020-interfaces b/package/gluon-core/files/lib/gluon/upgrade/020-interfaces
+index 4f5b0ef..1818ad0 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/020-interfaces
++++ b/package/gluon-core/files/lib/gluon/upgrade/020-interfaces
+@@ -16,7 +16,7 @@ if not (sysconfig.lan_ifname or sysconfig.wan_ifname) then
+   local lan_ifname = uci:get('network', 'lan', 'ifname')
+   local wan_ifname = uci:get('network', 'wan', 'ifname')
+ 
+-  if platform.match('ar71xx', 'generic', {'cpe510', 'nanostation-m', 'nanostation-m-xw', 'unifi-outdoor-plus', 'uap-pro'}) then
++  if platform.match('ar71xx', 'generic', {'cpe510', 'nanostation-m', 'nanostation-m-xw', 'unifi-outdoor-plus'}) then
+     lan_ifname, wan_ifname = wan_ifname, lan_ifname
+   end
+ 
+diff --git a/package/gluon-setup-mode/files/lib/gluon/upgrade/320-setup-ifname b/package/gluon-setup-mode/files/lib/gluon/upgrade/320-setup-ifname
+index 229b6cf..3c4a8af 100755
+--- a/package/gluon-setup-mode/files/lib/gluon/upgrade/320-setup-ifname
++++ b/package/gluon-setup-mode/files/lib/gluon/upgrade/320-setup-ifname
+@@ -8,7 +8,7 @@ if sysconfig.setup_ifname then
+    os.exit(0)
+ end
+ 
+-if platform.match('ar71xx', 'generic', {'cpe510', 'nanostation-m', 'nanostation-m-xw', 'unifi-outdoor-plus', 'uap-pro'}) then
++if platform.match('ar71xx', 'generic', {'cpe510', 'nanostation-m', 'nanostation-m-xw', 'unifi-outdoor-plus'}) then
+    sysconfig.setup_ifname = sysconfig.config_ifname or sysconfig.wan_ifname or sysconfig.lan_ifname
+ else
+    sysconfig.setup_ifname = sysconfig.config_ifname or sysconfig.lan_ifname or sysconfig.wan_ifname
+-- 
+2.9.2
+

@@ -1,0 +1,85 @@
+From e44671c07a05c1c9fc95e744a5b3d36615a17f17 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@users.noreply.github.com>
+Date: Sat, 23 Jul 2016 16:09:21 +0200
+Subject: [PATCH] updating translations for config-mode-geo-location
+
+---
+ .../files/lib/gluon/config-mode/wizard/0400-geo-location.lua  |  4 ++--
+ package/gluon-config-mode-geo-location/i18n/de.po             | 11 +++++++----
+ .../i18n/gluon-config-mode-geo-location.pot                   |  9 ++++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
+index 3d740f7..5ac649d 100644
+--- a/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
++++ b/package/gluon-config-mode-geo-location/files/lib/gluon/config-mode/wizard/0400-geo-location.lua
+@@ -6,8 +6,8 @@ local M = {}
+ 
+ function M.section(form)
+   local s = form:section(cbi.SimpleSection, nil, i18n.translate(
+-    'If you want the location of your node to be displayed on the map, '
+-      .. 'you can enter its coordinates here. Specifying the altitude '
++    'To show your node on the map we need its coordinates, '
++      .. 'you can help us and enter the coordinates here. Specifying the altitude '
+       .. 'is optional and should only be done if a proper value is known.'))
+ 
+ 
+diff --git a/package/gluon-config-mode-geo-location/i18n/de.po b/package/gluon-config-mode-geo-location/i18n/de.po
+index 679189d..cfe5ed4 100644
+--- a/package/gluon-config-mode-geo-location/i18n/de.po
++++ b/package/gluon-config-mode-geo-location/i18n/de.po
+@@ -11,12 +11,12 @@ msgstr ""
+ "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+ 
+ msgid ""
+-"If you want the location of your node to be displayed on the map, you can "
+-"enter its coordinates here. Specifying the altitude is optional and should "
+-"only be done if a proper value is known."
++"To show your node on the map we need its coordinates, "
++"you can help us and enter the coordinates here. Specifying the altitude is "
++"optional and should only be done if a proper value is known."
+ msgstr ""
+ "Um deinen Knoten auf der Karte anzeigen zu können, benötigen wir seine "
+-"Koordinaten. Hier hast du die Möglichkeit, diese zu hinterlegen. Die "
++"Koordinaten. Du kannst uns helfen indem du die Koordinaten hier eingibst. Die "
+ "Höhenangabe ist optional und sollte nur gesetzt werden, wenn ein exakter "
+ "Wert bekannt ist."
+ 
+@@ -44,5 +44,8 @@ msgstr ""
+ "Adresse des Knotens ein. Wir werden dann auf Basis der Adresse die "
+ "Koordinaten berechnen und den Knoten auf der Karte darstellen"
+ 
++msgid "Location address"
++msgstr "Adresse des Knotens"
++
+ msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
+ msgstr "Eine Adresse hat das Format: Musterstraße 13, 52042 Musterstadt"
+diff --git a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+index 9d24db9..b86cf10 100644
+--- a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
++++ b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+@@ -2,9 +2,9 @@ msgid ""
+ msgstr "Content-Type: text/plain; charset=UTF-8"
+ 
+ msgid ""
+-"If you want the location of your node to be displayed on the map, you can "
+-"enter its coordinates here. Specifying the altitude is optional and should "
+-"only be done if a proper value is known."
++"To show your node on the map we need its coordinates, "
++"you can help us and enter the coordinates here. Specifying the altitude is "
++"optional and should only be done if a proper value is known."
+ msgstr ""
+ 
+ msgid "Latitude"
+@@ -28,5 +28,8 @@ msgid ""
+ "is added there on the map."
+ msgstr ""
+ 
++msgid "Location address"
++msgstr ""
++
+ msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
+ msgstr ""
+-- 
+2.5.5
+

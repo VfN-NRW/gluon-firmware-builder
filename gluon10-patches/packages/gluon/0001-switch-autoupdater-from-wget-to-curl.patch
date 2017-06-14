@@ -1,0 +1,35 @@
+From 9e4a5b6194fc05f70620bf75e1121d723fef4ee8 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Tue, 19 Jul 2016 17:04:55 +0200
+Subject: [PATCH] switch autoupdater from wget to curl
+
+---
+ admin/autoupdater/files/usr/sbin/autoupdater | 4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+ 
+diff --git a/admin/autoupdater/files/usr/sbin/autoupdater b/admin/autoupdater/files/usr/sbin/autoupdater
+index 0bbc919..e6041f9 100755
+--- a/admin/autoupdater/files/usr/sbin/autoupdater
++++ b/admin/autoupdater/files/usr/sbin/autoupdater
+@@ -131,7 +131,7 @@ local function read_manifest(mirror)
+ 
+   -- Read all lines from the manifest
+   -- The upper part is saves to lines, the lower part to sigs
+-  for line in io.popen(string.format("exec wget -T 120 -O- '%s/%s.manifest'", mirror, branch.name), 'r'):lines() do
++  for line in io.popen(string.format("exec curl --connect-timeout 15 -m 300 -o- '%s/%s.manifest'", mirror, branch.name), 'r'):lines() do
+     if not sep then
+       if line == '---' then
+         sep = true
+@@ -194,7 +194,7 @@ end
+ 
+ -- Downloads the firmware image from a mirror to a given output file
+ local function fetch_firmware(mirror, filename, output)
+-  if autoupdater_util.exec('wget', '-T', '120', '-O', output, mirror .. '/' .. filename) ~= 0 then
++  if autoupdater_util.exec('curl', '--connect-timeout', '15', '-m', '3000', '-o', output, mirror .. '/' .. filename) ~= 0 then
+     io.stderr:write('Error downloading the image from ' .. mirror .. '\n')
+     return false
+   end
+-- 
+2.5.5
+

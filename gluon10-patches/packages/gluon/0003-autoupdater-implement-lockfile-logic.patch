@@ -1,0 +1,31 @@
+From 0cf4aadb7df3114625d1eacc2d7117d65d643957 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Tue, 26 Jul 2016 23:54:54 +0200
+Subject: [PATCH] autoupdater: implement lockfile logic
+
+---
+ admin/autoupdater/files/usr/lib/autoupdater/abort.d/85remove_lockfile   | 2 ++
+ admin/autoupdater/files/usr/lib/autoupdater/upgrade.d/85create_lockfile | 2 ++
+ 2 files changed, 4 insertions(+)
+ create mode 100755 admin/autoupdater/files/usr/lib/autoupdater/abort.d/85remove_lockfile
+ create mode 100755 admin/autoupdater/files/usr/lib/autoupdater/upgrade.d/85create_lockfile
+
+diff --git a/admin/autoupdater/files/usr/lib/autoupdater/abort.d/85remove_lockfile b/admin/autoupdater/files/usr/lib/autoupdater/abort.d/85remove_lockfile
+new file mode 100755
+index 0000000..412672c
+--- /dev/null
++++ b/admin/autoupdater/files/usr/lib/autoupdater/abort.d/85remove_lockfile
+@@ -0,0 +1,2 @@
++rm -f /tmp/autoupdate.lock || true
++
+diff --git a/admin/autoupdater/files/usr/lib/autoupdater/upgrade.d/85create_lockfile b/admin/autoupdater/files/usr/lib/autoupdater/upgrade.d/85create_lockfile
+new file mode 100755
+index 0000000..5bd9a0a
+--- /dev/null
++++ b/admin/autoupdater/files/usr/lib/autoupdater/upgrade.d/85create_lockfile
+@@ -0,0 +1,2 @@
++touch /tmp/autoupdate.lock
++sleep 10
+-- 
+2.9.0
+

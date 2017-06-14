@@ -1,0 +1,29 @@
+From d8818964eaf3667112a34a27d7fa45621c546ad6 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 7 Aug 2016 04:52:34 +0200
+Subject: [PATCH] add script for bridge set from settings
+
+---
+ .../files/lib/gluon/upgrade/105-update-bridge-tag-setting         | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100755 package/gluon-node-info/files/lib/gluon/upgrade/105-update-bridge-tag-setting
+
+diff --git a/package/gluon-node-info/files/lib/gluon/upgrade/105-update-bridge-tag-setting b/package/gluon-node-info/files/lib/gluon/upgrade/105-update-bridge-tag-setting
+new file mode 100755
+index 0000000..00c1343
+--- /dev/null
++++ b/package/gluon-node-info/files/lib/gluon/upgrade/105-update-bridge-tag-setting
+@@ -0,0 +1,10 @@
++#!/bin/sh
++
++uci set gluon-node-info.bridge_lan='void' || true
++
++if [ $(uci get network.client.ifname | grep "$(lua -e 'print(require("gluon.sysconfig").lan_ifname)')" | wc -l) -gt 0 ]; then
++    uci set gluon-node-info.bridge_lan.enabled='0' || true
++elif [ $(uci get network.wan.ifname | grep "$(lua -e 'print(require("gluon.sysconfig").lan_ifname)')" | wc -l) -gt 0 ]; then
++    uci set gluon-node-info.bridge_lan.enabled='1' || true
++fi
++
+-- 
+2.9.2
+

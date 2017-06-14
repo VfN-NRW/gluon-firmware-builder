@@ -1,0 +1,53 @@
+From 21eeadd8e1a48fa6d27d43a918c65864adaeedb8 Mon Sep 17 00:00:00 2001
+From: bitnukl <bitnukl@main.lan>
+Date: Sun, 17 Jul 2016 18:20:37 +0200
+Subject: [PATCH] add all wifi tweaks and reenable >ht20 modes
+
+---
+ .../files/lib/gluon/upgrade/200-wireless           | 25 ++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/package/gluon-core/files/lib/gluon/upgrade/200-wireless b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+index 5a98a70..77247a5 100755
+--- a/package/gluon-core/files/lib/gluon/upgrade/200-wireless
++++ b/package/gluon-core/files/lib/gluon/upgrade/200-wireless
+@@ -10,13 +10,34 @@ if not sysconfig.gluon_version then
+   uci:delete_all('wireless', 'wifi-iface')
+ end
+ 
++local function get_channel(radio, config)
++  return uci:get('wireless', radio, 'channel') or config.channel
++end
++
+ local function configure_radio(radio, index, config)
+   if config then
++    local channel = get_channel(radio, config)
++
+     uci:delete('wireless', radio, 'disabled')
+ 
+-    uci:set('wireless', radio, 'channel', config.channel)
+-    uci:set('wireless', radio, 'htmode', 'HT20')
++    local htmode = uci:get('wireless', radio, 'htmode')
++    if htmode ~= 'VHT80' then --enable VHT80 on AC-Devices
++      uci:set('wireless', radio, 'htmode', config.htmode)
++    else
++      if config.htmode == 'HT40-' then --disable VHT80 if second channel is below...
++        uci:set('wireless', radio, 'htmode', config.htmode)
++      end
++    end
++    uci:set('wireless', radio, 'channel', config.channel)
++    uci:set('wireless', radio, 'noscan', '1')
+     uci:set('wireless', radio, 'country', site.regdom)
++    local hwmode = uci:get('wireless', radio, 'hwmode')
++    if hwmode == '11g' then -- 5GHz Wifi does not need this tweaks
++      uci:set('wireless', radio, 'supported_rates', '6000 9000 12000 18000 24000 36000 48000 54000')
++      uci:set('wireless', radio, 'basic_rate', '6000 9000 18000 36000 54000')
++    end
++    uci:set('wireless', radio, 'iapp_interface', 'bat0')
++    uci:set('wireless', radio, 'max_inactivity', '120')
+   end
+ end
+ 
+-- 
+2.5.5
+
