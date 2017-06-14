@@ -1,0 +1,1 @@
+DEFAULT_GLUON_RELEASE := 4.3.0~nightly-exp$(shell date '+%Y%m%d')
