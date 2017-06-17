@@ -1,24 +1,25 @@
-From fc01dc9a53f6d4e4f733caaa4970d887b9138c4d Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Sat, 16 Jul 2016 21:01:46 +0200
+From 7545a3a5ae112461132b6f5a0d1cf76ce1556465 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 18:31:15 +0200
 Subject: [PATCH] change to email field-properties to make it mandatory
 
 ---
- .../files/lib/gluon/config-mode/wizard/0500-contact-info.lua             | 1 +
- 1 file changed, 1 insertion(+)
+ .../luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua           | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-index a2182f9..2ade520 100644
---- a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-+++ b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-@@ -19,6 +19,7 @@ function M.section(form)
-   o.datatype = "string"
-   o.description = i18n.translate("e.g. E-mail or phone number")
-   o.maxlen = 140
-+  o.minlen = 7
- end
- 
- function M.handle(data)
+diff --git a/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
+index 1ef5deaf..dc2c9b6b 100644
+--- a/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
++++ b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
+@@ -14,7 +14,7 @@ return function(form, uci)
+ 	o.default = uci:get("gluon-node-info", owner, "contact")
+ 	o.optional = not ((site.config_mode or {}).owner or {}).obligatory
+ 	-- without a minimal length, an empty string will be accepted even with "optional = false"
+-	o.datatype = "minlength(1)"
++	o.datatype = "minlength(7)"
+ 	function o:write(data)
+ 		if data then
+ 			uci:set("gluon-node-info", owner, "contact", data)
 -- 
-2.9.0
+2.13.1
 
