@@ -1,6 +1,6 @@
-From 5104bcb1a502cd5268dff1d94aa84dd3479a2082 Mon Sep 17 00:00:00 2001
-From: bitnukl <bitnukl@main.lan>
-Date: Sun, 17 Jul 2016 16:37:57 +0200
+From c9a9009490889fdfe38580b807a43d44cf9d7515 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 19:03:12 +0200
 Subject: [PATCH] new translation from @grmp
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] new translation from @grmp
  1 file changed, 17 insertions(+), 3 deletions(-)
 
 diff --git a/package/gluon-config-mode-contact-info/i18n/de.po b/package/gluon-config-mode-contact-info/i18n/de.po
-index 53f7634..2e603ce 100644
+index 53f76349..4431348d 100644
 --- a/package/gluon-config-mode-contact-info/i18n/de.po
 +++ b/package/gluon-config-mode-contact-info/i18n/de.po
 @@ -11,16 +11,30 @@ msgstr ""
@@ -46,5 +46,5 @@ index 53f7634..2e603ce 100644
 +msgid "a valid email address"
 +msgstr "Eine gültige E-Mail-Adresse"
 -- 
-2.5.5
+2.13.1
 
