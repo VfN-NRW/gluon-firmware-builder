@@ -1,6 +1,6 @@
-From 11895d64979f03404a8c21c8f13bdb54cc1a5daf Mon Sep 17 00:00:00 2001
+From 46bf5d2717ac75195f4765ad47e49d0a3a01a0f2 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 17 Jun 2017 21:06:00 +0200
+Date: Sat, 17 Jun 2017 20:47:18 +0200
 Subject: [PATCH] remove-respondd
 
 ---
@@ -13,7 +13,7 @@ Subject: [PATCH] remove-respondd
  package/gluon-mesh-batman-adv/src/batadv-netlink.h |  68 --
  package/gluon-mesh-batman-adv/src/batman_adv.h     | 208 ------
  package/gluon-mesh-batman-adv/src/respondd.c       | 774 ---------------------
- package/gluon-mesh-vpn-fastd/Makefile              |   1 -
+ package/gluon-mesh-vpn-fastd/Makefile              |   4 -
  package/gluon-mesh-vpn-fastd/src/Makefile          |   6 -
  package/gluon-mesh-vpn-fastd/src/respondd.c        | 311 ---------
  package/gluon-node-info/Makefile                   |   5 -
@@ -27,7 +27,7 @@ Subject: [PATCH] remove-respondd
  .../gluon-status-page-api/src/neighbours-batadv.c  | 130 ----
  package/gluon-status-page-api/src/respondd.c       |  47 --
  package/gluon-status-page-api/src/stations.c       | 126 ----
- 23 files changed, 2 insertions(+), 2552 deletions(-)
+ 23 files changed, 2 insertions(+), 2555 deletions(-)
  delete mode 100644 package/gluon-autoupdater/src/Makefile
  delete mode 100644 package/gluon-autoupdater/src/respondd.c
  delete mode 100644 package/gluon-mesh-batman-adv/src/Makefile
@@ -1466,10 +1466,18 @@ index 60df1523..00000000
 -	{}
 -};
 diff --git a/package/gluon-mesh-vpn-fastd/Makefile b/package/gluon-mesh-vpn-fastd/Makefile
-index 938337f7..9663aa87 100644
+index 2a1cc067..9663aa87 100644
 --- a/package/gluon-mesh-vpn-fastd/Makefile
 +++ b/package/gluon-mesh-vpn-fastd/Makefile
-@@ -17,7 +17,6 @@ endef
+@@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-vpn-fastd
+ PKG_VERSION:=3
+ 
+ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+-PKG_BUILD_DEPENDS := respondd
+ 
+ include ../gluon.mk
+ 
+@@ -18,7 +17,6 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
@@ -1477,6 +1485,15 @@ index 938337f7..9663aa87 100644
  endef
  
  define Build/Compile
+@@ -29,8 +27,6 @@ endef
+ define Package/gluon-mesh-vpn-fastd/install
+ 	$(CP) ./files/* $(1)/
+ 	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
+-	$(INSTALL_DIR) $(1)/lib/gluon/respondd
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/mesh-vpn-fastd.so
+ endef
+ 
+ define Package/gluon-mesh-vpn-fastd/postinst
 diff --git a/package/gluon-mesh-vpn-fastd/src/Makefile b/package/gluon-mesh-vpn-fastd/src/Makefile
 deleted file mode 100644
 index 3ddc8a58..00000000
