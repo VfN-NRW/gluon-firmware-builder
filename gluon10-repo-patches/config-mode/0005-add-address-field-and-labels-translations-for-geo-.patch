@@ -1,0 +1,96 @@
+From 0f1fbb1b5df9d090365f05a1f4313d850ebe8668 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 19:14:12 +0200
+Subject: [PATCH] add address field and labels / translations for geo
+
+---
+ package/gluon-config-mode-geo-location/i18n/de.po        | 16 ++++++++++++++--
+ .../i18n/gluon-config-mode-geo-location.pot              | 11 ++++++++++-
+ .../lib/gluon/config-mode/wizard/0400-geo-location.lua   | 15 ++++++++++++++-
+ 3 files changed, 38 insertions(+), 4 deletions(-)
+
+diff --git a/package/gluon-config-mode-geo-location/i18n/de.po b/package/gluon-config-mode-geo-location/i18n/de.po
+index c8bc906a..07d7fe25 100644
+--- a/package/gluon-config-mode-geo-location/i18n/de.po
++++ b/package/gluon-config-mode-geo-location/i18n/de.po
+@@ -23,8 +23,20 @@ msgstr "Breitengrad"
+ msgid "Longitude"
+ msgstr "Längengrad"
+ 
+-msgid "Show node on the map"
+-msgstr "Knoten auf der Karte anzeigen"
++msgid "Enter your own coordinates"
++msgstr "Koordinaten selbst festlegen"
+ 
+ msgid "e.g. %s"
+ msgstr "z.B. %s"
++
++msgid ""
++"If you are not aware of any coordinates, add here the address "
++"of the location, we will identify it's coordinates. Your node "
++"is added there on the map."
++msgstr ""
++"Wenn du die Koordinaten nicht kennst, dann füge hier die postalische "
++"Adresse des Knotens ein. Wir werden dann auf Basis der Adresse die "
++"Koordinaten berechnen und den Knoten auf der Karte darstellen"
++
++msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
++msgstr "Eine Adresse hat das Format: Musterstraße 13, 52042 Musterstadt"
+diff --git a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+index 7acf7f28..9112c600 100644
+--- a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
++++ b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+@@ -12,8 +12,17 @@ msgstr ""
+ msgid "Longitude"
+ msgstr ""
+ 
+-msgid "Show node on the map"
++msgid "Enter your own coordinates"
+ msgstr ""
+ 
+ msgid "e.g. %s"
+ msgstr ""
++
++msgid ""
++"If you are not aware of any coordinates, add here the address "
++"of the location, we will identify it's coordinates. Your node "
++"is added there on the map."
++msgstr ""
++
++msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
++msgstr ""
+diff --git a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
+index 4d7fec01..37550807 100644
+--- a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
++++ b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
+@@ -23,7 +23,7 @@ return function(form, uci)
+ 
+ 	local o
+ 
+-	local share_location = s:option(Flag, "location", translate("Show node on the map"))
++	local share_location = s:option(Flag, "location", translate("Enter your own coordinates"))
+ 	share_location.default = uci:get_bool("gluon-node-info", location, "share_location")
+ 	function share_location:write(data)
+ 		uci:set("gluon-node-info", location, "share_location", data)
+@@ -60,5 +60,18 @@ return function(form, uci)
+ 		end
+ 	end
+ 
++	o = s:option(Value, "address", translate("Location address"), translate("An address in format as: Sample Street 13, 52042 Musterstadt"))
++	o.default = uci:get("gluon-node-info", location, "address")
++	o.datatype = "string"
++	o.optional = true
++	o.maxlen = 60
++	function o:write(data)
++		if data then
++			uci:set("gluon-node-info", location, "address", data)
++		else
++			uci:delete("gluon-node-info", location, "address")
++		end
++	end
++
+ 	return {'gluon-node-info'}
+ end
+-- 
+2.13.1
+
