@@ -1,0 +1,43 @@
+From 0986cc857b373150a6cc31231296e543e4139da3 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 18:58:36 +0200
+Subject: [PATCH] added advisor contact info field into setup wizard
+
+---
+ .../wizard/0510-advisor-contact-info.lua           | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0510-advisor-contact-info.lua
+
+diff --git a/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0510-advisor-contact-info.lua b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0510-advisor-contact-info.lua
+new file mode 100644
+index 00000000..db3bd106
+--- /dev/null
++++ b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0510-advisor-contact-info.lua
+@@ -0,0 +1,24 @@
++return function(form, uci)
++	local site = require 'gluon.site_config'
++
++	local advisor = uci:get_first("gluon-node-info", "advisor")
++
++	local s = form:section(Section, nil, translate(
++		'If you set up this node for someone else, enter your '
++		.. 'email address here, so that you receive the '
++		.. 'validation message. Otherwise, leave this '
++		.. 'field empty.'
++	))
++
++	local o = s:option(Value, "contact_advisor", translate("Location advisor contact info"), translate("a valid email address"))
++	o.default = uci:get("gluon-node-info", advisor, "contact")
++	function o:write(data)
++		if data then
++			uci:set("gluon-node-info", advisor, "contact", data)
++		else
++			uci:delete("gluon-node-info", advisor, "contact")
++		end
++	end
++
++	return {'gluon-node-info'}
++end
+-- 
+2.13.1
+
