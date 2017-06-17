@@ -1,71 +1,85 @@
-From f1e351009861a83743a895df6240106c14cd9da4 Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Tue, 19 Jul 2016 19:42:35 +0200
-Subject: [PATCH] remove respondd
+From 11895d64979f03404a8c21c8f13bdb54cc1a5daf Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 21:06:00 +0200
+Subject: [PATCH] remove-respondd
 
 ---
- package/gluon-autoupdater/Makefile                |  11 +-
- package/gluon-autoupdater/src/Makefile            |   6 -
- package/gluon-autoupdater/src/respondd.c          |  79 ---
- package/gluon-mesh-batman-adv-core/Makefile       |  12 +-
- package/gluon-mesh-batman-adv-core/src/Makefile   |   6 -
- package/gluon-mesh-batman-adv-core/src/respondd.c | 604 ----------------------
- package/gluon-mesh-vpn-fastd/Makefile             |   7 +-
- package/gluon-mesh-vpn-fastd/src/Makefile         |   6 -
- package/gluon-mesh-vpn-fastd/src/respondd.c       | 305 -----------
- package/gluon-node-info/Makefile                  |  10 +-
- package/gluon-node-info/src/Makefile              |   6 -
- package/gluon-node-info/src/respondd.c            | 144 ------
- package/gluon-status-page-api/Makefile            |   6 +-
- 13 files changed, 26 insertions(+), 1176 deletions(-)
+ package/gluon-autoupdater/Makefile                 |   5 -
+ package/gluon-autoupdater/src/Makefile             |   6 -
+ package/gluon-autoupdater/src/respondd.c           |  79 ---
+ package/gluon-mesh-batman-adv/Makefile             |   6 +-
+ package/gluon-mesh-batman-adv/src/Makefile         |  24 -
+ package/gluon-mesh-batman-adv/src/batadv-netlink.c | 149 ----
+ package/gluon-mesh-batman-adv/src/batadv-netlink.h |  68 --
+ package/gluon-mesh-batman-adv/src/batman_adv.h     | 208 ------
+ package/gluon-mesh-batman-adv/src/respondd.c       | 774 ---------------------
+ package/gluon-mesh-vpn-fastd/Makefile              |   1 -
+ package/gluon-mesh-vpn-fastd/src/Makefile          |   6 -
+ package/gluon-mesh-vpn-fastd/src/respondd.c        | 311 ---------
+ package/gluon-node-info/Makefile                   |   5 -
+ package/gluon-node-info/src/Makefile               |   6 -
+ package/gluon-node-info/src/respondd.c             | 144 ----
+ package/gluon-status-page-api/Makefile             |   6 +-
+ package/gluon-status-page-api/src/Makefile         |  32 -
+ package/gluon-status-page-api/src/batadv-netlink.c | 145 ----
+ package/gluon-status-page-api/src/batadv-netlink.h |  68 --
+ package/gluon-status-page-api/src/batman_adv.h     | 208 ------
+ .../gluon-status-page-api/src/neighbours-batadv.c  | 130 ----
+ package/gluon-status-page-api/src/respondd.c       |  47 --
+ package/gluon-status-page-api/src/stations.c       | 126 ----
+ 23 files changed, 2 insertions(+), 2552 deletions(-)
  delete mode 100644 package/gluon-autoupdater/src/Makefile
  delete mode 100644 package/gluon-autoupdater/src/respondd.c
- delete mode 100644 package/gluon-mesh-batman-adv-core/src/Makefile
- delete mode 100644 package/gluon-mesh-batman-adv-core/src/respondd.c
+ delete mode 100644 package/gluon-mesh-batman-adv/src/Makefile
+ delete mode 100644 package/gluon-mesh-batman-adv/src/batadv-netlink.c
+ delete mode 100644 package/gluon-mesh-batman-adv/src/batadv-netlink.h
+ delete mode 100644 package/gluon-mesh-batman-adv/src/batman_adv.h
+ delete mode 100644 package/gluon-mesh-batman-adv/src/respondd.c
  delete mode 100644 package/gluon-mesh-vpn-fastd/src/Makefile
  delete mode 100644 package/gluon-mesh-vpn-fastd/src/respondd.c
  delete mode 100644 package/gluon-node-info/src/Makefile
  delete mode 100644 package/gluon-node-info/src/respondd.c
+ delete mode 100644 package/gluon-status-page-api/src/Makefile
+ delete mode 100644 package/gluon-status-page-api/src/batadv-netlink.c
+ delete mode 100644 package/gluon-status-page-api/src/batadv-netlink.h
+ delete mode 100644 package/gluon-status-page-api/src/batman_adv.h
+ delete mode 100644 package/gluon-status-page-api/src/neighbours-batadv.c
+ delete mode 100644 package/gluon-status-page-api/src/respondd.c
+ delete mode 100644 package/gluon-status-page-api/src/stations.c
 
 diff --git a/package/gluon-autoupdater/Makefile b/package/gluon-autoupdater/Makefile
-index 40120fa..f912eae 100644
+index eacf80c1..815d2874 100644
 --- a/package/gluon-autoupdater/Makefile
 +++ b/package/gluon-autoupdater/Makefile
-@@ -5,7 +5,6 @@ PKG_VERSION:=4
- PKG_RELEASE:=$(GLUON_BRANCH)
- 
+@@ -6,7 +6,6 @@ PKG_VERSION:=4
  PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+ 
+ PKG_CONFIG_DEPENDS := CONFIG_GLUON_BRANCH
 -PKG_BUILD_DEPENDS := respondd
  
- include $(GLUONDIR)/include/package.mk
  
-@@ -16,17 +15,19 @@ define Package/gluon-autoupdater
-   TITLE:=Automatically update firmware
- endef
+ include ../gluon.mk
+@@ -28,7 +27,6 @@ endef
  
-+define Build/Configure
-+endef
-+
-+define Build/Compile
-+endef
-+
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
  endef
  
- define Package/gluon-autoupdater/install
+ define Build/Compile
+@@ -40,9 +38,6 @@ define Package/gluon-autoupdater/install
  	$(CP) ./files/* $(1)/
+ 	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
  
 -	$(INSTALL_DIR) $(1)/lib/gluon/respondd
 -	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/autoupdater.so
 -
- 	if [ '$(GLUON_BRANCH)' ]; then \
- 		$(INSTALL_DIR) $(1)/lib/gluon/autoupdater; \
- 		echo '$(GLUON_BRANCH)' > $(1)/lib/gluon/autoupdater/default_branch; \
+ ifneq ($(CONFIG_GLUON_BRANCH),"")
+ 	$(INSTALL_DIR) $(1)/lib/gluon/autoupdater
+ 	echo '$(call qstrip,$(CONFIG_GLUON_BRANCH))' > $(1)/lib/gluon/autoupdater/default_branch
 diff --git a/package/gluon-autoupdater/src/Makefile b/package/gluon-autoupdater/src/Makefile
 deleted file mode 100644
-index 3ddc8a5..0000000
+index 3ddc8a58..00000000
 --- a/package/gluon-autoupdater/src/Makefile
 +++ /dev/null
 @@ -1,6 +0,0 @@
@@ -77,7 +91,7 @@ index 3ddc8a5..0000000
 -	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -D_GNU_SOURCE -o $@ $^ $(LDLIBS) -lgluonutil -luci
 diff --git a/package/gluon-autoupdater/src/respondd.c b/package/gluon-autoupdater/src/respondd.c
 deleted file mode 100644
-index 66b7a92..0000000
+index 66b7a928..00000000
 --- a/package/gluon-autoupdater/src/respondd.c
 +++ /dev/null
 @@ -1,79 +0,0 @@
@@ -160,63 +174,523 @@ index 66b7a92..0000000
 -	{"nodeinfo", respondd_provider_nodeinfo},
 -	{}
 -};
-diff --git a/package/gluon-mesh-batman-adv-core/Makefile b/package/gluon-mesh-batman-adv-core/Makefile
-index 365ccbc..f507b79 100644
---- a/package/gluon-mesh-batman-adv-core/Makefile
-+++ b/package/gluon-mesh-batman-adv-core/Makefile
-@@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-batman-adv-core
+diff --git a/package/gluon-mesh-batman-adv/Makefile b/package/gluon-mesh-batman-adv/Makefile
+index 9aa979fc..fbac5488 100644
+--- a/package/gluon-mesh-batman-adv/Makefile
++++ b/package/gluon-mesh-batman-adv/Makefile
+@@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-batman-adv
  PKG_VERSION:=1
  
  PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 -PKG_BUILD_DEPENDS := respondd
  
- include $(GLUONDIR)/include/package.mk
+ include ../gluon.mk
  
-@@ -12,19 +11,22 @@ define Package/gluon-mesh-batman-adv-core
+@@ -13,7 +12,7 @@ define Package/gluon-mesh-batman-adv/common
    SECTION:=gluon
    CATEGORY:=Gluon
-   TITLE:=Support for batman-adv meshing (core)
--  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +firewall +libiwinfo +batman-adv-visdata
-+  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +firewall +libiwinfo
-+endef
-+
-+define Build/Configure
-+endef
-+
-+define Build/Compile
+   PROVIDES:=gluon-mesh-batman-adv
+-  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +gluon-ebtables +firewall +libiwinfo +kmod-dummy +libnl-tiny
++  DEPENDS:=+gluon-core +libgluonutil +gluon-client-bridge +gluon-ebtables +firewall +libiwinfo +kmod-dummy
  endef
+ 
+ define Package/gluon-mesh-batman-adv-14
+@@ -31,7 +30,6 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
  endef
  
- define Package/gluon-mesh-batman-adv-core/install
+ define Build/Compile
+@@ -42,8 +40,6 @@ endef
+ define Package/gluon-mesh-batman-adv/common/install
  	$(CP) ./files/* $(1)/
- 
+ 	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
 -	$(INSTALL_DIR) $(1)/lib/gluon/respondd
--	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/mesh-batman-adv-core.so
- endef
+-	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/mesh-batman-adv.so
  
- define Package/gluon-mesh-batman-adv-core/postinst
-diff --git a/package/gluon-mesh-batman-adv-core/src/Makefile b/package/gluon-mesh-batman-adv-core/src/Makefile
+ 	$(INSTALL_DIR) $(1)/lib/gluon/mesh-batman-adv
+ endef
+diff --git a/package/gluon-mesh-batman-adv/src/Makefile b/package/gluon-mesh-batman-adv/src/Makefile
 deleted file mode 100644
-index 84d9d48..0000000
---- a/package/gluon-mesh-batman-adv-core/src/Makefile
+index 9206a067..00000000
+--- a/package/gluon-mesh-batman-adv/src/Makefile
 +++ /dev/null
-@@ -1,6 +0,0 @@
+@@ -1,24 +0,0 @@
 -all: respondd.so
 -
 -CFLAGS += -Wall
 -
--respondd.so: respondd.c
+-ifeq ($(origin PKG_CONFIG), undefined)
+-  PKG_CONFIG = pkg-config
+-  ifeq ($(shell which $(PKG_CONFIG) 2>/dev/null),)
+-    $(error $(PKG_CONFIG) not found)
+-  endif
+-endif
+-
+-ifeq ($(origin LIBNL_CFLAGS) $(origin LIBNL_LDLIBS), undefined undefined)
+-  LIBNL_NAME ?= libnl-tiny
+-  ifeq ($(shell $(PKG_CONFIG) --modversion $(LIBNL_NAME) 2>/dev/null),)
+-    $(error No $(LIBNL_NAME) development libraries found!)
+-  endif
+-  LIBNL_CFLAGS += $(shell $(PKG_CONFIG) --cflags $(LIBNL_NAME))
+-  LIBNL_LDLIBS +=  $(shell $(PKG_CONFIG) --libs $(LIBNL_NAME))
+-endif
+-CFLAGS += $(LIBNL_CFLAGS)
+-LDLIBS += $(LIBNL_LDLIBS)
+-
+-respondd.so: respondd.c batadv-netlink.c
 -	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -D_GNU_SOURCE -o $@ $^ $(LDLIBS) -lgluonutil -liwinfo -luci
-diff --git a/package/gluon-mesh-batman-adv-core/src/respondd.c b/package/gluon-mesh-batman-adv-core/src/respondd.c
+diff --git a/package/gluon-mesh-batman-adv/src/batadv-netlink.c b/package/gluon-mesh-batman-adv/src/batadv-netlink.c
 deleted file mode 100644
-index 7ffb94c..0000000
---- a/package/gluon-mesh-batman-adv-core/src/respondd.c
+index aeea7624..00000000
+--- a/package/gluon-mesh-batman-adv/src/batadv-netlink.c
 +++ /dev/null
-@@ -1,604 +0,0 @@
+@@ -1,149 +0,0 @@
+-/*
+- * Copyright (C) 2009-2016  B.A.T.M.A.N. contributors:
+- *
+- * Marek Lindner <mareklindner@neomailbox.ch>, Andrew Lunn <andrew@lunn.ch>
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of version 2 of the GNU General Public
+- * License as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+- * 02110-1301, USA
+- *
+- */
+-
+-#include "batadv-netlink.h"
+-
+-#include <stdbool.h>
+-#include <stddef.h>
+-#include <stdio.h>
+-#include <string.h>
+-#include <unistd.h>
+-#include <errno.h>
+-#include <net/ethernet.h>
+-#include <net/if.h>
+-#include <netlink/netlink.h>
+-#include <netlink/genl/genl.h>
+-#include <netlink/genl/ctrl.h>
+-#include <net/ethernet.h>
+-
+-#include "batman_adv.h"
+-
+-#ifndef __maybe_unused
+-#define __maybe_unused __attribute__((unused))
+-#endif
+-
+-struct nla_policy batadv_netlink_policy[NUM_BATADV_ATTR] = {
+-	[BATADV_ATTR_HARD_IFINDEX]	= { .type = NLA_U32 },
+-	[BATADV_ATTR_ORIG_ADDRESS]	= { .type = NLA_UNSPEC,
+-					    .minlen = ETH_ALEN,
+-					    .maxlen = ETH_ALEN },
+-	[BATADV_ATTR_TT_FLAGS]		= { .type = NLA_U32 },
+-	[BATADV_ATTR_FLAG_BEST]		= { .type = NLA_FLAG },
+-	[BATADV_ATTR_LAST_SEEN_MSECS]	= { .type = NLA_U32 },
+-	[BATADV_ATTR_NEIGH_ADDRESS]	= { .type = NLA_UNSPEC,
+-					    .minlen = ETH_ALEN,
+-					    .maxlen = ETH_ALEN },
+-	[BATADV_ATTR_TQ]		= { .type = NLA_U8 },
+-	[BATADV_ATTR_ROUTER]		= { .type = NLA_UNSPEC,
+-					    .minlen = ETH_ALEN,
+-					    .maxlen = ETH_ALEN },
+-};
+-
+-static int nlquery_error_cb(struct sockaddr_nl *nla __maybe_unused,
+-			    struct nlmsgerr *nlerr, void *arg)
+-{
+-	struct batadv_nlquery_opts *query_opts = arg;
+-
+-	query_opts->err = nlerr->error;
+-
+-	return NL_STOP;
+-}
+-
+-static int nlquery_stop_cb(struct nl_msg *msg, void *arg)
+-{
+-	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-	struct batadv_nlquery_opts *query_opts = arg;
+-	int *error = nlmsg_data(nlh);
+-
+-	if (*error)
+-		query_opts->err = *error;
+-
+-	return NL_STOP;
+-}
+-
+-int batadv_nl_query_common(const char *mesh_iface,
+-			   enum batadv_nl_commands nl_cmd,
+-			   nl_recvmsg_msg_cb_t callback, int flags,
+-			   struct batadv_nlquery_opts *query_opts)
+-{
+-	struct nl_sock *sock;
+-	struct nl_msg *msg;
+-	struct nl_cb *cb;
+-	int ifindex;
+-	int family;
+-	int ret;
+-
+-	query_opts->err = 0;
+-
+-	sock = nl_socket_alloc();
+-	if (!sock)
+-		return -ENOMEM;
+-
+-	ret = genl_connect(sock);
+-	if (ret < 0) {
+-		query_opts->err = ret;
+-		goto err_free_sock;
+-	}
+-
+-	family = genl_ctrl_resolve(sock, BATADV_NL_NAME);
+-	if (family < 0) {
+-		query_opts->err = -EOPNOTSUPP;
+-		goto err_free_sock;
+-	}
+-
+-	ifindex = if_nametoindex(mesh_iface);
+-	if (!ifindex) {
+-		query_opts->err = -ENODEV;
+-		goto err_free_sock;
+-	}
+-
+-	cb = nl_cb_alloc(NL_CB_DEFAULT);
+-	if (!cb) {
+-		query_opts->err = -ENOMEM;
+-		goto err_free_sock;
+-	}
+-
+-	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, callback, query_opts);
+-	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, nlquery_stop_cb, query_opts);
+-	nl_cb_err(cb, NL_CB_CUSTOM, nlquery_error_cb, query_opts);
+-
+-	msg = nlmsg_alloc();
+-	if (!msg) {
+-		query_opts->err = -ENOMEM;
+-		goto err_free_cb;
+-	}
+-
+-	genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, family, 0, flags,
+-		    nl_cmd, 1);
+-
+-	nla_put_u32(msg, BATADV_ATTR_MESH_IFINDEX, ifindex);
+-	nl_send_auto_complete(sock, msg);
+-	nlmsg_free(msg);
+-
+-	nl_recvmsgs(sock, cb);
+-
+-err_free_cb:
+-	nl_cb_put(cb);
+-err_free_sock:
+-	nl_socket_free(sock);
+-
+-	return query_opts->err;
+-}
+diff --git a/package/gluon-mesh-batman-adv/src/batadv-netlink.h b/package/gluon-mesh-batman-adv/src/batadv-netlink.h
+deleted file mode 100644
+index 8b85a6c2..00000000
+--- a/package/gluon-mesh-batman-adv/src/batadv-netlink.h
++++ /dev/null
+@@ -1,68 +0,0 @@
+-/*
+- * Copyright (C) 2009-2016  B.A.T.M.A.N. contributors:
+- *
+- * Marek Lindner <mareklindner@neomailbox.ch>, Andrew Lunn <andrew@lunn.ch>
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of version 2 of the GNU General Public
+- * License as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+- * 02110-1301, USA
+- *
+- */
+-
+-#ifndef _BATADV_NETLINK_H
+-#define _BATADV_NETLINK_H
+-
+-#include <netlink/netlink.h>
+-#include <netlink/genl/genl.h>
+-#include <netlink/genl/ctrl.h>
+-#include <stddef.h>
+-#include <stdbool.h>
+-
+-#include "batman_adv.h"
+-
+-struct batadv_nlquery_opts {
+-	int err;
+-};
+-
+-#ifndef ARRAY_SIZE
+-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+-#endif
+-
+-#ifndef container_of
+-#define container_of(ptr, type, member) __extension__ ({ \
+-	const __typeof__(((type *)0)->member) *__pmember = (ptr); \
+-	(type *)((char *)__pmember - offsetof(type, member)); })
+-#endif
+-
+-int batadv_nl_query_common(const char *mesh_iface,
+-			   enum batadv_nl_commands nl_cmd,
+-			   nl_recvmsg_msg_cb_t callback, int flags,
+-			   struct batadv_nlquery_opts *query_opts);
+-
+-static inline bool batadv_nl_missing_attrs(struct nlattr *attrs[],
+-					   const enum batadv_nl_attrs mandatory[],
+-					   size_t num)
+-{
+-	size_t i;
+-
+-	for (i = 0; i < num; i++) {
+-		if (!attrs[mandatory[i]])
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+-extern struct nla_policy batadv_netlink_policy[];
+-
+-#endif /* _BATADV_NETLINK_H */
+diff --git a/package/gluon-mesh-batman-adv/src/batman_adv.h b/package/gluon-mesh-batman-adv/src/batman_adv.h
+deleted file mode 100644
+index 734fe83a..00000000
+--- a/package/gluon-mesh-batman-adv/src/batman_adv.h
++++ /dev/null
+@@ -1,208 +0,0 @@
+-/* Copyright (C) 2016 B.A.T.M.A.N. contributors:
+- *
+- * Matthias Schiffer
+- *
+- * Permission to use, copy, modify, and/or distribute this software for any
+- * purpose with or without fee is hereby granted, provided that the above
+- * copyright notice and this permission notice appear in all copies.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef _UAPI_LINUX_BATMAN_ADV_H_
+-#define _UAPI_LINUX_BATMAN_ADV_H_
+-
+-#define BATADV_NL_NAME "batadv"
+-
+-#define BATADV_NL_MCAST_GROUP_TPMETER	"tpmeter"
+-
+-/**
+- * enum batadv_tt_client_flags - TT client specific flags
+- * @BATADV_TT_CLIENT_DEL: the client has to be deleted from the table
+- * @BATADV_TT_CLIENT_ROAM: the client roamed to/from another node and the new
+- *  update telling its new real location has not been received/sent yet
+- * @BATADV_TT_CLIENT_WIFI: this client is connected through a wifi interface.
+- *  This information is used by the "AP Isolation" feature
+- * @BATADV_TT_CLIENT_ISOLA: this client is considered "isolated". This
+- *  information is used by the Extended Isolation feature
+- * @BATADV_TT_CLIENT_NOPURGE: this client should never be removed from the table
+- * @BATADV_TT_CLIENT_NEW: this client has been added to the local table but has
+- *  not been announced yet
+- * @BATADV_TT_CLIENT_PENDING: this client is marked for removal but it is kept
+- *  in the table for one more originator interval for consistency purposes
+- * @BATADV_TT_CLIENT_TEMP: this global client has been detected to be part of
+- *  the network but no nnode has already announced it
+- *
+- * Bits from 0 to 7 are called _remote flags_ because they are sent on the wire.
+- * Bits from 8 to 15 are called _local flags_ because they are used for local
+- * computations only.
+- *
+- * Bits from 4 to 7 - a subset of remote flags - are ensured to be in sync with
+- * the other nodes in the network. To achieve this goal these flags are included
+- * in the TT CRC computation.
+- */
+-enum batadv_tt_client_flags {
+-	BATADV_TT_CLIENT_DEL     = (1 << 0),
+-	BATADV_TT_CLIENT_ROAM    = (1 << 1),
+-	BATADV_TT_CLIENT_WIFI    = (1 << 4),
+-	BATADV_TT_CLIENT_ISOLA	 = (1 << 5),
+-	BATADV_TT_CLIENT_NOPURGE = (1 << 8),
+-	BATADV_TT_CLIENT_NEW     = (1 << 9),
+-	BATADV_TT_CLIENT_PENDING = (1 << 10),
+-	BATADV_TT_CLIENT_TEMP	 = (1 << 11),
+-};
+-
+-/**
+- * enum batadv_nl_attrs - batman-adv netlink attributes
+- *
+- * @BATADV_ATTR_UNSPEC: unspecified attribute to catch errors
+- * @BATADV_ATTR_VERSION: batman-adv version string
+- * @BATADV_ATTR_ALGO_NAME: name of routing algorithm
+- * @BATADV_ATTR_MESH_IFINDEX: index of the batman-adv interface
+- * @BATADV_ATTR_MESH_IFNAME: name of the batman-adv interface
+- * @BATADV_ATTR_MESH_ADDRESS: mac address of the batman-adv interface
+- * @BATADV_ATTR_HARD_IFINDEX: index of the non-batman-adv interface
+- * @BATADV_ATTR_HARD_IFNAME: name of the non-batman-adv interface
+- * @BATADV_ATTR_HARD_ADDRESS: mac address of the non-batman-adv interface
+- * @BATADV_ATTR_ORIG_ADDRESS: originator mac address
+- * @BATADV_ATTR_TPMETER_RESULT: result of run (see batadv_tp_meter_status)
+- * @BATADV_ATTR_TPMETER_TEST_TIME: time (msec) the run took
+- * @BATADV_ATTR_TPMETER_BYTES: amount of acked bytes during run
+- * @BATADV_ATTR_TPMETER_COOKIE: session cookie to match tp_meter session
+- * @BATADV_ATTR_PAD: attribute used for padding for 64-bit alignment
+- * @BATADV_ATTR_ACTIVE: Flag indicating if the hard interface is active
+- * @BATADV_ATTR_TT_ADDRESS: Client MAC address
+- * @BATADV_ATTR_TT_TTVN: Translation table version
+- * @BATADV_ATTR_TT_LAST_TTVN: Previous translation table version
+- * @BATADV_ATTR_TT_CRC32: CRC32 over translation table
+- * @BATADV_ATTR_TT_VID: VLAN ID
+- * @BATADV_ATTR_TT_FLAGS: Translation table client flags
+- * @BATADV_ATTR_FLAG_BEST: Flags indicating entry is the best
+- * @BATADV_ATTR_LAST_SEEN_MSECS: Time in milliseconds since last seen
+- * @BATADV_ATTR_NEIGH_ADDRESS: Neighbour MAC address
+- * @BATADV_ATTR_TQ: TQ to neighbour
+- * @BATADV_ATTR_THROUGHPUT: Estimated throughput to Neighbour
+- * @BATADV_ATTR_BANDWIDTH_UP: Reported uplink bandwidth
+- * @BATADV_ATTR_BANDWIDTH_DOWN: Reported downlink bandwidth
+- * @BATADV_ATTR_ROUTER: Gateway router MAC address
+- * @BATADV_ATTR_BLA_OWN: Flag indicating own originator
+- * @BATADV_ATTR_BLA_ADDRESS: Bridge loop avoidance claim MAC address
+- * @BATADV_ATTR_BLA_VID: BLA VLAN ID
+- * @BATADV_ATTR_BLA_BACKBONE: BLA gateway originator MAC address
+- * @BATADV_ATTR_BLA_CRC: BLA CRC
+- * @__BATADV_ATTR_AFTER_LAST: internal use
+- * @NUM_BATADV_ATTR: total number of batadv_nl_attrs available
+- * @BATADV_ATTR_MAX: highest attribute number currently defined
+- */
+-enum batadv_nl_attrs {
+-	BATADV_ATTR_UNSPEC,
+-	BATADV_ATTR_VERSION,
+-	BATADV_ATTR_ALGO_NAME,
+-	BATADV_ATTR_MESH_IFINDEX,
+-	BATADV_ATTR_MESH_IFNAME,
+-	BATADV_ATTR_MESH_ADDRESS,
+-	BATADV_ATTR_HARD_IFINDEX,
+-	BATADV_ATTR_HARD_IFNAME,
+-	BATADV_ATTR_HARD_ADDRESS,
+-	BATADV_ATTR_ORIG_ADDRESS,
+-	BATADV_ATTR_TPMETER_RESULT,
+-	BATADV_ATTR_TPMETER_TEST_TIME,
+-	BATADV_ATTR_TPMETER_BYTES,
+-	BATADV_ATTR_TPMETER_COOKIE,
+-	BATADV_ATTR_PAD,
+-	BATADV_ATTR_ACTIVE,
+-	BATADV_ATTR_TT_ADDRESS,
+-	BATADV_ATTR_TT_TTVN,
+-	BATADV_ATTR_TT_LAST_TTVN,
+-	BATADV_ATTR_TT_CRC32,
+-	BATADV_ATTR_TT_VID,
+-	BATADV_ATTR_TT_FLAGS,
+-	BATADV_ATTR_FLAG_BEST,
+-	BATADV_ATTR_LAST_SEEN_MSECS,
+-	BATADV_ATTR_NEIGH_ADDRESS,
+-	BATADV_ATTR_TQ,
+-	BATADV_ATTR_THROUGHPUT,
+-	BATADV_ATTR_BANDWIDTH_UP,
+-	BATADV_ATTR_BANDWIDTH_DOWN,
+-	BATADV_ATTR_ROUTER,
+-	BATADV_ATTR_BLA_OWN,
+-	BATADV_ATTR_BLA_ADDRESS,
+-	BATADV_ATTR_BLA_VID,
+-	BATADV_ATTR_BLA_BACKBONE,
+-	BATADV_ATTR_BLA_CRC,
+-	/* add attributes above here, update the policy in netlink.c */
+-	__BATADV_ATTR_AFTER_LAST,
+-	NUM_BATADV_ATTR = __BATADV_ATTR_AFTER_LAST,
+-	BATADV_ATTR_MAX = __BATADV_ATTR_AFTER_LAST - 1
+-};
+-
+-/**
+- * enum batadv_nl_commands - supported batman-adv netlink commands
+- *
+- * @BATADV_CMD_UNSPEC: unspecified command to catch errors
+- * @BATADV_CMD_GET_MESH_INFO: Query basic information about batman-adv device
+- * @BATADV_CMD_TP_METER: Start a tp meter session
+- * @BATADV_CMD_TP_METER_CANCEL: Cancel a tp meter session
+- * @BATADV_CMD_GET_ROUTING_ALGOS: Query the list of routing algorithms.
+- * @BATADV_CMD_GET_HARDIFS: Query list of hard interfaces
+- * @BATADV_CMD_GET_TRANSTABLE_LOCAL: Query list of local translations
+- * @BATADV_CMD_GET_TRANSTABLE_GLOBAL Query list of global translations
+- * @BATADV_CMD_GET_ORIGINATORS: Query list of originators
+- * @BATADV_CMD_GET_NEIGHBORS: Query list of neighbours
+- * @BATADV_CMD_GET_GATEWAYS: Query list of gateways
+- * @BATADV_CMD_GET_BLA_CLAIM: Query list of bridge loop avoidance claims
+- * @BATADV_CMD_GET_BLA_BACKBONE: Query list of bridge loop avoidance backbones
+- * @__BATADV_CMD_AFTER_LAST: internal use
+- * @BATADV_CMD_MAX: highest used command number
+- */
+-enum batadv_nl_commands {
+-	BATADV_CMD_UNSPEC,
+-	BATADV_CMD_GET_MESH_INFO,
+-	BATADV_CMD_TP_METER,
+-	BATADV_CMD_TP_METER_CANCEL,
+-	BATADV_CMD_GET_ROUTING_ALGOS,
+-	BATADV_CMD_GET_HARDIFS,
+-	BATADV_CMD_GET_TRANSTABLE_LOCAL,
+-	BATADV_CMD_GET_TRANSTABLE_GLOBAL,
+-	BATADV_CMD_GET_ORIGINATORS,
+-	BATADV_CMD_GET_NEIGHBORS,
+-	BATADV_CMD_GET_GATEWAYS,
+-	BATADV_CMD_GET_BLA_CLAIM,
+-	BATADV_CMD_GET_BLA_BACKBONE,
+-	/* add new commands above here */
+-	__BATADV_CMD_AFTER_LAST,
+-	BATADV_CMD_MAX = __BATADV_CMD_AFTER_LAST - 1
+-};
+-
+-/**
+- * enum batadv_tp_meter_reason - reason of a tp meter test run stop
+- * @BATADV_TP_REASON_COMPLETE: sender finished tp run
+- * @BATADV_TP_REASON_CANCEL: sender was stopped during run
+- * @BATADV_TP_REASON_DST_UNREACHABLE: receiver could not be reached or didn't
+- *  answer
+- * @BATADV_TP_REASON_RESEND_LIMIT: (unused) sender retry reached limit
+- * @BATADV_TP_REASON_ALREADY_ONGOING: test to or from the same node already
+- *  ongoing
+- * @BATADV_TP_REASON_MEMORY_ERROR: test was stopped due to low memory
+- * @BATADV_TP_REASON_CANT_SEND: failed to send via outgoing interface
+- * @BATADV_TP_REASON_TOO_MANY: too many ongoing sessions
+- */
+-enum batadv_tp_meter_reason {
+-	BATADV_TP_REASON_COMPLETE		= 3,
+-	BATADV_TP_REASON_CANCEL			= 4,
+-	/* error status >= 128 */
+-	BATADV_TP_REASON_DST_UNREACHABLE	= 128,
+-	BATADV_TP_REASON_RESEND_LIMIT		= 129,
+-	BATADV_TP_REASON_ALREADY_ONGOING	= 130,
+-	BATADV_TP_REASON_MEMORY_ERROR		= 131,
+-	BATADV_TP_REASON_CANT_SEND		= 132,
+-	BATADV_TP_REASON_TOO_MANY		= 133,
+-};
+-
+-#endif /* _UAPI_LINUX_BATMAN_ADV_H_ */
+diff --git a/package/gluon-mesh-batman-adv/src/respondd.c b/package/gluon-mesh-batman-adv/src/respondd.c
+deleted file mode 100644
+index 60df1523..00000000
+--- a/package/gluon-mesh-batman-adv/src/respondd.c
++++ /dev/null
+@@ -1,774 +0,0 @@
 -/*
 -  Copyright (c) 2016, Matthias Schiffer <mschiffer@universe-factory.net>
 -  All rights reserved.
@@ -248,6 +722,7 @@ index 7ffb94c..0000000
 -#include <iwinfo.h>
 -#include <json-c/json.h>
 -#include <libgluonutil.h>
+-#include <uci.h>
 -
 -#include <alloca.h>
 -#include <glob.h>
@@ -269,10 +744,27 @@ index 7ffb94c..0000000
 -#include <linux/if_addr.h>
 -#include <linux/sockios.h>
 -
+-#include "batadv-netlink.h"
 -
 -
 -#define _STRINGIFY(s) #s
 -#define STRINGIFY(s) _STRINGIFY(s)
+-
+-struct neigh_netlink_opts {
+-	struct json_object *interfaces;
+-	struct batadv_nlquery_opts query_opts;
+-};
+-
+-struct gw_netlink_opts {
+-	struct json_object *obj;
+-	struct batadv_nlquery_opts query_opts;
+-};
+-
+-struct clients_netlink_opts {
+-	size_t total;
+-	size_t wifi;
+-	struct batadv_nlquery_opts query_opts;
+-};
 -
 -
 -static struct json_object * get_addresses(void) {
@@ -339,9 +831,31 @@ index 7ffb94c..0000000
 -			   struct json_object *tunnel, struct json_object *other) {
 -	struct json_object *address = gluonutil_wrap_and_free_string(gluonutil_get_interface_address(ifname));
 -
--	if (interface_file_exists(ifname, "wireless"))
+-	char lowername[IFNAMSIZ];
+-	strncpy(lowername, ifname, sizeof(lowername)-1);
+-	lowername[sizeof(lowername)-1] = 0;
+-
+-	const char *format = "/sys/class/net/%s/lower_*";
+-	char pattern[strlen(format) + IFNAMSIZ];
+-
+-	/* In case of VLAN and bridge interfaces, we want the lower interface
+-	 * to determine the interface type (but not for the interface address) */
+-	while (true) {
+-		snprintf(pattern, sizeof(pattern), format, lowername);
+-		size_t pattern_len = strlen(pattern);
+-
+-		glob_t lower;
+-		if (glob(pattern, GLOB_NOSORT, NULL, &lower))
+-			break;
+-
+-		strncpy(lowername, lower.gl_pathv[0] + pattern_len - 1, sizeof(lowername)-1);
+-
+-		globfree(&lower);
+-	}
+-
+-	if (interface_file_exists(lowername, "wireless"))
 -		json_object_array_add(wireless, address);
--	else if (interface_file_exists(ifname, "tun_flags"))
+-	else if (interface_file_exists(lowername, "tun_flags"))
 -		json_object_array_add(tunnel, address);
 -	else
 -		json_object_array_add(other, address);
@@ -386,7 +900,7 @@ index 7ffb94c..0000000
 -}
 -
 -static struct json_object * get_batman_adv_compat(void) {
--	FILE *f = fopen("/lib/gluon/mesh-batman-adv-core/compat", "r");
+-	FILE *f = fopen("/lib/gluon/mesh-batman-adv/compat", "r");
 -	if (!f)
 -		return NULL;
 -
@@ -419,27 +933,70 @@ index 7ffb94c..0000000
 -	return ret;
 -}
 -
+-static const enum batadv_nl_attrs gateways_mandatory[] = {
+-	BATADV_ATTR_ORIG_ADDRESS,
+-	BATADV_ATTR_ROUTER,
+-};
+-
+-static int parse_gw_list_netlink_cb(struct nl_msg *msg, void *arg)
+-{
+-	struct nlattr *attrs[BATADV_ATTR_MAX+1];
+-	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-	struct batadv_nlquery_opts *query_opts = arg;
+-	struct genlmsghdr *ghdr;
+-	uint8_t *orig;
+-	uint8_t *router;
+-	struct gw_netlink_opts *opts;
+-	char addr[18];
+-
+-	opts = container_of(query_opts, struct gw_netlink_opts, query_opts);
+-
+-	if (!genlmsg_valid_hdr(nlh, 0))
+-		return NL_OK;
+-
+-	ghdr = nlmsg_data(nlh);
+-
+-	if (ghdr->cmd != BATADV_CMD_GET_GATEWAYS)
+-		return NL_OK;
+-
+-	if (nla_parse(attrs, BATADV_ATTR_MAX, genlmsg_attrdata(ghdr, 0),
+-		      genlmsg_len(ghdr), batadv_netlink_policy))
+-		return NL_OK;
+-
+-	if (batadv_nl_missing_attrs(attrs, gateways_mandatory,
+-				    ARRAY_SIZE(gateways_mandatory)))
+-		return NL_OK;
+-
+-	if (!attrs[BATADV_ATTR_FLAG_BEST])
+-		return NL_OK;
+-
+-	orig = nla_data(attrs[BATADV_ATTR_ORIG_ADDRESS]);
+-	router = nla_data(attrs[BATADV_ATTR_ROUTER]);
+-
+-	sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x",
+-		orig[0], orig[1], orig[2], orig[3], orig[4], orig[5]);
+-
+-	json_object_object_add(opts->obj, "gateway", json_object_new_string(addr));
+-
+-	sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x",
+-		router[0], router[1], router[2], router[3], router[4], router[5]);
+-
+-	json_object_object_add(opts->obj, "gateway_nexthop", json_object_new_string(addr));
+-
+-	return NL_STOP;
+-}
 -
 -static void add_gateway(struct json_object *obj) {
--	FILE *f = fopen("/sys/kernel/debug/batman_adv/bat0/gateways", "r");
--	if (!f)
--		return;
+-	struct gw_netlink_opts opts = {
+-		.obj = obj,
+-		.query_opts = {
+-			.err = 0,
+-		},
+-	};
 -
--	char *line = NULL;
--	size_t len = 0;
--
--	while (getline(&line, &len, f) >= 0) {
--		char addr[18];
--
--		if (sscanf(line, "=> %17[0-9a-fA-F:]", addr) != 1)
--			continue;
--
--		json_object_object_add(obj, "gateway", json_object_new_string(addr));
--		break;
--	}
--
--	free(line);
--	fclose(f);
+-	batadv_nl_query_common("bat0", BATADV_CMD_GET_GATEWAYS,
+-			       parse_gw_list_netlink_cb, NLM_F_DUMP,
+-			       &opts.query_opts);
 -}
 -
 -static inline bool ethtool_ioctl(int fd, struct ifreq *ifr, void *data) {
@@ -615,39 +1172,69 @@ index 7ffb94c..0000000
 -	uci_free_context(ctx);
 -}
 -
+-static const enum batadv_nl_attrs clients_mandatory[] = {
+-	BATADV_ATTR_TT_FLAGS,
+-};
+-
+-static int parse_clients_list_netlink_cb(struct nl_msg *msg, void *arg)
+-{
+-	struct nlattr *attrs[BATADV_ATTR_MAX+1];
+-	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-	struct batadv_nlquery_opts *query_opts = arg;
+-	struct genlmsghdr *ghdr;
+-	struct clients_netlink_opts *opts;
+-	uint32_t flags;
+-
+-	opts = container_of(query_opts, struct clients_netlink_opts, query_opts);
+-
+-	if (!genlmsg_valid_hdr(nlh, 0))
+-		return NL_OK;
+-
+-	ghdr = nlmsg_data(nlh);
+-
+-	if (ghdr->cmd != BATADV_CMD_GET_TRANSTABLE_LOCAL)
+-		return NL_OK;
+-
+-	if (nla_parse(attrs, BATADV_ATTR_MAX, genlmsg_attrdata(ghdr, 0),
+-		      genlmsg_len(ghdr), batadv_netlink_policy))
+-		return NL_OK;
+-
+-	if (batadv_nl_missing_attrs(attrs, clients_mandatory,
+-				    ARRAY_SIZE(clients_mandatory)))
+-		return NL_OK;
+-
+-	flags = nla_get_u32(attrs[BATADV_ATTR_TT_FLAGS]);
+-
+-	if (flags & BATADV_TT_CLIENT_NOPURGE)
+-		return NL_OK;
+-
+-	if (flags & BATADV_TT_CLIENT_WIFI)
+-		opts->wifi++;
+-
+-	opts->total++;
+-
+-	return NL_OK;
+-}
+-
 -static struct json_object * get_clients(void) {
--	size_t total = 0, wifi = 0, wifi24 = 0, wifi5 = 0;
+-	size_t wifi24 = 0, wifi5 = 0;
+-	struct clients_netlink_opts opts = {
+-		.total = 0,
+-		.wifi = 0,
+-		.query_opts = {
+-			.err = 0,
+-		},
+-	};
 -
--	FILE *f = fopen("/sys/kernel/debug/batman_adv/bat0/transtable_local", "r");
--	if (!f)
--		return NULL;
--
--	char *line = NULL;
--	size_t len = 0;
--
--	while (getline(&line, &len, f) >= 0) {
--		char flags[16];
--
--		if (sscanf(line, " * %*[^[] [%15[^]]]", flags) != 1)
--			continue;
--
--		if (strchr(flags, 'P'))
--			continue;
--
--		total++;
--
--		if (strchr(flags, 'W'))
--			wifi++;
--	}
--
--	free(line);
--	fclose(f);
+-	batadv_nl_query_common("bat0", BATADV_CMD_GET_TRANSTABLE_LOCAL,
+-			       parse_clients_list_netlink_cb, NLM_F_DUMP,
+-			       &opts.query_opts);
 -
 -	count_stations(&wifi24, &wifi5);
 -
 -	struct json_object *ret = json_object_new_object();
--	json_object_object_add(ret, "total", json_object_new_int(total));
--	json_object_object_add(ret, "wifi", json_object_new_int(wifi));
+-	json_object_object_add(ret, "total", json_object_new_int(opts.total));
+-	json_object_object_add(ret, "wifi", json_object_new_int(opts.wifi));
 -	json_object_object_add(ret, "wifi24", json_object_new_int(wifi24));
 -	json_object_object_add(ret, "wifi5", json_object_new_int(wifi5));
 -	return ret;
@@ -686,47 +1273,104 @@ index 7ffb94c..0000000
 -	return ret;
 -}
 -
--static struct json_object * get_batadv(void) {
--	FILE *f = fopen("/tmp/batman-adv-visdata/bat0/originators", "r");
--	if (!f)
--		return NULL;
+-static const enum batadv_nl_attrs parse_orig_list_mandatory[] = {
+-	BATADV_ATTR_ORIG_ADDRESS,
+-	BATADV_ATTR_NEIGH_ADDRESS,
+-	BATADV_ATTR_TQ,
+-	BATADV_ATTR_HARD_IFINDEX,
+-	BATADV_ATTR_LAST_SEEN_MSECS,
+-};
 -
--	char *line = NULL;
--	size_t len = 0;
+-static int parse_orig_list_netlink_cb(struct nl_msg *msg, void *arg)
+-{
+-	struct nlattr *attrs[BATADV_ATTR_MAX+1];
+-	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-	struct batadv_nlquery_opts *query_opts = arg;
+-	struct genlmsghdr *ghdr;
+-	uint8_t *orig;
+-	uint8_t *dest;
+-	uint8_t tq;
+-	uint32_t hardif;
+-	uint32_t lastseen;
+-	char ifname_buf[IF_NAMESIZE], *ifname;
+-	struct neigh_netlink_opts *opts;
+-	char mac1[18];
 -
--	struct json_object *interfaces = json_object_new_object();
+-	opts = container_of(query_opts, struct neigh_netlink_opts, query_opts);
 -
--	while (getline(&line, &len, f) >= 0) {
--		char mac1[18], mac2[18];
--		/* IF_NAMESIZE would be enough, but adding 1 here is simpler than subtracting 1 in the format string */
--		char ifname[IF_NAMESIZE+1];
--		double lastseen;
--		int tq;
+-	if (!genlmsg_valid_hdr(nlh, 0))
+-		return NL_OK;
 -
--		if (sscanf(line,
--			   "%17[0-9a-fA-F:] %lfs ( %i ) %17[0-9a-fA-F:] [ %"STRINGIFY(IF_NAMESIZE)"[^]] ]",
--			   mac1, &lastseen, &tq, mac2, ifname) != 5)
--			continue;
+-	ghdr = nlmsg_data(nlh);
 -
--		if (strcmp(mac1, mac2))
--			continue;
+-	if (ghdr->cmd != BATADV_CMD_GET_ORIGINATORS)
+-		return NL_OK;
 -
--		struct json_object *interface;
--		if (!json_object_object_get_ex(interfaces, ifname, &interface)) {
--			interface = json_object_new_object();
--			json_object_object_add(interfaces, ifname, interface);
--		}
+-	if (nla_parse(attrs, BATADV_ATTR_MAX, genlmsg_attrdata(ghdr, 0),
+-		      genlmsg_len(ghdr), batadv_netlink_policy))
+-		return NL_OK;
 -
--		struct json_object *obj = json_object_new_object();
--		json_object_object_add(obj, "tq", json_object_new_int(tq));
--		json_object_object_add(obj, "lastseen", json_object_new_double(lastseen));
--		json_object_object_add(interface, mac1, obj);
+-	if (batadv_nl_missing_attrs(attrs, parse_orig_list_mandatory,
+-				    ARRAY_SIZE(parse_orig_list_mandatory)))
+-		return NL_OK;
+-
+-	if (!attrs[BATADV_ATTR_FLAG_BEST])
+-		return NL_OK;
+-
+-	orig = nla_data(attrs[BATADV_ATTR_ORIG_ADDRESS]);
+-	dest = nla_data(attrs[BATADV_ATTR_NEIGH_ADDRESS]);
+-	tq = nla_get_u8(attrs[BATADV_ATTR_TQ]);
+-	hardif = nla_get_u32(attrs[BATADV_ATTR_HARD_IFINDEX]);
+-	lastseen = nla_get_u32(attrs[BATADV_ATTR_LAST_SEEN_MSECS]);
+-
+-	if (memcmp(orig, dest, 6) != 0)
+-		return NL_OK;
+-
+-	ifname = if_indextoname(hardif, ifname_buf);
+-	if (!ifname)
+-		return NL_OK;
+-
+-	sprintf(mac1, "%02x:%02x:%02x:%02x:%02x:%02x",
+-		orig[0], orig[1], orig[2], orig[3], orig[4], orig[5]);
+-
+-	struct json_object *obj = json_object_new_object();
+-	if (!obj)
+-		return NL_OK;
+-
+-	struct json_object *interface;
+-	if (!json_object_object_get_ex(opts->interfaces, ifname, &interface)) {
+-		interface = json_object_new_object();
+-		json_object_object_add(opts->interfaces, ifname, interface);
 -	}
 -
--	fclose(f);
--	free(line);
+-	json_object_object_add(obj, "tq", json_object_new_int(tq));
+-	json_object_object_add(obj, "lastseen", json_object_new_double(lastseen / 1000.));
+-	json_object_object_add(interface, mac1, obj);
 -
--	return ifnames2addrs(interfaces);
+-	return NL_OK;
+-}
+-
+-static struct json_object * get_batadv(void) {
+-	struct neigh_netlink_opts opts = {
+-		.query_opts = {
+-			.err = 0,
+-		},
+-	};
+-	int ret;
+-
+-	opts.interfaces = json_object_new_object();
+-	if (!opts.interfaces)
+-		return NULL;
+-
+-	ret = batadv_nl_query_common("bat0", BATADV_CMD_GET_ORIGINATORS,
+-				     parse_orig_list_netlink_cb, NLM_F_DUMP,
+-				     &opts.query_opts);
+-	if (ret < 0) {
+-		json_object_put(opts.interfaces);
+-		return NULL;
+-	}
+-
+-	return ifnames2addrs(opts.interfaces);
 -}
 -
 -static struct json_object * get_wifi_neighbours(const char *ifname) {
@@ -822,28 +1466,20 @@ index 7ffb94c..0000000
 -	{}
 -};
 diff --git a/package/gluon-mesh-vpn-fastd/Makefile b/package/gluon-mesh-vpn-fastd/Makefile
-index bb33257..2f6c4bc 100644
+index 938337f7..9663aa87 100644
 --- a/package/gluon-mesh-vpn-fastd/Makefile
 +++ b/package/gluon-mesh-vpn-fastd/Makefile
-@@ -15,9 +15,14 @@ define Package/gluon-mesh-vpn-fastd
-   DEPENDS:=+gluon-core +libgluonutil gluon-mesh-batman-adv +gluon-wan-dnsmasq +fastd +iptables +iptables-mod-extra +simple-tc
- endef
+@@ -17,7 +17,6 @@ endef
  
-+define Build/Configure
-+endef
-+
-+define Build/Compile
-+endef
-+
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
  endef
  
- define Package/gluon-mesh-vpn-fastd/install
+ define Build/Compile
 diff --git a/package/gluon-mesh-vpn-fastd/src/Makefile b/package/gluon-mesh-vpn-fastd/src/Makefile
 deleted file mode 100644
-index 3ddc8a5..0000000
+index 3ddc8a58..00000000
 --- a/package/gluon-mesh-vpn-fastd/src/Makefile
 +++ /dev/null
 @@ -1,6 +0,0 @@
@@ -855,10 +1491,10 @@ index 3ddc8a5..0000000
 -	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -D_GNU_SOURCE -o $@ $^ $(LDLIBS) -lgluonutil -luci
 diff --git a/package/gluon-mesh-vpn-fastd/src/respondd.c b/package/gluon-mesh-vpn-fastd/src/respondd.c
 deleted file mode 100644
-index 3045c77..0000000
+index 87d69e07..00000000
 --- a/package/gluon-mesh-vpn-fastd/src/respondd.c
 +++ /dev/null
-@@ -1,305 +0,0 @@
+@@ -1,311 +0,0 @@
 -/*
 -  Copyright (c) 2016, Matthias Schiffer <mschiffer@universe-factory.net>
 -  All rights reserved.
@@ -1053,7 +1689,9 @@ index 3045c77..0000000
 -		int64_t established_time = json_object_get_int64(established);
 -
 -		*ret = json_object_new_object();
--		json_object_object_add(*ret, "established", json_object_new_double(established_time/1000.0));
+-		struct json_object *jso = json_object_new_double(established_time/1000.0);
+-		json_object_set_serializer(jso, json_object_double_to_json_string, "%.3f", NULL);
+-		json_object_object_add(*ret, "established", jso);
 -	}
 -	else {
 -		*ret = NULL;
@@ -1135,11 +1773,15 @@ index 3045c77..0000000
 -	if (!site)
 -		goto end;
 -
--	struct json_object *fastd_mesh_vpn;
--	if (!json_object_object_get_ex(site, "fastd_mesh_vpn", &fastd_mesh_vpn))
+-	struct json_object *mesh_vpn;
+-	if (!json_object_object_get_ex(site, "mesh_vpn", &mesh_vpn))
 -		goto end;
 -
--	ret = get_peer_group(fastd_mesh_vpn, peers);
+-	struct json_object *mesh_vpn_fastd;
+-	if (!json_object_object_get_ex(mesh_vpn, "fastd", &mesh_vpn_fastd))
+-		goto end;
+-
+-	ret = get_peer_group(mesh_vpn_fastd, peers);
 -
 - end:
 -	json_object_put(site);
@@ -1165,7 +1807,7 @@ index 3045c77..0000000
 -	{}
 -};
 diff --git a/package/gluon-node-info/Makefile b/package/gluon-node-info/Makefile
-index a5ac8dd..0817f7f 100644
+index 59f60dfd..63516533 100644
 --- a/package/gluon-node-info/Makefile
 +++ b/package/gluon-node-info/Makefile
 @@ -5,7 +5,6 @@ PKG_VERSION:=1
@@ -1174,18 +1816,10 @@ index a5ac8dd..0817f7f 100644
  PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 -PKG_BUILD_DEPENDS := respondd
  
- include $(GLUONDIR)/include/package.mk
+ include ../gluon.mk
  
-@@ -16,16 +15,19 @@ define Package/gluon-node-info
-   DEPENDS:=+gluon-core +libgluonutil
- endef
+@@ -19,14 +18,10 @@ endef
  
-+define Build/Configure
-+endef
-+
-+define Build/Compile
-+endef
-+
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
@@ -1193,7 +1827,7 @@ index a5ac8dd..0817f7f 100644
  
  define Package/gluon-node-info/install
  	$(CP) ./files/* $(1)/
- 
+-
 -	$(INSTALL_DIR) $(1)/lib/gluon/respondd
 -	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/node-info.so
  endef
@@ -1201,7 +1835,7 @@ index a5ac8dd..0817f7f 100644
  define Package/gluon-node-info/postinst
 diff --git a/package/gluon-node-info/src/Makefile b/package/gluon-node-info/src/Makefile
 deleted file mode 100644
-index 3ddc8a5..0000000
+index 3ddc8a58..00000000
 --- a/package/gluon-node-info/src/Makefile
 +++ /dev/null
 @@ -1,6 +0,0 @@
@@ -1213,7 +1847,7 @@ index 3ddc8a5..0000000
 -	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -D_GNU_SOURCE -o $@ $^ $(LDLIBS) -lgluonutil -luci
 diff --git a/package/gluon-node-info/src/respondd.c b/package/gluon-node-info/src/respondd.c
 deleted file mode 100644
-index dfbfd3f..0000000
+index 3b0e07dc..00000000
 --- a/package/gluon-node-info/src/respondd.c
 +++ /dev/null
 @@ -1,144 +0,0 @@
@@ -1283,7 +1917,15 @@ index dfbfd3f..0000000
 -	if (*end)
 -		return NULL;
 -
--	return json_object_new_double(d);
+-	struct json_object *jso = json_object_new_double(d);
+-	json_object_set_serializer(jso, json_object_double_to_json_string, "%.8f", NULL);
+-	return jso;
+-}
+-
+-static void maybe_add_number(struct uci_context *ctx, struct uci_section *s, const char *name, struct json_object *parent) {
+-	struct json_object *jso = get_number(ctx, s, name);
+-	if (jso)
+-		json_object_object_add(parent, name, jso);
 -}
 -
 -static struct json_object * get_location(struct uci_context *ctx, struct uci_package *p) {
@@ -1297,17 +1939,9 @@ index dfbfd3f..0000000
 -
 -	struct json_object *ret = json_object_new_object();
 -
--	struct json_object *latitude = get_number(ctx, s, "latitude");
--	if (latitude)
--		json_object_object_add(ret, "latitude", latitude);
--
--	struct json_object *longitude = get_number(ctx, s, "longitude");
--	if (longitude)
--		json_object_object_add(ret, "longitude", longitude);
--
--	struct json_object *altitude = get_number(ctx, s, "altitude");
--	if (altitude)
--		json_object_object_add(ret, "altitude", altitude);
+-	maybe_add_number(ctx, s, "latitude", ret);
+-	maybe_add_number(ctx, s, "longitude", ret);
+-	maybe_add_number(ctx, s, "altitude", ret);
 -
 -	return ret;
 -}
@@ -1362,7 +1996,7 @@ index dfbfd3f..0000000
 -	{}
 -};
 diff --git a/package/gluon-status-page-api/Makefile b/package/gluon-status-page-api/Makefile
-index 17abab2..4722685 100644
+index 27afccd1..fb0177b9 100644
 --- a/package/gluon-status-page-api/Makefile
 +++ b/package/gluon-status-page-api/Makefile
 @@ -5,7 +5,6 @@ PKG_VERSION:=1
@@ -1371,18 +2005,18 @@ index 17abab2..4722685 100644
  PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 -PKG_BUILD_DEPENDS := respondd
  
- include $(INCLUDE_DIR)/package.mk
+ include ../gluon.mk
  
-@@ -13,7 +12,7 @@ define Package/gluon-status-page-api
+@@ -14,7 +13,7 @@ define Package/gluon-status-page-api
    SECTION:=gluon
    CATEGORY:=Gluon
    TITLE:=API for gluon-status-page
--  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +batman-adv-visdata +gluon-neighbour-info +gluon-respondd +libiwinfo +libjson-c
-+  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +gluon-neighbour-info +libiwinfo +libjson-c
+-  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +gluon-neighbour-info +gluon-respondd +libiwinfo +libjson-c +libnl-tiny +libubus-lua
++  DEPENDS:=+gluon-core +uhttpd +sse-multiplex +gluon-neighbour-info +libiwinfo +libjson-c +libubus-lua
  endef
  
  define Build/Prepare
-@@ -26,9 +25,6 @@ define Package/gluon-status-page-api/install
+@@ -32,9 +31,6 @@ define Package/gluon-status-page-api/install
  	$(INSTALL_BIN) $(PKG_BUILD_DIR)/neighbours-batadv $(1)/lib/gluon/status-page/providers/
  	$(INSTALL_BIN) $(PKG_BUILD_DIR)/stations $(1)/lib/gluon/status-page/providers/
  
@@ -1390,8 +2024,806 @@ index 17abab2..4722685 100644
 -	$(CP) $(PKG_BUILD_DIR)/respondd.so $(1)/lib/gluon/respondd/status-page-api.so
 -
  	$(CP) ./files/* $(1)/
+ 	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
  endef
- 
+diff --git a/package/gluon-status-page-api/src/Makefile b/package/gluon-status-page-api/src/Makefile
+deleted file mode 100644
+index e67a595e..00000000
+--- a/package/gluon-status-page-api/src/Makefile
++++ /dev/null
+@@ -1,32 +0,0 @@
+-CFLAGS += -std=c99 -D_BSD_SOURCE
+-CPPFLAGS +=  -D_GNU_SOURCE
+-
+-ifeq ($(origin PKG_CONFIG), undefined)
+-  PKG_CONFIG = pkg-config
+-  ifeq ($(shell which $(PKG_CONFIG) 2>/dev/null),)
+-    $(error $(PKG_CONFIG) not found)
+-  endif
+-endif
+-
+-ifeq ($(origin LIBNL_CFLAGS) $(origin LIBNL_LDLIBS), undefined undefined)
+-  LIBNL_NAME ?= libnl-tiny
+-  ifeq ($(shell $(PKG_CONFIG) --modversion $(LIBNL_NAME) 2>/dev/null),)
+-    $(error No $(LIBNL_NAME) development libraries found!)
+-  endif
+-  LIBNL_CFLAGS += $(shell $(PKG_CONFIG) --cflags $(LIBNL_NAME))
+-  LIBNL_LDLIBS +=  $(shell $(PKG_CONFIG) --libs $(LIBNL_NAME))
+-endif
+-
+-CFLAGS_JSONC = $(shell pkg-config --cflags json-c)
+-LDFLAGS_JSONC = $(shell pkg-config --libs json-c)
+-
+-all: neighbours-batadv stations respondd.so
+-
+-neighbours-batadv: neighbours-batadv.c batadv-netlink.c
+-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_JSONC) $(LIBNL_CFLAGS) $(LDFLAGS) $(LDFLAGS_JSONC) $(LIBNL_LDLIBS) -Wall -o $@ $^ $(LDLIBS)
+-
+-stations: stations.c
+-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_JSONC) $(LDFLAGS) $(LDFLAGS_JSONC) -Wall -o $@ $^ $(LDLIBS) -liwinfo
+-
+-respondd.so: respondd.c
+-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -o $@ $^ $(LDLIBS)
+diff --git a/package/gluon-status-page-api/src/batadv-netlink.c b/package/gluon-status-page-api/src/batadv-netlink.c
+deleted file mode 100644
+index ca965d48..00000000
+--- a/package/gluon-status-page-api/src/batadv-netlink.c
++++ /dev/null
+@@ -1,145 +0,0 @@
+-/*
+- * Copyright (C) 2009-2016  B.A.T.M.A.N. contributors:
+- *
+- * Marek Lindner <mareklindner@neomailbox.ch>, Andrew Lunn <andrew@lunn.ch>
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of version 2 of the GNU General Public
+- * License as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+- * 02110-1301, USA
+- *
+- */
+-
+-#include "batadv-netlink.h"
+-
+-#include <stdbool.h>
+-#include <stddef.h>
+-#include <stdio.h>
+-#include <string.h>
+-#include <unistd.h>
+-#include <errno.h>
+-#include <net/ethernet.h>
+-#include <net/if.h>
+-#include <netlink/netlink.h>
+-#include <netlink/genl/genl.h>
+-#include <netlink/genl/ctrl.h>
+-#include <net/ethernet.h>
+-
+-#include "batman_adv.h"
+-
+-#ifndef __maybe_unused
+-#define __maybe_unused __attribute__((unused))
+-#endif
+-
+-struct nla_policy batadv_netlink_policy[NUM_BATADV_ATTR] = {
+-	[BATADV_ATTR_HARD_IFINDEX]	= { .type = NLA_U32 },
+-	[BATADV_ATTR_ORIG_ADDRESS]	= { .type = NLA_UNSPEC,
+-					    .minlen = ETH_ALEN,
+-					    .maxlen = ETH_ALEN },
+-	[BATADV_ATTR_FLAG_BEST]		= { .type = NLA_FLAG },
+-	[BATADV_ATTR_LAST_SEEN_MSECS]	= { .type = NLA_U32 },
+-	[BATADV_ATTR_NEIGH_ADDRESS]	= { .type = NLA_UNSPEC,
+-					    .minlen = ETH_ALEN,
+-					    .maxlen = ETH_ALEN },
+-	[BATADV_ATTR_TQ]		= { .type = NLA_U8 },
+-};
+-
+-static int nlquery_error_cb(struct sockaddr_nl *nla __maybe_unused,
+-			    struct nlmsgerr *nlerr, void *arg)
+-{
+-	struct batadv_nlquery_opts *query_opts = arg;
+-
+-	query_opts->err = nlerr->error;
+-
+-	return NL_STOP;
+-}
+-
+-static int nlquery_stop_cb(struct nl_msg *msg, void *arg)
+-{
+-	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-	struct batadv_nlquery_opts *query_opts = arg;
+-	int *error = nlmsg_data(nlh);
+-
+-	if (*error)
+-		query_opts->err = *error;
+-
+-	return NL_STOP;
+-}
+-
+-int batadv_nl_query_common(const char *mesh_iface,
+-			   enum batadv_nl_commands nl_cmd,
+-			   nl_recvmsg_msg_cb_t callback, int flags,
+-			   struct batadv_nlquery_opts *query_opts)
+-{
+-	struct nl_sock *sock;
+-	struct nl_msg *msg;
+-	struct nl_cb *cb;
+-	int ifindex;
+-	int family;
+-	int ret;
+-
+-	query_opts->err = 0;
+-
+-	sock = nl_socket_alloc();
+-	if (!sock)
+-		return -ENOMEM;
+-
+-	ret = genl_connect(sock);
+-	if (ret < 0) {
+-		query_opts->err = ret;
+-		goto err_free_sock;
+-	}
+-
+-	family = genl_ctrl_resolve(sock, BATADV_NL_NAME);
+-	if (family < 0) {
+-		query_opts->err = -EOPNOTSUPP;
+-		goto err_free_sock;
+-	}
+-
+-	ifindex = if_nametoindex(mesh_iface);
+-	if (!ifindex) {
+-		query_opts->err = -ENODEV;
+-		goto err_free_sock;
+-	}
+-
+-	cb = nl_cb_alloc(NL_CB_DEFAULT);
+-	if (!cb) {
+-		query_opts->err = -ENOMEM;
+-		goto err_free_sock;
+-	}
+-
+-	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, callback, query_opts);
+-	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, nlquery_stop_cb, query_opts);
+-	nl_cb_err(cb, NL_CB_CUSTOM, nlquery_error_cb, query_opts);
+-
+-	msg = nlmsg_alloc();
+-	if (!msg) {
+-		query_opts->err = -ENOMEM;
+-		goto err_free_cb;
+-	}
+-
+-	genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, family, 0, flags,
+-		    nl_cmd, 1);
+-
+-	nla_put_u32(msg, BATADV_ATTR_MESH_IFINDEX, ifindex);
+-	nl_send_auto_complete(sock, msg);
+-	nlmsg_free(msg);
+-
+-	nl_recvmsgs(sock, cb);
+-
+-err_free_cb:
+-	nl_cb_put(cb);
+-err_free_sock:
+-	nl_socket_free(sock);
+-
+-	return query_opts->err;
+-}
+diff --git a/package/gluon-status-page-api/src/batadv-netlink.h b/package/gluon-status-page-api/src/batadv-netlink.h
+deleted file mode 100644
+index 8b85a6c2..00000000
+--- a/package/gluon-status-page-api/src/batadv-netlink.h
++++ /dev/null
+@@ -1,68 +0,0 @@
+-/*
+- * Copyright (C) 2009-2016  B.A.T.M.A.N. contributors:
+- *
+- * Marek Lindner <mareklindner@neomailbox.ch>, Andrew Lunn <andrew@lunn.ch>
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of version 2 of the GNU General Public
+- * License as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+- * 02110-1301, USA
+- *
+- */
+-
+-#ifndef _BATADV_NETLINK_H
+-#define _BATADV_NETLINK_H
+-
+-#include <netlink/netlink.h>
+-#include <netlink/genl/genl.h>
+-#include <netlink/genl/ctrl.h>
+-#include <stddef.h>
+-#include <stdbool.h>
+-
+-#include "batman_adv.h"
+-
+-struct batadv_nlquery_opts {
+-	int err;
+-};
+-
+-#ifndef ARRAY_SIZE
+-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+-#endif
+-
+-#ifndef container_of
+-#define container_of(ptr, type, member) __extension__ ({ \
+-	const __typeof__(((type *)0)->member) *__pmember = (ptr); \
+-	(type *)((char *)__pmember - offsetof(type, member)); })
+-#endif
+-
+-int batadv_nl_query_common(const char *mesh_iface,
+-			   enum batadv_nl_commands nl_cmd,
+-			   nl_recvmsg_msg_cb_t callback, int flags,
+-			   struct batadv_nlquery_opts *query_opts);
+-
+-static inline bool batadv_nl_missing_attrs(struct nlattr *attrs[],
+-					   const enum batadv_nl_attrs mandatory[],
+-					   size_t num)
+-{
+-	size_t i;
+-
+-	for (i = 0; i < num; i++) {
+-		if (!attrs[mandatory[i]])
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+-extern struct nla_policy batadv_netlink_policy[];
+-
+-#endif /* _BATADV_NETLINK_H */
+diff --git a/package/gluon-status-page-api/src/batman_adv.h b/package/gluon-status-page-api/src/batman_adv.h
+deleted file mode 100644
+index 734fe83a..00000000
+--- a/package/gluon-status-page-api/src/batman_adv.h
++++ /dev/null
+@@ -1,208 +0,0 @@
+-/* Copyright (C) 2016 B.A.T.M.A.N. contributors:
+- *
+- * Matthias Schiffer
+- *
+- * Permission to use, copy, modify, and/or distribute this software for any
+- * purpose with or without fee is hereby granted, provided that the above
+- * copyright notice and this permission notice appear in all copies.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef _UAPI_LINUX_BATMAN_ADV_H_
+-#define _UAPI_LINUX_BATMAN_ADV_H_
+-
+-#define BATADV_NL_NAME "batadv"
+-
+-#define BATADV_NL_MCAST_GROUP_TPMETER	"tpmeter"
+-
+-/**
+- * enum batadv_tt_client_flags - TT client specific flags
+- * @BATADV_TT_CLIENT_DEL: the client has to be deleted from the table
+- * @BATADV_TT_CLIENT_ROAM: the client roamed to/from another node and the new
+- *  update telling its new real location has not been received/sent yet
+- * @BATADV_TT_CLIENT_WIFI: this client is connected through a wifi interface.
+- *  This information is used by the "AP Isolation" feature
+- * @BATADV_TT_CLIENT_ISOLA: this client is considered "isolated". This
+- *  information is used by the Extended Isolation feature
+- * @BATADV_TT_CLIENT_NOPURGE: this client should never be removed from the table
+- * @BATADV_TT_CLIENT_NEW: this client has been added to the local table but has
+- *  not been announced yet
+- * @BATADV_TT_CLIENT_PENDING: this client is marked for removal but it is kept
+- *  in the table for one more originator interval for consistency purposes
+- * @BATADV_TT_CLIENT_TEMP: this global client has been detected to be part of
+- *  the network but no nnode has already announced it
+- *
+- * Bits from 0 to 7 are called _remote flags_ because they are sent on the wire.
+- * Bits from 8 to 15 are called _local flags_ because they are used for local
+- * computations only.
+- *
+- * Bits from 4 to 7 - a subset of remote flags - are ensured to be in sync with
+- * the other nodes in the network. To achieve this goal these flags are included
+- * in the TT CRC computation.
+- */
+-enum batadv_tt_client_flags {
+-	BATADV_TT_CLIENT_DEL     = (1 << 0),
+-	BATADV_TT_CLIENT_ROAM    = (1 << 1),
+-	BATADV_TT_CLIENT_WIFI    = (1 << 4),
+-	BATADV_TT_CLIENT_ISOLA	 = (1 << 5),
+-	BATADV_TT_CLIENT_NOPURGE = (1 << 8),
+-	BATADV_TT_CLIENT_NEW     = (1 << 9),
+-	BATADV_TT_CLIENT_PENDING = (1 << 10),
+-	BATADV_TT_CLIENT_TEMP	 = (1 << 11),
+-};
+-
+-/**
+- * enum batadv_nl_attrs - batman-adv netlink attributes
+- *
+- * @BATADV_ATTR_UNSPEC: unspecified attribute to catch errors
+- * @BATADV_ATTR_VERSION: batman-adv version string
+- * @BATADV_ATTR_ALGO_NAME: name of routing algorithm
+- * @BATADV_ATTR_MESH_IFINDEX: index of the batman-adv interface
+- * @BATADV_ATTR_MESH_IFNAME: name of the batman-adv interface
+- * @BATADV_ATTR_MESH_ADDRESS: mac address of the batman-adv interface
+- * @BATADV_ATTR_HARD_IFINDEX: index of the non-batman-adv interface
+- * @BATADV_ATTR_HARD_IFNAME: name of the non-batman-adv interface
+- * @BATADV_ATTR_HARD_ADDRESS: mac address of the non-batman-adv interface
+- * @BATADV_ATTR_ORIG_ADDRESS: originator mac address
+- * @BATADV_ATTR_TPMETER_RESULT: result of run (see batadv_tp_meter_status)
+- * @BATADV_ATTR_TPMETER_TEST_TIME: time (msec) the run took
+- * @BATADV_ATTR_TPMETER_BYTES: amount of acked bytes during run
+- * @BATADV_ATTR_TPMETER_COOKIE: session cookie to match tp_meter session
+- * @BATADV_ATTR_PAD: attribute used for padding for 64-bit alignment
+- * @BATADV_ATTR_ACTIVE: Flag indicating if the hard interface is active
+- * @BATADV_ATTR_TT_ADDRESS: Client MAC address
+- * @BATADV_ATTR_TT_TTVN: Translation table version
+- * @BATADV_ATTR_TT_LAST_TTVN: Previous translation table version
+- * @BATADV_ATTR_TT_CRC32: CRC32 over translation table
+- * @BATADV_ATTR_TT_VID: VLAN ID
+- * @BATADV_ATTR_TT_FLAGS: Translation table client flags
+- * @BATADV_ATTR_FLAG_BEST: Flags indicating entry is the best
+- * @BATADV_ATTR_LAST_SEEN_MSECS: Time in milliseconds since last seen
+- * @BATADV_ATTR_NEIGH_ADDRESS: Neighbour MAC address
+- * @BATADV_ATTR_TQ: TQ to neighbour
+- * @BATADV_ATTR_THROUGHPUT: Estimated throughput to Neighbour
+- * @BATADV_ATTR_BANDWIDTH_UP: Reported uplink bandwidth
+- * @BATADV_ATTR_BANDWIDTH_DOWN: Reported downlink bandwidth
+- * @BATADV_ATTR_ROUTER: Gateway router MAC address
+- * @BATADV_ATTR_BLA_OWN: Flag indicating own originator
+- * @BATADV_ATTR_BLA_ADDRESS: Bridge loop avoidance claim MAC address
+- * @BATADV_ATTR_BLA_VID: BLA VLAN ID
+- * @BATADV_ATTR_BLA_BACKBONE: BLA gateway originator MAC address
+- * @BATADV_ATTR_BLA_CRC: BLA CRC
+- * @__BATADV_ATTR_AFTER_LAST: internal use
+- * @NUM_BATADV_ATTR: total number of batadv_nl_attrs available
+- * @BATADV_ATTR_MAX: highest attribute number currently defined
+- */
+-enum batadv_nl_attrs {
+-	BATADV_ATTR_UNSPEC,
+-	BATADV_ATTR_VERSION,
+-	BATADV_ATTR_ALGO_NAME,
+-	BATADV_ATTR_MESH_IFINDEX,
+-	BATADV_ATTR_MESH_IFNAME,
+-	BATADV_ATTR_MESH_ADDRESS,
+-	BATADV_ATTR_HARD_IFINDEX,
+-	BATADV_ATTR_HARD_IFNAME,
+-	BATADV_ATTR_HARD_ADDRESS,
+-	BATADV_ATTR_ORIG_ADDRESS,
+-	BATADV_ATTR_TPMETER_RESULT,
+-	BATADV_ATTR_TPMETER_TEST_TIME,
+-	BATADV_ATTR_TPMETER_BYTES,
+-	BATADV_ATTR_TPMETER_COOKIE,
+-	BATADV_ATTR_PAD,
+-	BATADV_ATTR_ACTIVE,
+-	BATADV_ATTR_TT_ADDRESS,
+-	BATADV_ATTR_TT_TTVN,
+-	BATADV_ATTR_TT_LAST_TTVN,
+-	BATADV_ATTR_TT_CRC32,
+-	BATADV_ATTR_TT_VID,
+-	BATADV_ATTR_TT_FLAGS,
+-	BATADV_ATTR_FLAG_BEST,
+-	BATADV_ATTR_LAST_SEEN_MSECS,
+-	BATADV_ATTR_NEIGH_ADDRESS,
+-	BATADV_ATTR_TQ,
+-	BATADV_ATTR_THROUGHPUT,
+-	BATADV_ATTR_BANDWIDTH_UP,
+-	BATADV_ATTR_BANDWIDTH_DOWN,
+-	BATADV_ATTR_ROUTER,
+-	BATADV_ATTR_BLA_OWN,
+-	BATADV_ATTR_BLA_ADDRESS,
+-	BATADV_ATTR_BLA_VID,
+-	BATADV_ATTR_BLA_BACKBONE,
+-	BATADV_ATTR_BLA_CRC,
+-	/* add attributes above here, update the policy in netlink.c */
+-	__BATADV_ATTR_AFTER_LAST,
+-	NUM_BATADV_ATTR = __BATADV_ATTR_AFTER_LAST,
+-	BATADV_ATTR_MAX = __BATADV_ATTR_AFTER_LAST - 1
+-};
+-
+-/**
+- * enum batadv_nl_commands - supported batman-adv netlink commands
+- *
+- * @BATADV_CMD_UNSPEC: unspecified command to catch errors
+- * @BATADV_CMD_GET_MESH_INFO: Query basic information about batman-adv device
+- * @BATADV_CMD_TP_METER: Start a tp meter session
+- * @BATADV_CMD_TP_METER_CANCEL: Cancel a tp meter session
+- * @BATADV_CMD_GET_ROUTING_ALGOS: Query the list of routing algorithms.
+- * @BATADV_CMD_GET_HARDIFS: Query list of hard interfaces
+- * @BATADV_CMD_GET_TRANSTABLE_LOCAL: Query list of local translations
+- * @BATADV_CMD_GET_TRANSTABLE_GLOBAL Query list of global translations
+- * @BATADV_CMD_GET_ORIGINATORS: Query list of originators
+- * @BATADV_CMD_GET_NEIGHBORS: Query list of neighbours
+- * @BATADV_CMD_GET_GATEWAYS: Query list of gateways
+- * @BATADV_CMD_GET_BLA_CLAIM: Query list of bridge loop avoidance claims
+- * @BATADV_CMD_GET_BLA_BACKBONE: Query list of bridge loop avoidance backbones
+- * @__BATADV_CMD_AFTER_LAST: internal use
+- * @BATADV_CMD_MAX: highest used command number
+- */
+-enum batadv_nl_commands {
+-	BATADV_CMD_UNSPEC,
+-	BATADV_CMD_GET_MESH_INFO,
+-	BATADV_CMD_TP_METER,
+-	BATADV_CMD_TP_METER_CANCEL,
+-	BATADV_CMD_GET_ROUTING_ALGOS,
+-	BATADV_CMD_GET_HARDIFS,
+-	BATADV_CMD_GET_TRANSTABLE_LOCAL,
+-	BATADV_CMD_GET_TRANSTABLE_GLOBAL,
+-	BATADV_CMD_GET_ORIGINATORS,
+-	BATADV_CMD_GET_NEIGHBORS,
+-	BATADV_CMD_GET_GATEWAYS,
+-	BATADV_CMD_GET_BLA_CLAIM,
+-	BATADV_CMD_GET_BLA_BACKBONE,
+-	/* add new commands above here */
+-	__BATADV_CMD_AFTER_LAST,
+-	BATADV_CMD_MAX = __BATADV_CMD_AFTER_LAST - 1
+-};
+-
+-/**
+- * enum batadv_tp_meter_reason - reason of a tp meter test run stop
+- * @BATADV_TP_REASON_COMPLETE: sender finished tp run
+- * @BATADV_TP_REASON_CANCEL: sender was stopped during run
+- * @BATADV_TP_REASON_DST_UNREACHABLE: receiver could not be reached or didn't
+- *  answer
+- * @BATADV_TP_REASON_RESEND_LIMIT: (unused) sender retry reached limit
+- * @BATADV_TP_REASON_ALREADY_ONGOING: test to or from the same node already
+- *  ongoing
+- * @BATADV_TP_REASON_MEMORY_ERROR: test was stopped due to low memory
+- * @BATADV_TP_REASON_CANT_SEND: failed to send via outgoing interface
+- * @BATADV_TP_REASON_TOO_MANY: too many ongoing sessions
+- */
+-enum batadv_tp_meter_reason {
+-	BATADV_TP_REASON_COMPLETE		= 3,
+-	BATADV_TP_REASON_CANCEL			= 4,
+-	/* error status >= 128 */
+-	BATADV_TP_REASON_DST_UNREACHABLE	= 128,
+-	BATADV_TP_REASON_RESEND_LIMIT		= 129,
+-	BATADV_TP_REASON_ALREADY_ONGOING	= 130,
+-	BATADV_TP_REASON_MEMORY_ERROR		= 131,
+-	BATADV_TP_REASON_CANT_SEND		= 132,
+-	BATADV_TP_REASON_TOO_MANY		= 133,
+-};
+-
+-#endif /* _UAPI_LINUX_BATMAN_ADV_H_ */
+diff --git a/package/gluon-status-page-api/src/neighbours-batadv.c b/package/gluon-status-page-api/src/neighbours-batadv.c
+deleted file mode 100644
+index 7d5d0211..00000000
+--- a/package/gluon-status-page-api/src/neighbours-batadv.c
++++ /dev/null
+@@ -1,130 +0,0 @@
+-#include <stdio.h>
+-#include <string.h>
+-#include <unistd.h>
+-#include <json-c/json.h>
+-#include <net/if.h>
+-
+-#include "batadv-netlink.h"
+-
+-#define STR(x) #x
+-#define XSTR(x) STR(x)
+-
+-struct neigh_netlink_opts {
+-  struct json_object *obj;
+-  struct batadv_nlquery_opts query_opts;
+-};
+-
+-static const enum batadv_nl_attrs parse_orig_list_mandatory[] = {
+-  BATADV_ATTR_ORIG_ADDRESS,
+-  BATADV_ATTR_NEIGH_ADDRESS,
+-  BATADV_ATTR_TQ,
+-  BATADV_ATTR_HARD_IFINDEX,
+-  BATADV_ATTR_LAST_SEEN_MSECS,
+-};
+-
+-static int parse_orig_list_netlink_cb(struct nl_msg *msg, void *arg)
+-{
+-  struct nlattr *attrs[BATADV_ATTR_MAX+1];
+-  struct nlmsghdr *nlh = nlmsg_hdr(msg);
+-  struct batadv_nlquery_opts *query_opts = arg;
+-  struct genlmsghdr *ghdr;
+-  uint8_t *orig;
+-  uint8_t *dest;
+-  uint8_t tq;
+-  uint32_t hardif;
+-  uint32_t lastseen;
+-  char ifname_buf[IF_NAMESIZE], *ifname;
+-  struct neigh_netlink_opts *opts;
+-  char mac1[18];
+-
+-  opts = container_of(query_opts, struct neigh_netlink_opts, query_opts);
+-
+-  if (!genlmsg_valid_hdr(nlh, 0))
+-    return NL_OK;
+-
+-  ghdr = nlmsg_data(nlh);
+-
+-  if (ghdr->cmd != BATADV_CMD_GET_ORIGINATORS)
+-    return NL_OK;
+-
+-  if (nla_parse(attrs, BATADV_ATTR_MAX, genlmsg_attrdata(ghdr, 0),
+-        genlmsg_len(ghdr), batadv_netlink_policy))
+-    return NL_OK;
+-
+-  if (batadv_nl_missing_attrs(attrs, parse_orig_list_mandatory,
+-              ARRAY_SIZE(parse_orig_list_mandatory)))
+-    return NL_OK;
+-
+-  if (!attrs[BATADV_ATTR_FLAG_BEST])
+-    return NL_OK;
+-
+-  orig = nla_data(attrs[BATADV_ATTR_ORIG_ADDRESS]);
+-  dest = nla_data(attrs[BATADV_ATTR_NEIGH_ADDRESS]);
+-  tq = nla_get_u8(attrs[BATADV_ATTR_TQ]);
+-  hardif = nla_get_u32(attrs[BATADV_ATTR_HARD_IFINDEX]);
+-  lastseen = nla_get_u32(attrs[BATADV_ATTR_LAST_SEEN_MSECS]);
+-
+-  if (memcmp(orig, dest, 6) != 0)
+-    return NL_OK;
+-
+-  ifname = if_indextoname(hardif, ifname_buf);
+-  if (!ifname)
+-    return NL_OK;
+-
+-  sprintf(mac1, "%02x:%02x:%02x:%02x:%02x:%02x",
+-          orig[0], orig[1], orig[2], orig[3], orig[4], orig[5]);
+-
+-  struct json_object *neigh = json_object_new_object();
+-  if (!neigh)
+-    return NL_OK;
+-
+-  json_object_object_add(neigh, "tq", json_object_new_int(tq));
+-  json_object_object_add(neigh, "lastseen", json_object_new_double(lastseen / 1000.));
+-  json_object_object_add(neigh, "ifname", json_object_new_string(ifname));
+-
+-  json_object_object_add(opts->obj, mac1, neigh);
+-
+-  return NL_OK;
+-}
+-
+-static json_object *neighbours(void) {
+-  struct neigh_netlink_opts opts = {
+-    .query_opts = {
+-      .err = 0,
+-    },
+-  };
+-  int ret;
+-
+-  opts.obj = json_object_new_object();
+-  if (!opts.obj)
+-    return NULL;
+-
+-  ret = batadv_nl_query_common("bat0", BATADV_CMD_GET_ORIGINATORS,
+-                               parse_orig_list_netlink_cb, NLM_F_DUMP,
+-                               &opts.query_opts);
+-  if (ret < 0) {
+-    json_object_put(opts.obj);
+-    return NULL;
+-  }
+-
+-  return opts.obj;
+-}
+-
+-int main(void) {
+-  struct json_object *obj;
+-
+-  printf("Content-type: text/event-stream\n\n");
+-  fflush(stdout);
+-
+-  while (1) {
+-    obj = neighbours();
+-    if (obj) {
+-      printf("data: %s\n\n", json_object_to_json_string_ext(obj, JSON_C_TO_STRING_PLAIN));
+-      fflush(stdout);
+-      json_object_put(obj);
+-    }
+-    sleep(10);
+-  }
+-
+-  return 0;
+-}
+diff --git a/package/gluon-status-page-api/src/respondd.c b/package/gluon-status-page-api/src/respondd.c
+deleted file mode 100644
+index f6a0e51e..00000000
+--- a/package/gluon-status-page-api/src/respondd.c
++++ /dev/null
+@@ -1,47 +0,0 @@
+-/*
+-  Copyright (c) 2016, Matthias Schiffer <mschiffer@universe-factory.net>
+-  All rights reserved.
+-
+-  Redistribution and use in source and binary forms, with or without
+-  modification, are permitted provided that the following conditions are met:
+-
+-    1. Redistributions of source code must retain the above copyright notice,
+-       this list of conditions and the following disclaimer.
+-    2. Redistributions in binary form must reproduce the above copyright notice,
+-       this list of conditions and the following disclaimer in the documentation
+-       and/or other materials provided with the distribution.
+-
+-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+-  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+-  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-*/
+-
+-
+-#include <respondd.h>
+-
+-#include <json-c/json.h>
+-
+-
+-static struct json_object * respondd_provider_nodeinfo(void) {
+-	struct json_object *ret = json_object_new_object();
+-
+-	struct json_object *software = json_object_new_object();
+-	struct json_object *software_status_page = json_object_new_object();
+-	json_object_object_add(software_status_page, "api", json_object_new_int(1));
+-	json_object_object_add(software, "status-page", software_status_page);
+-	json_object_object_add(ret, "software", software);
+-
+-	return ret;
+-}
+-
+-const struct respondd_provider_info respondd_providers[] = {
+-	{"nodeinfo", respondd_provider_nodeinfo},
+-	{}
+-};
+diff --git a/package/gluon-status-page-api/src/stations.c b/package/gluon-status-page-api/src/stations.c
+deleted file mode 100644
+index 24775a07..00000000
+--- a/package/gluon-status-page-api/src/stations.c
++++ /dev/null
+@@ -1,126 +0,0 @@
+-#include <stdio.h>
+-#include <string.h>
+-#include <unistd.h>
+-#include <json-c/json.h>
+-#include <iwinfo.h>
+-#include <net/if.h>
+-#include <glob.h>
+-#include <alloca.h>
+-
+-#define NETIF_PREFIX "/sys/class/net/"
+-#define VIRTIF_PREFIX "/sys/devices/virtual/net/"
+-#define LOWERGLOB_SUFFIX "/lower_*"
+-
+-static struct json_object *get_stations(const struct iwinfo_ops *iw, const char *ifname) {
+-  int len;
+-  char buf[IWINFO_BUFSIZE];
+-  struct json_object *stations = json_object_new_object();
+-
+-  if (iw->assoclist(ifname, buf, &len) == -1)
+-    return stations;
+-
+-  // This is just: for entry in assoclist(ifname)
+-  for (struct iwinfo_assoclist_entry *entry = (struct iwinfo_assoclist_entry *)buf;
+-      (char*)(entry+1) <= buf + len; entry++) {
+-    struct json_object *station = json_object_new_object();
+-
+-    json_object_object_add(station, "signal", json_object_new_int(entry->signal));
+-    json_object_object_add(station, "noise", json_object_new_int(entry->noise));
+-    json_object_object_add(station, "inactive", json_object_new_int(entry->inactive));
+-
+-    char macstr[18];
+-
+-    snprintf(macstr, sizeof(macstr), "%02x:%02x:%02x:%02x:%02x:%02x",
+-        entry->mac[0], entry->mac[1], entry->mac[2],
+-        entry->mac[3], entry->mac[4], entry->mac[5]);
+-
+-    json_object_object_add(stations, macstr, station);
+-  }
+-
+-  return stations;
+-}
+-
+-static void badrequest() {
+-  printf("Status: 400 Bad Request\n\n");
+-  exit(1);
+-}
+-
+-// recurse down to the lowest layer-2 interface
+-static int interface_get_lowest(const char *ifname, char *hwifname);
+-static int interface_get_lowest(const char *ifname, char *hwifname) {
+-  glob_t globbuf;
+-  char *fnamebuf = alloca(1 + strlen(VIRTIF_PREFIX) + IF_NAMESIZE +
+-                          strlen(LOWERGLOB_SUFFIX));
+-  char *lowentry = NULL;
+-
+-
+-  sprintf(fnamebuf, "%s%s%s", VIRTIF_PREFIX, ifname, LOWERGLOB_SUFFIX);
+-  glob(fnamebuf, GLOB_NOSORT | GLOB_NOESCAPE, NULL, &globbuf);
+-
+-  if (globbuf.gl_pathc == 1) {
+-    lowentry = alloca(1 + strlen(globbuf.gl_pathv[0]));
+-    strncpy(lowentry, globbuf.gl_pathv[0], 1 + strlen(globbuf.gl_pathv[0]));
+-  }
+-
+-  globfree(&globbuf);
+-
+-  if (!lowentry) {
+-    char *path = alloca(1 + strlen(NETIF_PREFIX) + strlen(ifname));
+-    sprintf(path, "%s%s", NETIF_PREFIX, ifname);
+-
+-    if(access(path, F_OK) != 0)
+-      return false;
+-
+-    strncpy(hwifname, ifname, IF_NAMESIZE - 1);
+-    return true;
+-  } else {
+-    char buf[PATH_MAX];
+-    ssize_t len;
+-
+-    if ((len = readlink(lowentry, buf, sizeof(buf)-1)) != -1)
+-      buf[len] = '\0';
+-    else
+-      return false;
+-
+-    if (strncmp(buf, "../", 3) == 0) {
+-      return interface_get_lowest(strrchr(buf, '/') + 1, hwifname);
+-    } else {
+-      return false;
+-    }
+-  }
+-}
+-
+-int main(int argc, char *argv[]) {
+-  if (argc != 2)
+-    badrequest();
+-
+-  const char *ifname = argv[1];
+-  char hwifname[IF_NAMESIZE] = "";
+-
+-  if (strlen(ifname) >= IF_NAMESIZE)
+-    badrequest();
+-
+-  if (strcspn(ifname, "/\\[]{}*?") != strlen(ifname))
+-    badrequest();
+-
+-  if (!interface_get_lowest(ifname, hwifname))
+-    badrequest();
+-
+-  const struct iwinfo_ops *iw = iwinfo_backend(hwifname);
+-
+-  if (iw == NULL)
+-    badrequest();
+-
+-  printf("Content-type: text/event-stream\n\n");
+-
+-  while (true) {
+-    struct json_object *obj;
+-    obj = get_stations(iw, hwifname);
+-    printf("data: %s\n\n", json_object_to_json_string_ext(obj, JSON_C_TO_STRING_PLAIN));
+-    fflush(stdout);
+-    json_object_put(obj);
+-    usleep(150000);
+-  }
+-
+-  return 0;
+-}
 -- 
-2.9.0
+2.13.1
 
