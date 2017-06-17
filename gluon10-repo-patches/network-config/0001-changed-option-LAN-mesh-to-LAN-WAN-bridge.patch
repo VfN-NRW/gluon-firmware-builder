@@ -1,0 +1,83 @@
+From 5afb0f8eb87bd5834035b5b14af382aa3161236e Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 22:27:38 +0200
+Subject: [PATCH] changed option LAN mesh to LAN-WAN bridge
+
+---
+ package/gluon-web-network/i18n/de.po                 |  4 ++--
+ package/gluon-web-network/i18n/gluon-web-network.pot |  2 +-
+ .../luasrc/lib/gluon/web/model/admin/network.lua     | 20 +++++++++++++-------
+ 3 files changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/package/gluon-web-network/i18n/de.po b/package/gluon-web-network/i18n/de.po
+index 6b321f3e..e2613667 100644
+--- a/package/gluon-web-network/i18n/de.po
++++ b/package/gluon-web-network/i18n/de.po
+@@ -22,8 +22,8 @@ msgstr "Deaktiviert"
+ msgid "Enable PoE passthrough"
+ msgstr "PoE-Passthrough aktivieren"
+ 
+-msgid "Enable meshing on the LAN interface"
+-msgstr "Mesh auf dem LAN-Port aktivieren"
++msgid "Enable bridge between WAN and LAN ports"
++msgstr "Br&uuml;cke zwischen WAN- und LAN-Ports aktivieren"
+ 
+ msgid "Enable meshing on the WAN interface"
+ msgstr "Mesh auf dem WAN-Port aktivieren"
+diff --git a/package/gluon-web-network/i18n/gluon-web-network.pot b/package/gluon-web-network/i18n/gluon-web-network.pot
+index 5b793a23..e099f1a6 100644
+--- a/package/gluon-web-network/i18n/gluon-web-network.pot
++++ b/package/gluon-web-network/i18n/gluon-web-network.pot
+@@ -13,7 +13,7 @@ msgstr ""
+ msgid "Enable PoE passthrough"
+ msgstr ""
+ 
+-msgid "Enable meshing on the LAN interface"
++msgid "Enable bridge between WAN and LAN ports"
+ msgstr ""
+ 
+ msgid "Enable meshing on the WAN interface"
+diff --git a/package/gluon-web-network/luasrc/lib/gluon/web/model/admin/network.lua b/package/gluon-web-network/luasrc/lib/gluon/web/model/admin/network.lua
+index eb178da2..4be5400f 100644
+--- a/package/gluon-web-network/luasrc/lib/gluon/web/model/admin/network.lua
++++ b/package/gluon-web-network/luasrc/lib/gluon/web/model/admin/network.lua
+@@ -84,23 +84,29 @@ function mesh_wan:write(data)
+ end
+ 
+ if sysconfig.lan_ifname then
+-	local mesh_lan = s:option(Flag, "mesh_lan", translate("Enable meshing on the LAN interface"))
+-	mesh_lan.default = uci:get_bool("network", "mesh_lan", "auto")
++	local bridge_lan = s:option(Flag, "bridge_lan", translate("Enable bridge between WAN and LAN ports"))
++	bridge_lan.default = uci:get_bool("gluon-node-info", "bridge_lan", "enabled")
+ 
+-	function mesh_lan:write(data)
+-		uci:set("network", "mesh_lan", "auto", data)
++	function bridge_lan:write(data)
++		uci:set("gluon-node-info", "bridge_lan", "enabled", data)
+ 
+-		local interfaces = uci:get_list("network", "client", "ifname")
++		local client_interfaces = uci:get_list("network", "client", "ifname")
++		local wan_interfaces = uci:get_list("network", "wan", "ifname")
+ 
+ 		for lanif in sysconfig.lan_ifname:gmatch('%S+') do
+ 			if data then
+-				util.remove_from_set(interfaces, lanif)
++				util.remove_from_set(client_interfaces, lanif)
++				util.add_to_set(wan_interfaces, lanif)
+ 			else
+-				util.add_to_set(interfaces, lanif)
++				util.remove_from_set(wan_interfaces, lanif)
++				util.add_to_set(client_interfaces, lanif)
+ 			end
+ 		end
+ 
+ 		uci:set_list("network", "client", "ifname", interfaces)
++		uci:set_list("network", "wan", "ifname", interfaces)
++		uci:save("gluon-node-info")
++		uci:commit("gluon-node-info")
+ 	end
+ end
+ 
+-- 
+2.13.1
+
