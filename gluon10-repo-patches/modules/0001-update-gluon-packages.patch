@@ -1,0 +1,25 @@
+From a70d489ba86cce40e45fcd7460b58d05310178e6 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 23:54:53 +0200
+Subject: [PATCH] update gluon-packages
+
+---
+ modules | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules b/modules
+index d86978f2..8f6fdba7 100644
+--- a/modules
++++ b/modules
+@@ -9,7 +9,7 @@ PACKAGES_OPENWRT_BRANCH=lede-17.01
+ PACKAGES_OPENWRT_COMMIT=afe6be45e3c55343b61f538986a3c62b97dd2984
+ 
+ PACKAGES_GLUON_REPO=git://github.com/freifunk-gluon/packages.git
+-PACKAGES_GLUON_COMMIT=71823713c0e9451d1cd459cb10309f468188eb6e
++PACKAGES_GLUON_COMMIT=1a8fd4ba87d670b759fc51bb1dc37808e5213be4
+ 
+ PACKAGES_ROUTING_REPO=git://github.com/openwrt-routing/packages.git
+ PACKAGES_ROUTING_COMMIT=a881d5d4a6c4d0a5d9c515525eb83774516d038c
+-- 
+2.13.1
+
