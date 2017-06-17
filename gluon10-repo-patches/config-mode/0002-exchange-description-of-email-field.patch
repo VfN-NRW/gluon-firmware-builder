@@ -1,44 +1,16 @@
-From b434ac03f7eb16edc23f0d137d6ac19268861520 Mon Sep 17 00:00:00 2001
+From 8b761f9ad3b587b6c9f128fa53b452c1de6138bb Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sun, 17 Jul 2016 12:45:15 +0200
+Date: Sat, 17 Jun 2017 18:39:56 +0200
 Subject: [PATCH] exchange description of email field
 
 ---
- .../gluon/config-mode/wizard/0500-contact-info.lua | 10 +++++-----
  package/gluon-config-mode-contact-info/i18n/de.po  | 23 +++++++++++-----------
  .../i18n/gluon-config-mode-contact-info.pot        |  8 ++++----
+ .../gluon/config-mode/wizard/0500-contact-info.lua | 10 +++++-----
  3 files changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-index e007c9e..99888a5 100644
---- a/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-+++ b/package/gluon-config-mode-contact-info/files/lib/gluon/config-mode/wizard/0500-contact-info.lua
-@@ -6,10 +6,10 @@ local M = {}
- 
- function M.section(form)
-   local s = form:section(cbi.SimpleSection, nil, i18n.translate(
--    'You can provide your contact information here to '
--      .. 'allow others to contact you. Please note that '
--      .. 'this information will be visible <em>publicly</em> '
--      .. 'on the internet together with your node\'s coordinates.'
-+    'Please enter a valid Email addresse, where we can reach '
-+      .. 'you. We will send you an validation mail, '
-+      .. 'to confirm it. After confirmation we will activate '
-+      .. 'your Mesh-VPN-account.'
-     )
-   )
- 
-@@ -17,7 +17,7 @@ function M.section(form)
-   o.default = uci:get_first("gluon-node-info", "owner", "contact", "")
-   o.rmempty = false
-   o.datatype = "string"
--  o.description = i18n.translate("e.g. E-mail or phone number")
-+  o.description = i18n.translate("your Email address")
-   o.maxlen = 140
-   o.minlen = 7
- end
 diff --git a/package/gluon-config-mode-contact-info/i18n/de.po b/package/gluon-config-mode-contact-info/i18n/de.po
-index 719246f..53f7634 100644
+index 35f0ee95..53f76349 100644
 --- a/package/gluon-config-mode-contact-info/i18n/de.po
 +++ b/package/gluon-config-mode-contact-info/i18n/de.po
 @@ -1,8 +1,8 @@
@@ -60,16 +32,16 @@ index 719246f..53f7634 100644
 +msgstr "Deine Emailadresse"
  
  msgid ""
--"You can provide your contact information here to allow others to contact "
--"you. Please note that this information will be visible <em>publicly</em> on "
+-"Please provide your contact information here to allow others to contact "
+-"you. Note that this information will be visible <em>publicly</em> on "
 -"the internet together with your node's coordinates."
 +"Please enter a valid Email addresse, where we can reach you. We will send "
 +"you an validation mail, to confirm it. After confirmation we will activate "
 +"your Mesh-VPN-account."
  msgstr ""
--"Hier kannst du einen <em>öffentlichen</em> Hinweis hinterlegen, um anderen "
--"zu ermöglichen, Kontakt mit dir aufzunehmen. Bitte beachte, dass "
--"dieser Hinweis auch öffentlich im Internet, zusammen mit den Koordinaten "
+-"Bitte hinterlege hier einen Hinweis, um anderen zu ermöglichen, "
+-"Kontakt mit dir aufzunehmen. Beachte, dass dieser Hinweis auch "
+-"<em>öffentlich</em> im Internet, zusammen mit den Koordinaten "
 -"deines Knotens, einsehbar sein wird."
 +"Gib hier eine gültige Email-Adresse an, wo wir dich erreichen können. "
 +"Wir werden dir eine Validierungsnachricht schicken, um sie zu bestätigen. "
@@ -80,15 +52,15 @@ index 719246f..53f7634 100644
 +msgid "your Email address"
 +msgstr "Eine gültige Email-Adresse"
 diff --git a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
-index 63939a8..c558906 100644
+index 9dcaf9ec..c5589061 100644
 --- a/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
 +++ b/package/gluon-config-mode-contact-info/i18n/gluon-config-mode-contact-info.pot
 @@ -5,10 +5,10 @@ msgid "Contact info"
  msgstr ""
  
  msgid ""
--"You can provide your contact information here to allow others to contact "
--"you. Please note that this information will be visible <em>publicly</em> on "
+-"Please provide your contact information here to allow others to contact "
+-"you. Note that this information will be visible <em>publicly</em> on "
 -"the internet together with your node's coordinates."
 +"Please enter a valid Email addresse, where we can reach you. We will send "
 +"you an validation mail, to confirm it. After confirmation we will activate "
@@ -98,6 +70,29 @@ index 63939a8..c558906 100644
 -msgid "e.g. E-mail or phone number"
 +msgid "your Email address"
  msgstr ""
+diff --git a/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
+index dc2c9b6b..275fd132 100644
+--- a/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
++++ b/package/gluon-config-mode-contact-info/luasrc/lib/gluon/config-mode/wizard/0500-contact-info.lua
+@@ -4,13 +4,13 @@ return function(form, uci)
+ 	local owner = uci:get_first("gluon-node-info", "owner")
+ 
+ 	local s = form:section(Section, nil, translate(
+-		'Please provide your contact information here to '
+-		.. 'allow others to contact you. Note that '
+-		.. 'this information will be visible <em>publicly</em> '
+-		.. 'on the internet together with your node\'s coordinates.'
++		'Please enter a valid Email addresse, where we can reach '
++		.. 'you. We will send you an validation mail, '
++		.. 'to confirm it. After confirmation we will activate '
++		.. 'your Mesh-VPN-account.'
+ 	))
+ 
+-	local o = s:option(Value, "contact", translate("Contact info"), translate("e.g. E-mail or phone number"))
++	local o = s:option(Value, "contact", translate("Contact info"), translate("your Email address"))
+ 	o.default = uci:get("gluon-node-info", owner, "contact")
+ 	o.optional = not ((site.config_mode or {}).owner or {}).obligatory
+ 	-- without a minimal length, an empty string will be accepted even with "optional = false"
 -- 
-2.9.0
+2.13.1
 
