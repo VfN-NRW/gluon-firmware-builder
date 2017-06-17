@@ -1,0 +1,84 @@
+From b4eec652e329d6eca6a5f0fba862b1b2ab7324a3 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 17 Jun 2017 19:36:50 +0200
+Subject: [PATCH] updating translations for config-mode-geo-location
+
+---
+ package/gluon-config-mode-geo-location/i18n/de.po             | 11 +++++++----
+ .../i18n/gluon-config-mode-geo-location.pot                   |  7 +++++--
+ .../luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua |  4 ++--
+ 3 files changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/package/gluon-config-mode-geo-location/i18n/de.po b/package/gluon-config-mode-geo-location/i18n/de.po
+index 07d7fe25..d4cab576 100644
+--- a/package/gluon-config-mode-geo-location/i18n/de.po
++++ b/package/gluon-config-mode-geo-location/i18n/de.po
+@@ -11,11 +11,11 @@ msgstr ""
+ "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+ 
+ msgid ""
+-"If you want the location of your node to be displayed on the map, you can "
+-"enter its coordinates here."
++"To show your node on the map we need its coordinates, "
++"you can help us and enter the coordinates here."
+ msgstr ""
+ "Um deinen Knoten auf der Karte anzeigen zu können, benötigen wir seine "
+-"Koordinaten. Hier hast du die Möglichkeit, diese zu hinterlegen."
++"Koordinaten. Du kannst uns helfen indem du die Koordinaten hier eingibst."
+ 
+ msgid "Latitude"
+ msgstr "Breitengrad"
+@@ -36,7 +36,10 @@ msgid ""
+ msgstr ""
+ "Wenn du die Koordinaten nicht kennst, dann füge hier die postalische "
+ "Adresse des Knotens ein. Wir werden dann auf Basis der Adresse die "
+-"Koordinaten berechnen und den Knoten auf der Karte darstellen"
++"Koordinaten berechnen und den Knoten auf der Karte darstellen."
++
++msgid "Location address"
++msgstr "Adresse des Knotens"
+ 
+ msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
+ msgstr "Eine Adresse hat das Format: Musterstraße 13, 52042 Musterstadt"
+diff --git a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+index 9112c600..f094b4e9 100644
+--- a/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
++++ b/package/gluon-config-mode-geo-location/i18n/gluon-config-mode-geo-location.pot
+@@ -2,8 +2,8 @@ msgid ""
+ msgstr "Content-Type: text/plain; charset=UTF-8"
+ 
+ msgid ""
+-"If you want the location of your node to be displayed on the map, you can "
+-"enter its coordinates here."
++"To show your node on the map we need its coordinates, "
++"you can help us and enter the coordinates here."
+ msgstr ""
+ 
+ msgid "Latitude"
+@@ -24,5 +24,8 @@ msgid ""
+ "is added there on the map."
+ msgstr ""
+ 
++msgid "Location address"
++msgstr ""
++
+ msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
+ msgstr ""
+diff --git a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
+index 37550807..a98a96e4 100644
+--- a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
++++ b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
+@@ -12,8 +12,8 @@ return function(form, uci)
+ 	end
+ 
+ 	local text = translate(
+-		'If you want the location of your node to ' ..
+-		'be displayed on the map, you can enter its coordinates here.'
++		'To show your node on the map we need its coordinates, ' ..
++		'you can help us and enter the coordinates here.'
+ 	)
+ 	if show_altitude() then
+ 		text = text .. ' ' .. translate("gluon-config-mode:altitude-help")
+-- 
+2.13.1
+
