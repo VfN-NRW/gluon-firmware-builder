@@ -1,48 +1,46 @@
-From 30eb72f24bd7debe597a75886fd7622efb3fe754 Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Mon, 15 Aug 2016 10:31:34 +0200
+From eae8202454ba3981be14d90e5d06aec540b3fd00 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 18 Jun 2017 04:45:43 +0200
 Subject: [PATCH] forbid updates 2 hours after boot
 
 ---
- admin/autoupdater/files/usr/sbin/autoupdater | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ admin/autoupdater/files/usr/sbin/autoupdater | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
 diff --git a/admin/autoupdater/files/usr/sbin/autoupdater b/admin/autoupdater/files/usr/sbin/autoupdater
-index 0bbc919..00b93d2 100755
+index 36bc940..29fedf8 100755
 --- a/admin/autoupdater/files/usr/sbin/autoupdater
 +++ b/admin/autoupdater/files/usr/sbin/autoupdater
-@@ -208,21 +208,22 @@ local function get_probability(date, priority)
-   local seconds = priority * 86400
-   local diff = os.difftime(os.time(), date)
+@@ -240,20 +240,21 @@ local function get_probability(date, priority)
+ 	local seconds = priority * 86400
+ 	local diff = os.difftime(os.time(), date)
  
-+  if tonumber(fs.readfile('/proc/uptime'):match('^([^ ]+) ')) < 7200 then
-+    -- If the uptime is very low, it's possible we just didn't get the time over NTP yet, so we'll just wait until the next time the updater runs
-+    return 0
-+  end
++	if tonumber(fs.readfile('/proc/uptime'):match('^([^ ]+) ')) < 7200 then
++		-- If the uptime is very low, it's possible we just didn't get the time over NTP yet, so we'll just wait until the next time the updater runs
++		return 0
++	end
 +
 +
-   if diff < 0 then
-     -- When the difference is negative, there are two possibilities: The manifest contains a wrong date, or our own clock is wrong.
-     -- As there isn't anything useful to do for an incorrect manifest, we'll assume the latter case and update anyways as we
-     -- can't do anything better
-     io.stderr:write('Warning: clock seems to be incorrect.\n')
+ 	if diff < 0 then
+ 		-- When the difference is negative, there are two possibilities: The manifest contains a wrong date, or our own clock is wrong.
+ 		-- As there isn't anything useful to do for an incorrect manifest, we'll assume the latter case and update anyways as we
+ 		-- can't do anything better
+ 		io.stderr:write('Warning: clock seems to be incorrect.\n')
  
--    if tonumber(fs.readfile('/proc/uptime'):match('^([^ ]+) ')) < 600 then
--      -- If the uptime is very low, it's possible we just didn't get the time over NTP yet, so we'll just wait until the next time the updater runs
--      return 0
--    else
--      -- Will give 1 when priority == 0, and lower probabilities the higher the priority value is
--      -- (similar to the old static probability system)
--      return 0.75^priority
--    end
--
-+    -- Will give 1 when priority == 0, and lower probabilities the higher the priority value is
-+    -- (similar to the old static probability system)
-+    return 0.75^priority
-+  
-   elseif fallback then
-     if diff >= seconds + 86400 then
-       return 1
+-		if tonumber(fs.readfile('/proc/uptime'):match('^([^ ]+) ')) < 600 then
+-			-- If the uptime is very low, it's possible we just didn't get the time over NTP yet, so we'll just wait until the next time the updater runs
+-			return 0
+-		else
+-			-- Will give 1 when priority == 0, and lower probabilities the higher the priority value is
+-			-- (similar to the old static probability system)
+-			return 0.75^priority
+-		end
++		-- Will give 1 when priority == 0, and lower probabilities the higher the priority value is
++		-- (similar to the old static probability system)
++		return 0.75^priority
+ 
+ 	elseif fallback then
+ 		if diff >= seconds + 86400 then
 -- 
-2.9.2
+2.13.1
 
