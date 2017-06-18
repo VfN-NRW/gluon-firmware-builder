@@ -1,32 +1,34 @@
-From a224c62f1a9f9c0569093c609f18e0f21084e381 Mon Sep 17 00:00:00 2001
+From 488f4499b0f674db75a62f3c3a5ffd6cb7191752 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 30 Jul 2016 20:32:53 +0200
+Date: Sun, 18 Jun 2017 04:02:57 +0200
 Subject: [PATCH] dynamic TPC was implemented, increasing maximum txpower to
  200, 1000 mW && adding BFWA-range
 
 ---
- package/kernel/mac80211/files/regdb.txt | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ package/kernel/mac80211/files/regdb.txt | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/package/kernel/mac80211/files/regdb.txt b/package/kernel/mac80211/files/regdb.txt
-index 463ace3..3840970 100644
+index c4a9b2d15f..b7db21e367 100644
 --- a/package/kernel/mac80211/files/regdb.txt
 +++ b/package/kernel/mac80211/files/regdb.txt
-@@ -318,11 +318,12 @@ country DE: DFS-ETSI
- 	# entries 279004 and 280006
+@@ -353,11 +353,11 @@ country CZ: DFS-ETSI
+ 
+ country DE: DFS-ETSI
  	(2400 - 2483.5 @ 40), (100 mW)
- 	# entry 303005
 -	(5150 - 5250 @ 80), (100 mW), NO-OUTDOOR, AUTO-BW
-+	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW
- 	# entries 304002 and 305002
- 	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW
- 	# entries 308002, 309001 and 310003
+-	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW
 -	(5470 - 5725 @ 160), (500 mW), DFS
+-	# short range devices (ETSI EN 300 440-1)
+-	(5725 - 5875 @ 80), (25 mW)
++	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW
++	(5250 - 5350 @ 80), (200 mW), NO-OUTDOOR, DFS, AUTO-BW
 +	(5470 - 5725 @ 160), (1000 mW), DFS
++	# FBWA
 +	(5755 - 5875 @ 20), (4000 mW), DFS
- 	# 60 GHz band channels 1-4, ref: Etsi En 302 567
+ 	# 60 GHz band channels 1-4 (ETSI EN 302 567)
  	(57000 - 66000 @ 2160), (40)
  
 -- 
-2.9.2
+2.13.1
 
