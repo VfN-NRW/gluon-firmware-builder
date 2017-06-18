@@ -1,20 +1,20 @@
-From ea9f49650eafd9b953dfe3fe7c456f0b6f654482 Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@vfn-nrw.de>
-Date: Tue, 19 Jul 2016 17:40:28 +0200
+From 613cf27c6ef775e32b245f77cdff0548ae14f123 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 18 Jun 2017 03:56:07 +0200
 Subject: [PATCH] remove wget from busybox
 
 ---
- package/utils/busybox/config/networking/Config.in | 55 -----------------------
- 1 file changed, 55 deletions(-)
+ package/utils/busybox/config/networking/Config.in | 82 -----------------------
+ 1 file changed, 82 deletions(-)
 
 diff --git a/package/utils/busybox/config/networking/Config.in b/package/utils/busybox/config/networking/Config.in
-index b3dd8c8..9e7e5f6 100644
+index e58746bdd7..955c43167d 100644
 --- a/package/utils/busybox/config/networking/Config.in
 +++ b/package/utils/busybox/config/networking/Config.in
-@@ -1047,59 +1047,4 @@ config BUSYBOX_CONFIG_VCONFIG
+@@ -94,89 +94,7 @@ config BUSYBOX_CONFIG_FEATURE_FANCY_PING
  	help
- 	  Creates, removes, and configures VLAN interfaces
- 
+ 	  Make the output from the ping applet include statistics, and at the
+ 	  same time provide full support for ICMP packets.
 -config BUSYBOX_CONFIG_WGET
 -	bool "wget"
 -	default BUSYBOX_DEFAULT_WGET
@@ -28,7 +28,7 @@ index b3dd8c8..9e7e5f6 100644
 -	depends on BUSYBOX_CONFIG_WGET
 -	help
 -	  Enable the transfer progress bar for wget transfers.
--
+ 
 -config BUSYBOX_CONFIG_FEATURE_WGET_AUTHENTICATION
 -	bool "Enable HTTP authentication"
 -	default BUSYBOX_DEFAULT_FEATURE_WGET_AUTHENTICATION
@@ -57,20 +57,50 @@ index b3dd8c8..9e7e5f6 100644
 -	  FEATURE_WGET_LONG_OPTIONS is also enabled, the --timeout option
 -	  will work in addition to -T.
 -
--config BUSYBOX_CONFIG_ZCIP
--	bool "zcip"
--	default BUSYBOX_DEFAULT_ZCIP
--	select BUSYBOX_CONFIG_PLATFORM_LINUX
--	select BUSYBOX_CONFIG_FEATURE_SYSLOG
+-config BUSYBOX_CONFIG_FEATURE_WGET_OPENSSL
+-	bool "Try to connect to HTTPS using openssl"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_OPENSSL
+-	depends on BUSYBOX_CONFIG_WGET
 -	help
--	  ZCIP provides ZeroConf IPv4 address selection, according to RFC 3927.
--	  It's a daemon that allocates and defends a dynamically assigned
--	  address on the 169.254/16 network, requiring no system administrator.
+-	  Choose how wget establishes SSL connection for https:// URLs.
 -
--	  See http://www.zeroconf.org for further details, and "zcip.script"
--	  in the busybox examples.
+-	  Busybox itself contains no SSL code. wget will spawn
+-	  a helper program to talk over HTTPS.
 -
- endmenu
+-	  OpenSSL has a simple SSL client for debug purposes.
+-	  If you select "openssl" helper, wget will effectively call
+-	  "openssl s_client -quiet -connect IP:443 2>/dev/null"
+-	  and pipe its data through it.
+-	  Note inconvenient API: host resolution is done twice,
+-	  and there is no guarantee openssl's idea of IPv6 address
+-	  format is the same as ours.
+-	  Another problem is that s_client prints debug information
+-	  to stderr, and it needs to be suppressed. This means
+-	  all error messages get suppressed too.
+-	  openssl is also a big binary, often dynamically linked
+-	  against ~15 libraries.
+-
+-config BUSYBOX_CONFIG_FEATURE_WGET_SSL_HELPER
+-	bool "Try to connect to HTTPS using ssl_helper"
+-	default BUSYBOX_DEFAULT_FEATURE_WGET_SSL_HELPER
+-	depends on BUSYBOX_CONFIG_WGET
+-	help
+-	  Choose how wget establishes SSL connection for https:// URLs.
+-
+-	  Busybox itself contains no SSL code. wget will spawn
+-	  a helper program to talk over HTTPS.
+-
+-	  ssl_helper is a tool which can be built statically
+-	  from busybox sources against a small embedded SSL library.
+-	  Please see networking/ssl_helper/README.
+-	  It does not require double host resolution and emits
+-	  error messages to stderr.
+-
+-	  Precompiled static binary may be available at
+-	  http://busybox.net/downloads/binaries/
+ config BUSYBOX_CONFIG_WHOIS
+ 	bool "whois"
+ 	default BUSYBOX_DEFAULT_WHOIS
 -- 
-2.9.0
+2.13.1
 
