@@ -1,0 +1,270 @@
+From bdfad883ff3eb4975fe8814dfb01a24c07ae8367 Mon Sep 17 00:00:00 2001
+From: Jonas Gorski <jonas.gorski@gmail.com>
+Date: Thu, 8 Jun 2017 10:40:50 +0200
+Subject: [PATCH] kernel: make regmap LZO cache optional
+
+There are no users, so hide it and let future users select it. Saves
+about ~17 kB on MIPS.
+
+Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+---
+ .../087-regmap-make-LZO-cache-optional.patch       | 67 +++++++++++++++++++++
+ .../generic/patches-3.18/259-regmap_dynamic.patch  | 19 ++++--
+ .../087-regmap-make-LZO-cache-optional.patch       | 69 ++++++++++++++++++++++
+ .../generic/patches-4.4/259-regmap_dynamic.patch   | 19 +++---
+ 4 files changed, 160 insertions(+), 14 deletions(-)
+ create mode 100644 target/linux/generic/patches-3.18/087-regmap-make-LZO-cache-optional.patch
+ create mode 100644 target/linux/generic/patches-4.4/087-regmap-make-LZO-cache-optional.patch
+
+diff --git a/target/linux/generic/patches-3.18/087-regmap-make-LZO-cache-optional.patch b/target/linux/generic/patches-3.18/087-regmap-make-LZO-cache-optional.patch
+new file mode 100644
+index 0000000000..94b61fdab4
+--- /dev/null
++++ b/target/linux/generic/patches-3.18/087-regmap-make-LZO-cache-optional.patch
+@@ -0,0 +1,67 @@
++From de88e9b0354c2e3ff8eae3f97afe43a34f5ed239 Mon Sep 17 00:00:00 2001
++From: Jonas Gorski <jonas.gorski@gmail.com>
++Date: Sat, 13 May 2017 13:03:21 +0200
++Subject: [PATCH] regmap: make LZO cache optional
++
++Commit 2cbbb579bcbe3 ("regmap: Add the LZO cache support") added support
++for LZO compression in regcache, but there were never any users added
++afterwards. Since LZO support itself has its own size, it currently is
++rather a deoptimization.
++
++So make it optional by introducing a symbol that can be selected by
++drivers wanting to make use of it.
++
++Saves e.g. ~46 kB on MIPS (size of LZO support + regcache LZO code).
++
++Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
++---
++I tried using google to find any users (even out-of-tree ones), but at
++best I found a single driver submission that was switched to RBTREE in
++subsequent resubmissions (MFD_SMSC).
++
++One could maybe also just drop the code because of no users for 5 years,
++but that would be up to the maintainer(s) to decide.
++
++ drivers/base/regmap/Kconfig    | 5 ++++-
++ drivers/base/regmap/Makefile   | 3 ++-
++ drivers/base/regmap/regcache.c | 2 ++
++ 3 files changed, 8 insertions(+), 2 deletions(-)
++
++--- a/drivers/base/regmap/Kconfig
+++++ b/drivers/base/regmap/Kconfig
++@@ -4,9 +4,12 @@
++ 
++ config REGMAP
++ 	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_MMIO || REGMAP_IRQ)
+++	select IRQ_DOMAIN if REGMAP_IRQ
+++	bool
+++
+++config REGCACHE_COMPRESSED
++ 	select LZO_COMPRESS
++ 	select LZO_DECOMPRESS
++-	select IRQ_DOMAIN if REGMAP_IRQ
++ 	bool
++ 
++ config REGMAP_I2C
++--- a/drivers/base/regmap/Makefile
+++++ b/drivers/base/regmap/Makefile
++@@ -1,5 +1,6 @@
++ obj-$(CONFIG_REGMAP) += regmap.o regcache.o
++-obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-lzo.o regcache-flat.o
+++obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-flat.o
+++obj-$(CONFIG_REGCACHE_COMPRESSED) += regcache-lzo.o
++ obj-$(CONFIG_DEBUG_FS) += regmap-debugfs.o
++ obj-$(CONFIG_REGMAP_I2C) += regmap-i2c.o
++ obj-$(CONFIG_REGMAP_SPI) += regmap-spi.o
++--- a/drivers/base/regmap/regcache.c
+++++ b/drivers/base/regmap/regcache.c
++@@ -21,7 +21,9 @@
++ 
++ static const struct regcache_ops *cache_types[] = {
++ 	&regcache_rbtree_ops,
+++#if IS_ENABLED(CONFIG_REGCACHE_COMPRESSED)
++ 	&regcache_lzo_ops,
+++#endif
++ 	&regcache_flat_ops,
++ };
++ 
+diff --git a/target/linux/generic/patches-3.18/259-regmap_dynamic.patch b/target/linux/generic/patches-3.18/259-regmap_dynamic.patch
+index b1d4ad2772..5e422ebd48 100644
+--- a/target/linux/generic/patches-3.18/259-regmap_dynamic.patch
++++ b/target/linux/generic/patches-3.18/259-regmap_dynamic.patch
+@@ -1,16 +1,19 @@
+ --- a/drivers/base/regmap/Kconfig
+ +++ b/drivers/base/regmap/Kconfig
+-@@ -3,26 +3,31 @@
++@@ -3,9 +3,8 @@
+  # subsystems should select the appropriate symbols.
+  
+  config REGMAP
+ -	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_MMIO || REGMAP_IRQ)
+- 	select LZO_COMPRESS
+- 	select LZO_DECOMPRESS
+  	select IRQ_DOMAIN if REGMAP_IRQ
+ -	bool
+ +	tristate "Regmap"
+  
++ config REGCACHE_COMPRESSED
++ 	select LZO_COMPRESS
++@@ -13,19 +12,25 @@ config REGCACHE_COMPRESSED
++ 	bool
++ 
+  config REGMAP_I2C
+ -	tristate
+ +	tristate "Regmap I2C"
+@@ -50,14 +53,18 @@
+  	/* Unspecified -> 0 -> Backwards compatible default */
+ --- a/drivers/base/regmap/Makefile
+ +++ b/drivers/base/regmap/Makefile
+-@@ -1,6 +1,8 @@
++@@ -1,7 +1,11 @@
+ -obj-$(CONFIG_REGMAP) += regmap.o regcache.o
+--obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-lzo.o regcache-flat.o
++-obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-flat.o
++-obj-$(CONFIG_REGCACHE_COMPRESSED) += regcache-lzo.o
+ -obj-$(CONFIG_DEBUG_FS) += regmap-debugfs.o
+-+regmap-core-objs = regmap.o regcache.o regcache-rbtree.o regcache-lzo.o regcache-flat.o
+++regmap-core-objs = regmap.o regcache.o regcache-rbtree.o regcache-flat.o
+ +ifdef CONFIG_DEBUG_FS
+ +regmap-core-objs += regmap-debugfs.o
+ +endif
+++ifdef CONFIG_REGCACHE_COMPRESSED
+++regmap-core-objs += regcache-lzo.o
+++endif
+ +obj-$(CONFIG_REGMAP) += regmap-core.o
+  obj-$(CONFIG_REGMAP_I2C) += regmap-i2c.o
+  obj-$(CONFIG_REGMAP_SPI) += regmap-spi.o
+diff --git a/target/linux/generic/patches-4.4/087-regmap-make-LZO-cache-optional.patch b/target/linux/generic/patches-4.4/087-regmap-make-LZO-cache-optional.patch
+new file mode 100644
+index 0000000000..c26994ee35
+--- /dev/null
++++ b/target/linux/generic/patches-4.4/087-regmap-make-LZO-cache-optional.patch
+@@ -0,0 +1,69 @@
++From de88e9b0354c2e3ff8eae3f97afe43a34f5ed239 Mon Sep 17 00:00:00 2001
++From: Jonas Gorski <jonas.gorski@gmail.com>
++Date: Sat, 13 May 2017 13:03:21 +0200
++Subject: [PATCH] regmap: make LZO cache optional
++
++Commit 2cbbb579bcbe3 ("regmap: Add the LZO cache support") added support
++for LZO compression in regcache, but there were never any users added
++afterwards. Since LZO support itself has its own size, it currently is
++rather a deoptimization.
++
++So make it optional by introducing a symbol that can be selected by
++drivers wanting to make use of it.
++
++Saves e.g. ~46 kB on MIPS (size of LZO support + regcache LZO code).
++
++Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
++---
++I tried using google to find any users (even out-of-tree ones), but at
++best I found a single driver submission that was switched to RBTREE in
++subsequent resubmissions (MFD_SMSC).
++
++One could maybe also just drop the code because of no users for 5 years,
++but that would be up to the maintainer(s) to decide.
++
++ drivers/base/regmap/Kconfig    | 5 ++++-
++ drivers/base/regmap/Makefile   | 3 ++-
++ drivers/base/regmap/regcache.c | 2 ++
++ 3 files changed, 8 insertions(+), 2 deletions(-)
++
++--- a/drivers/base/regmap/Kconfig
+++++ b/drivers/base/regmap/Kconfig
++@@ -4,9 +4,12 @@
++ 
++ config REGMAP
++ 	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_AC97 || REGMAP_MMIO || REGMAP_IRQ)
+++	select IRQ_DOMAIN if REGMAP_IRQ
+++	bool
+++
+++config REGCACHE_COMPRESSED
++ 	select LZO_COMPRESS
++ 	select LZO_DECOMPRESS
++-	select IRQ_DOMAIN if REGMAP_IRQ
++ 	bool
++ 
++ config REGMAP_AC97
++--- a/drivers/base/regmap/Makefile
+++++ b/drivers/base/regmap/Makefile
++@@ -2,7 +2,8 @@
++ CFLAGS_regmap.o := -I$(src)
++ 
++ obj-$(CONFIG_REGMAP) += regmap.o regcache.o
++-obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-lzo.o regcache-flat.o
+++obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-flat.o
+++obj-$(CONFIG_REGCACHE_COMPRESSED) += regcache-lzo.o
++ obj-$(CONFIG_DEBUG_FS) += regmap-debugfs.o
++ obj-$(CONFIG_REGMAP_AC97) += regmap-ac97.o
++ obj-$(CONFIG_REGMAP_I2C) += regmap-i2c.o
++--- a/drivers/base/regmap/regcache.c
+++++ b/drivers/base/regmap/regcache.c
++@@ -21,7 +21,9 @@
++ 
++ static const struct regcache_ops *cache_types[] = {
++ 	&regcache_rbtree_ops,
+++#if IS_ENABLED(CONFIG_REGCACHE_COMPRESSED)
++ 	&regcache_lzo_ops,
+++#endif
++ 	&regcache_flat_ops,
++ };
++ 
+diff --git a/target/linux/generic/patches-4.4/259-regmap_dynamic.patch b/target/linux/generic/patches-4.4/259-regmap_dynamic.patch
+index fb039841c1..42a9728567 100644
+--- a/target/linux/generic/patches-4.4/259-regmap_dynamic.patch
++++ b/target/linux/generic/patches-4.4/259-regmap_dynamic.patch
+@@ -1,18 +1,17 @@
+ --- a/drivers/base/regmap/Kconfig
+ +++ b/drivers/base/regmap/Kconfig
+-@@ -3,29 +3,35 @@
++@@ -3,9 +3,8 @@
+  # subsystems should select the appropriate symbols.
+  
+  config REGMAP
+ -	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_AC97 || REGMAP_MMIO || REGMAP_IRQ)
+- 	select LZO_COMPRESS
+- 	select LZO_DECOMPRESS
+  	select IRQ_DOMAIN if REGMAP_IRQ
+ -	bool
+ +	tristate "Regmap"
+  
+- config REGMAP_AC97
+-+	select REGMAP
++ config REGCACHE_COMPRESSED
++ 	select LZO_COMPRESS
++@@ -16,19 +15,25 @@ config REGMAP_AC97
+  	tristate
+  
+  config REGMAP_I2C
+@@ -54,17 +53,21 @@
+  	/* Unspecified -> 0 -> Backwards compatible default */
+ --- a/drivers/base/regmap/Makefile
+ +++ b/drivers/base/regmap/Makefile
+-@@ -1,9 +1,11 @@
++@@ -1,10 +1,14 @@
+  # For include/trace/define_trace.h to include trace.h
+  CFLAGS_regmap.o := -I$(src)
+  
+ -obj-$(CONFIG_REGMAP) += regmap.o regcache.o
+--obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-lzo.o regcache-flat.o
++-obj-$(CONFIG_REGMAP) += regcache-rbtree.o regcache-flat.o
++-obj-$(CONFIG_REGCACHE_COMPRESSED) += regcache-lzo.o
+ -obj-$(CONFIG_DEBUG_FS) += regmap-debugfs.o
+-+regmap-core-objs = regmap.o regcache.o regcache-rbtree.o regcache-lzo.o regcache-flat.o
+++regmap-core-objs = regmap.o regcache.o regcache-rbtree.o regcache-flat.o
+ +ifdef CONFIG_DEBUG_FS
+ +regmap-core-objs += regmap-debugfs.o
+ +endif
+++ifdef CONFIG_REGCACHE_COMPRESSED
+++regmap-core-objs += regcache-lzo.o
+++endif
+ +obj-$(CONFIG_REGMAP) += regmap-core.o
+  obj-$(CONFIG_REGMAP_AC97) += regmap-ac97.o
+  obj-$(CONFIG_REGMAP_I2C) += regmap-i2c.o
+-- 
+2.13.1
+
