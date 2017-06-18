@@ -1,0 +1,26 @@
+From 703b9be08d3f2893a014f7a0d0215fa61961c4b0 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 18 Jun 2017 04:33:10 +0200
+Subject: [PATCH] add Archer C25 v1 to the ar71xx-generic target
+
+---
+ targets/ar71xx-generic | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/targets/ar71xx-generic b/targets/ar71xx-generic
+index d92da9d8..f419f895 100644
+--- a/targets/ar71xx-generic
++++ b/targets/ar71xx-generic
+@@ -183,6 +183,9 @@ factory -squashfs-factory${GLUON_REGION:+-${GLUON_REGION}} .bin
+ 
+ device tp-link-re450 re450
+ packages $ATH10K_PACKAGES
++
++device tp-link-archer-c25-v1 archer-c25-v1
++packages $ATH10K_PACKAGES
+ fi
+ 
+ 
+-- 
+2.13.1
+
