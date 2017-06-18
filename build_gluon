@@ -95,7 +95,7 @@ if [ -z "$profiles" ]; then
 fi
 
 if [ -z "$branches" ]; then
-	branches="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic" # ipq806x x86-kvm_guest
+	branches="ar71xx-generic mpc85xx-generic x86-generic ipq806x ar71xx-tiny x86-64"
 fi
 
 cd ./$GluonRelease
