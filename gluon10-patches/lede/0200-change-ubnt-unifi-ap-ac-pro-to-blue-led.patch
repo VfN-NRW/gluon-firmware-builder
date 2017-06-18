@@ -1,6 +1,6 @@
-From d98244bd1166a8865b193b22e4863227cbc4d82b Mon Sep 17 00:00:00 2001
+From c563d50ca2ca463205c4ec6a84daef7c3365c834 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 30 Jul 2016 23:39:52 +0200
+Date: Sun, 18 Jun 2017 04:11:36 +0200
 Subject: [PATCH] change ubnt unifi ap ac pro to blue led
 
 ---
@@ -8,19 +8,19 @@ Subject: [PATCH] change ubnt unifi ap ac pro to blue led
  1 file changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
-index 775aac6..6fae444 100644
+index ffd137600d..24df530fe2 100644
 --- a/target/linux/ar71xx/base-files/etc/diag.sh
 +++ b/target/linux/ar71xx/base-files/etc/diag.sh
-@@ -299,7 +299,7 @@ get_status_led() {
- 	uap-pro | \
- 	unifiac-lite | \
+@@ -410,7 +410,7 @@ get_status_led() {
+ 	uap-pro|\
+ 	unifiac-lite|\
  	unifiac-pro)
 -		status_led="ubnt:white:dome"
 +		status_led="ubnt:blue:dome"
  		;;
  	unifi-outdoor-plus)
  		status_led="ubnt:white:front"
-@@ -359,18 +359,34 @@ get_status_led() {
+@@ -463,18 +463,35 @@ get_status_led() {
  	esac
  }
  
@@ -36,6 +36,7 @@ index 775aac6..6fae444 100644
 +                ;;                                                 
 +	esac  
 +}
++
 +
  set_state() {
  	get_status_led
@@ -55,7 +56,7 @@ index 775aac6..6fae444 100644
  		;;
  	done)
  		status_led_on
-@@ -379,7 +395,15 @@ set_state() {
+@@ -486,6 +503,13 @@ set_state() {
  			local n=$(fw_printenv activeregion | cut -d = -f 2)
  			fw_setenv "image${n}trynum" 0
  			;;
@@ -69,8 +70,6 @@ index 775aac6..6fae444 100644
  		esac
  		;;
  	esac
- }
-+
 -- 
-2.9.2
+2.13.1
 
