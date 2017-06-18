@@ -1,14 +1,14 @@
-From 064f66379586b754b342269cfdaee1caefcaba95 Mon Sep 17 00:00:00 2001
+From dffbe3d32ed25a4c5145034a3236e7ea2ab37dcc Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
 Date: Sat, 17 Jun 2017 23:25:24 +0200
 Subject: [PATCH] add all wifi tweaks and reenable >ht20 modes
 
 ---
- .../luasrc/lib/gluon/upgrade/200-wireless          | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ .../luasrc/lib/gluon/upgrade/200-wireless          | 25 +++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
 diff --git a/package/gluon-core/luasrc/lib/gluon/upgrade/200-wireless b/package/gluon-core/luasrc/lib/gluon/upgrade/200-wireless
-index ba844950..a2f4521b 100755
+index ba844950..8329308a 100755
 --- a/package/gluon-core/luasrc/lib/gluon/upgrade/200-wireless
 +++ b/package/gluon-core/luasrc/lib/gluon/upgrade/200-wireless
 @@ -82,7 +82,6 @@ local function configure_ibss(config, radio, index, suffix, disabled)
@@ -27,7 +27,7 @@ index ba844950..a2f4521b 100755
        ifname = suffix and 'mesh' .. suffix,
        disabled = disabled,
        macfilter = macfilter,
-@@ -159,9 +157,27 @@ local function configure_radio(radio, index, config)
+@@ -159,9 +157,30 @@ local function configure_radio(radio, index, config)
  
    uci:delete('wireless', radio, 'disabled')
  
@@ -53,6 +53,9 @@ index ba844950..a2f4521b 100755
 +  uci:set('wireless', radio, 'broadcast_deauth', '0')
 +  uci:set('wireless', radio, 'proxy_arp', '1')
 +  uci:set('wireless', radio, 'na_mcast_to_ucast', '1')
++  uci:set('wireless', radio, 'wnm_sleep_mode', '1')
++  uci:set('wireless', radio, 'bss_transition', '1')
++
  
    if config.supported_rates then
      uci:set_list('wireless', radio, 'supported_rates', config.supported_rates)
