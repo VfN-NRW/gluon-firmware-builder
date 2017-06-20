@@ -1,10 +1,10 @@
-From f79b95d94811ceffd32b9638473a7e024119085f Mon Sep 17 00:00:00 2001
-From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 17 Jun 2017 20:47:18 +0200
+From 6313fcc46224f0d8f545d203bf2d3c31f05c6168 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@vfn-nrw.de>
+Date: Wed, 21 Jun 2017 00:14:01 +0200
 Subject: [PATCH] remove-respondd
 
 ---
- package/gluon-autoupdater/Makefile                 |   5 -
+ package/gluon-autoupdater/Makefile                 |  11 +-
  package/gluon-autoupdater/src/Makefile             |   6 -
  package/gluon-autoupdater/src/respondd.c           |  79 ---
  package/gluon-mesh-batman-adv/Makefile             |   6 +-
@@ -15,7 +15,7 @@ Subject: [PATCH] remove-respondd
  package/gluon-mesh-batman-adv/src/respondd.c       | 774 ---------------------
  package/gluon-mesh-vpn-fastd/Makefile              |   4 -
  package/gluon-mesh-vpn-fastd/src/Makefile          |   6 -
- package/gluon-node-info/Makefile                   |   5 -
+ package/gluon-node-info/Makefile                   |  11 +-
  package/gluon-node-info/src/Makefile               |   6 -
  package/gluon-node-info/src/respondd.c             | 144 ----
  package/gluon-status-page-api/Makefile             |   6 +-
@@ -26,7 +26,7 @@ Subject: [PATCH] remove-respondd
  .../gluon-status-page-api/src/neighbours-batadv.c  | 130 ----
  package/gluon-status-page-api/src/respondd.c       |  47 --
  package/gluon-status-page-api/src/stations.c       | 126 ----
- 23 files changed, 2 insertions(+), 2555 deletions(-)
+ 22 files changed, 14 insertions(+), 2244 deletions(-)
  delete mode 100644 package/gluon-autoupdater/src/Makefile
  delete mode 100644 package/gluon-autoupdater/src/respondd.c
  delete mode 100644 package/gluon-mesh-batman-adv/src/Makefile
@@ -46,7 +46,7 @@ Subject: [PATCH] remove-respondd
  delete mode 100644 package/gluon-status-page-api/src/stations.c
 
 diff --git a/package/gluon-autoupdater/Makefile b/package/gluon-autoupdater/Makefile
-index eacf80c1..815d2874 100644
+index eacf80c1..fbbc15af 100644
 --- a/package/gluon-autoupdater/Makefile
 +++ b/package/gluon-autoupdater/Makefile
 @@ -6,7 +6,6 @@ PKG_VERSION:=4
@@ -57,7 +57,20 @@ index eacf80c1..815d2874 100644
  
  
  include ../gluon.mk
-@@ -28,7 +27,6 @@ endef
+@@ -19,6 +18,12 @@ define Package/gluon-autoupdater
+   TITLE:=Automatically update firmware
+ endef
+ 
++define Build/Configure
++endef
++
++define Build/Compile
++endef
++
+ define Package/gluon-autoupdater/config
+ config GLUON_BRANCH
+ 	string "Gluon autoupdater branch"
+@@ -28,7 +33,6 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
@@ -65,7 +78,7 @@ index eacf80c1..815d2874 100644
  endef
  
  define Build/Compile
-@@ -40,9 +38,6 @@ define Package/gluon-autoupdater/install
+@@ -40,9 +44,6 @@ define Package/gluon-autoupdater/install
  	$(CP) ./files/* $(1)/
  	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
  
@@ -1505,7 +1518,7 @@ index 3ddc8a58..00000000
 -respondd.so: respondd.c
 -	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -fPIC -D_GNU_SOURCE -o $@ $^ $(LDLIBS) -lgluonutil -luci
 diff --git a/package/gluon-node-info/Makefile b/package/gluon-node-info/Makefile
-index 59f60dfd..63516533 100644
+index 59f60dfd..d6ed1ce5 100644
 --- a/package/gluon-node-info/Makefile
 +++ b/package/gluon-node-info/Makefile
 @@ -5,7 +5,6 @@ PKG_VERSION:=1
@@ -1516,8 +1529,16 @@ index 59f60dfd..63516533 100644
  
  include ../gluon.mk
  
-@@ -19,14 +18,10 @@ endef
+@@ -17,16 +16,18 @@ define Package/gluon-node-info
+   DEPENDS:=+gluon-core +libgluonutil
+ endef
  
++define Build/Configure
++endef
++
++define Build/Compile
++endef
++
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
 -	$(CP) ./src/* $(PKG_BUILD_DIR)/
