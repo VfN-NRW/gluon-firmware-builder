@@ -1,0 +1,51 @@
+From ddff9c7d913ac6c70e440ec85ad16d177688e66e Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 25 Jun 2017 00:19:17 +0200
+Subject: [PATCH] change hostapd-mini to full hostapd on all platforms except
+ ar71xx-tiny
+
+---
+ Makefile              | 2 +-
+ targets/ar71xx-tiny   | 2 +-
+ targets/ramips-mt7621 | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index fab156c5..24f88840 100644
+--- a/Makefile
++++ b/Makefile
+@@ -72,7 +72,7 @@ list-targets: FORCE
+ 	@$(foreach target,$(GLUON_TARGETS),echo '$(target)';)
+ 
+ 
+-GLUON_DEFAULT_PACKAGES := -odhcpd -ppp -ppp-mod-pppoe -wpad-mini gluon-core ip6tables hostapd-mini
++GLUON_DEFAULT_PACKAGES := -odhcpd -ppp -ppp-mod-pppoe -wpad-mini gluon-core ip6tables hostapd
+ 
+ GLUON_PACKAGES :=
+ define merge_packages
+diff --git a/targets/ar71xx-tiny b/targets/ar71xx-tiny
+index 48fafdfe..f2d22d60 100644
+--- a/targets/ar71xx-tiny
++++ b/targets/ar71xx-tiny
+@@ -1,5 +1,5 @@
+ no_opkg
+-packages '-uboot-envtools' '-kmod-usb-core' '-kmod-usb-ohci' '-kmod-usb2' '-kmod-usb-ledtrig-usbport'
++packages '-uboot-envtools' '-kmod-usb-core' '-kmod-usb-ohci' '-kmod-usb2' '-kmod-usb-ledtrig-usbport' '-hostapd' 'hostapd-mini' 
+ 
+ 
+ # D-Link
+diff --git a/targets/ramips-mt7621 b/targets/ramips-mt7621
+index 28d42891..a743976d 100644
+--- a/targets/ramips-mt7621
++++ b/targets/ramips-mt7621
+@@ -5,6 +5,6 @@ device d-link-dir-860l-b1 dir-860l-b1
+ # Ubiquiti
+ 
+ device ubnt-erx ubnt-erx
+-packages '-hostapd-mini'
++packages '-hostapd'
+ factory
+ sysupgrade '.tar'
+-- 
+2.13.1
+
