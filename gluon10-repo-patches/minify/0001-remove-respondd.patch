@@ -1,19 +1,19 @@
-From 7fcab723a478ac30887937163f596645b4fb4369 Mon Sep 17 00:00:00 2001
+From 7804d405c3472c4945536053b0c628b713b2f262 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@vfn-nrw.de>
 Date: Wed, 21 Jun 2017 00:14:01 +0200
 Subject: [PATCH] remove-respondd
 
 ---
- package/gluon-autoupdater/Makefile                 |  11 +-
+ package/gluon-autoupdater/Makefile                 |  10 +-
  package/gluon-autoupdater/src/Makefile             |   6 -
  package/gluon-autoupdater/src/respondd.c           |  79 ---
- package/gluon-mesh-batman-adv/Makefile             |   6 +-
+ package/gluon-mesh-batman-adv/Makefile             |   8 +-
  package/gluon-mesh-batman-adv/src/Makefile         |  24 -
  package/gluon-mesh-batman-adv/src/batadv-netlink.c | 149 ----
  package/gluon-mesh-batman-adv/src/batadv-netlink.h |  68 --
  package/gluon-mesh-batman-adv/src/batman_adv.h     | 208 ------
  package/gluon-mesh-batman-adv/src/respondd.c       | 774 ---------------------
- package/gluon-mesh-vpn-fastd/Makefile              |   4 -
+ package/gluon-mesh-vpn-fastd/Makefile              |   5 -
  package/gluon-mesh-vpn-fastd/src/Makefile          |   6 -
  package/gluon-node-info/Makefile                   |  11 +-
  package/gluon-node-info/src/Makefile               |   6 -
@@ -26,7 +26,7 @@ Subject: [PATCH] remove-respondd
  .../gluon-status-page-api/src/neighbours-batadv.c  | 130 ----
  package/gluon-status-page-api/src/respondd.c       |  47 --
  package/gluon-status-page-api/src/stations.c       | 126 ----
- 22 files changed, 14 insertions(+), 2244 deletions(-)
+ 22 files changed, 11 insertions(+), 2249 deletions(-)
  delete mode 100644 package/gluon-autoupdater/src/Makefile
  delete mode 100644 package/gluon-autoupdater/src/respondd.c
  delete mode 100644 package/gluon-mesh-batman-adv/src/Makefile
@@ -46,10 +46,10 @@ Subject: [PATCH] remove-respondd
  delete mode 100644 package/gluon-status-page-api/src/stations.c
 
 diff --git a/package/gluon-autoupdater/Makefile b/package/gluon-autoupdater/Makefile
-index eacf80c1..fbbc15af 100644
+index eacf80c1..1c3cbca7 100644
 --- a/package/gluon-autoupdater/Makefile
 +++ b/package/gluon-autoupdater/Makefile
-@@ -6,7 +6,6 @@ PKG_VERSION:=4
+@@ -6,12 +6,10 @@ PKG_VERSION:=4
  PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
  
  PKG_CONFIG_DEPENDS := CONFIG_GLUON_BRANCH
@@ -57,20 +57,22 @@ index eacf80c1..fbbc15af 100644
  
  
  include ../gluon.mk
-@@ -19,6 +18,12 @@ define Package/gluon-autoupdater
+ 
+-
+ define Package/gluon-autoupdater
+   SECTION:=gluon
+   CATEGORY:=Gluon
+@@ -19,6 +17,9 @@ define Package/gluon-autoupdater
    TITLE:=Automatically update firmware
  endef
  
 +define Build/Configure
 +endef
 +
-+define Build/Compile
-+endef
-+
  define Package/gluon-autoupdater/config
  config GLUON_BRANCH
  	string "Gluon autoupdater branch"
-@@ -28,7 +33,6 @@ endef
+@@ -28,11 +29,9 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
@@ -78,7 +80,11 @@ index eacf80c1..fbbc15af 100644
  endef
  
  define Build/Compile
-@@ -40,9 +44,6 @@ define Package/gluon-autoupdater/install
+-	$(call Build/Compile/Default)
+ 	$(call GluonSrcDiet,./luasrc,$(PKG_BUILD_DIR)/luadest/)
+ endef
+ 
+@@ -40,9 +39,6 @@ define Package/gluon-autoupdater/install
  	$(CP) ./files/* $(1)/
  	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
  
@@ -186,10 +192,10 @@ index 66b7a928..00000000
 -	{}
 -};
 diff --git a/package/gluon-mesh-batman-adv/Makefile b/package/gluon-mesh-batman-adv/Makefile
-index 9aa979fc..fbac5488 100644
+index 9aa979fc..6cfb5810 100644
 --- a/package/gluon-mesh-batman-adv/Makefile
 +++ b/package/gluon-mesh-batman-adv/Makefile
-@@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-batman-adv
+@@ -4,16 +4,14 @@ PKG_NAME:=gluon-mesh-batman-adv
  PKG_VERSION:=1
  
  PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
@@ -197,7 +203,8 @@ index 9aa979fc..fbac5488 100644
  
  include ../gluon.mk
  
-@@ -13,7 +12,7 @@ define Package/gluon-mesh-batman-adv/common
+-
+ define Package/gluon-mesh-batman-adv/common
    SECTION:=gluon
    CATEGORY:=Gluon
    PROVIDES:=gluon-mesh-batman-adv
@@ -206,7 +213,7 @@ index 9aa979fc..fbac5488 100644
  endef
  
  define Package/gluon-mesh-batman-adv-14
-@@ -31,7 +30,6 @@ endef
+@@ -31,19 +29,15 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
@@ -214,7 +221,10 @@ index 9aa979fc..fbac5488 100644
  endef
  
  define Build/Compile
-@@ -42,8 +40,6 @@ endef
+-	$(call Build/Compile/Default)
+ 	$(call GluonSrcDiet,./luasrc,$(PKG_BUILD_DIR)/luadest/)
+ endef
+ 
  define Package/gluon-mesh-batman-adv/common/install
  	$(CP) ./files/* $(1)/
  	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
@@ -1477,7 +1487,7 @@ index 60df1523..00000000
 -	{}
 -};
 diff --git a/package/gluon-mesh-vpn-fastd/Makefile b/package/gluon-mesh-vpn-fastd/Makefile
-index 2a1cc067..9663aa87 100644
+index 2a1cc067..a6083654 100644
 --- a/package/gluon-mesh-vpn-fastd/Makefile
 +++ b/package/gluon-mesh-vpn-fastd/Makefile
 @@ -4,7 +4,6 @@ PKG_NAME:=gluon-mesh-vpn-fastd
@@ -1488,7 +1498,7 @@ index 2a1cc067..9663aa87 100644
  
  include ../gluon.mk
  
-@@ -18,7 +17,6 @@ endef
+@@ -18,19 +17,15 @@ endef
  
  define Build/Prepare
  	mkdir -p $(PKG_BUILD_DIR)
@@ -1496,7 +1506,10 @@ index 2a1cc067..9663aa87 100644
  endef
  
  define Build/Compile
-@@ -29,8 +27,6 @@ endef
+-	$(call Build/Compile/Default)
+ 	$(call GluonSrcDiet,./luasrc,$(PKG_BUILD_DIR)/luadest/)
+ endef
+ 
  define Package/gluon-mesh-vpn-fastd/install
  	$(CP) ./files/* $(1)/
  	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
