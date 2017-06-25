@@ -1,0 +1,29 @@
+From cbcd5481c707a554834aab29d24fbd6ab23b5fec Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 25 Jun 2017 03:59:40 +0200
+Subject: [PATCH] add archer c59/60 as gluon target
+
+---
+ targets/ar71xx-generic | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/targets/ar71xx-generic b/targets/ar71xx-generic
+index 7c461226..2f577bd4 100644
+--- a/targets/ar71xx-generic
++++ b/targets/ar71xx-generic
+@@ -184,6 +184,12 @@ packages $ATH10K_PACKAGES
+ 
+ device tp-link-archer-c25-v1 archer-c25-v1
+ packages $ATH10K_PACKAGES
++
++device tp-link-archer-c59-v1 archer-c59-v1
++packages $ATH10K_PACKAGES
++
++device tp-link-archer-c60-v1 archer-c60-v1
++packages $ATH10K_PACKAGES
+ fi
+ 
+ 
+-- 
+2.13.1
+
