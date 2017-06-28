@@ -1,0 +1,213 @@
+From b9fc16dd49e2caef72c636b1ce254ce6396cbdd3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Sat, 29 Apr 2017 22:55:56 +0200
+Subject: [PATCH] gluon-ebtables: add periodic updater capability
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With this patch, people will be able to add scripts and executables
+which are supposed to be run periodically, allowing to dynamically
+update the current table over time.
+
+Such files can be put into:
+
+/lib/gluon/ebtables-worker/
+
+The new ebtables worker infrastructure will ensure that:
+
+* Workers are run sequentially:
+  ebtables seems to have some limitations regarding concurrency, see
+  its manpage for details.
+* Workers will not race with the gluon-ebtables init script.
+* Updates to the live table are minimal:
+  Workers will read/write from/to a copy of the table in /tmp/, which
+  is committed to the live table in one go once all workers finished.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ package/gluon-ebtables/Makefile                    |  1 +
+ .../gluon-ebtables/files/etc/init.d/gluon-ebtables | 31 ++++++++
+ .../files/usr/lib/micron.d/ebtables-worker         |  1 +
+ .../gluon-ebtables/files/usr/sbin/ebtables-worker  | 88 ++++++++++++++++++++++
+ 4 files changed, 121 insertions(+)
+ create mode 100644 package/gluon-ebtables/files/usr/lib/micron.d/ebtables-worker
+ create mode 100755 package/gluon-ebtables/files/usr/sbin/ebtables-worker
+
+diff --git a/package/gluon-ebtables/Makefile b/package/gluon-ebtables/Makefile
+index 43185c73f..8eb9cb12a 100644
+--- a/package/gluon-ebtables/Makefile
++++ b/package/gluon-ebtables/Makefile
+@@ -31,6 +31,7 @@ define Build/Compile
+ endef
+ 
+ define Package/gluon-ebtables/install
++	mkdir -p $(1)/lib/gluon/ebtables-worker
+ 	$(CP) ./files/* $(1)/
+ endef
+ 
+diff --git a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+index e6bffe965..5f16e4bc1 100755
+--- a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
++++ b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+@@ -19,6 +19,33 @@
+ START=19
+ STOP=91
+ 
++LOCK=/tmp/run/ebtables-init.lock
++WLOCK=/tmp/run/ebtables-worker.lock
++
++resolve_worker_lock() {
++	if [ ! -d "/proc/$workerpid" ]; then
++		echo "Removing stale lock (pid $workerpid)"
++		rm -r "$WLOCK"
++	else
++		echo "Waiting for ebtables-worker to finish (pid $workerpid)"
++		while true; do
++			sleep 5
++			[ ! -d "/proc/$workerpid" ] && break
++		done
++	fi
++}
++
++get_lock() {
++	touch "$LOCK"
++	sync
++
++	workerpid="`cat "$WLOCK/pid" 2> /dev/null`"
++	[ -n "$workerpid" ] && resolve_worker_lock
++}
++
++put_lock() {
++	rm "$LOCK"
++}
+ 
+ exec_file() {
+ 	local file="$1"
+@@ -50,6 +77,7 @@ exec_all() {
+ 
+ 
+ start() {
++	get_lock
+ 	(
+ 		export EBTABLES_RULE='"ebtables -t " .. table .. " -A " .. command'
+ 		export EBTABLES_CHAIN='"ebtables -t " .. table .. "  -N " .. name .. " -P " .. policy'
+@@ -60,9 +88,11 @@ start() {
+ 			exec_file "$1"
+ 		fi
+ 	)
++	put_lock
+ }
+ 
+ stop() {
++	get_lock
+ 	(
+ 		export EBTABLES_RULE='"ebtables -t " ..	table .. " -D " .. command'
+ 		export EBTABLES_CHAIN='"ebtables -t " .. table .. " -X " .. name'
+@@ -73,4 +103,5 @@ stop() {
+ 			exec_file "$1"
+ 		fi
+ 	)
++	put_lock
+ }
+diff --git a/package/gluon-ebtables/files/usr/lib/micron.d/ebtables-worker b/package/gluon-ebtables/files/usr/lib/micron.d/ebtables-worker
+new file mode 100644
+index 000000000..513c42394
+--- /dev/null
++++ b/package/gluon-ebtables/files/usr/lib/micron.d/ebtables-worker
+@@ -0,0 +1 @@
++* * * * * /usr/sbin/ebtables-worker
+diff --git a/package/gluon-ebtables/files/usr/sbin/ebtables-worker b/package/gluon-ebtables/files/usr/sbin/ebtables-worker
+new file mode 100755
+index 000000000..445701dd7
+--- /dev/null
++++ b/package/gluon-ebtables/files/usr/sbin/ebtables-worker
+@@ -0,0 +1,88 @@
++#!/usr/bin/lua
++
++local nixio = require('nixio')
++
++local workerdir = "/lib/gluon/ebtables-worker"
++local workerlock = "/tmp/run/ebtables-worker.lock"
++local initlock = "/tmp/run/ebtables-init.lock"
++
++local pid = nixio.getpid()
++
++local function try_get_lock()
++	if nixio.fs.access(initlock, "f") then
++		print("Error: Ebtables initialization in progress")
++		return false
++	end
++
++	if not nixio.fs.mkdir(workerlock .. "." .. pid) then
++		print("Error: Cannot create private worker lock directory")
++		return false
++	end
++
++	local pidfd = io.open(workerlock .. "." .. pid .. "/pid", "w")
++	pidfd:write(pid .. "\n")
++	pidfd:close()
++
++	if not nixio.fs.rename(workerlock .. "." .. pid, workerlock) then
++		print("Error: A worker is already running")
++		nixio.fs.remove(workerlock .. "." .. pid)
++		return false
++	end
++
++	return true
++end
++
++local function get_lock()
++	if not try_get_lock() then
++		os.exit(1)
++	end
++end
++
++local function try_put_lock()
++	if not nixio.fs.rename(workerlock, workerlock .. "." .. pid) then
++		print("Error: Could not remove worker lock (1)")
++		return false
++	end
++
++	if not nixio.fs.remove(workerlock .. "." .. pid .. "/pid") then
++		print("Error: Could not remove worker lock (2)")
++		return false
++	end
++
++	if not nixio.fs.rmdir(workerlock .. "." .. pid) then
++		print("Error: Could not remove worker lock (3)")
++		return false
++	end
++
++	return true
++end
++
++local function put_lock()
++	if not try_put_lock() then
++		os.exit(2)
++	end
++end
++
++local function worker_loop()
++	for e in nixio.fs.dir(workerdir) do
++		local f = workerdir .. "/" .. e
++
++		if nixio.fs.access(f, "x") and
++		   nixio.fs.stat(f).type ~= "dir" then
++			print("+++ Running: " .. f)
++			os.execute(f)
++		end
++	end
++end
++
++local function worker()
++	nixio.setenv("EBTABLES_ATOMIC_FILE", "/tmp/.ebtables-worker.tmp")
++	os.execute("ebtables --atomic-save")
++	worker_loop()
++	os.execute("ebtables --atomic-commit")
++end
++
++-- Main
++get_lock()
++worker()
++put_lock()
