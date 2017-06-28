@@ -20,7 +20,7 @@ index 6b321f3e..e2613667 100644
 -msgid "Enable meshing on the LAN interface"
 -msgstr "Mesh auf dem LAN-Port aktivieren"
 +msgid "Enable bridge between WAN and LAN ports"
-+msgstr "Br&uuml;cke zwischen WAN- und LAN-Ports aktivieren"
++msgstr "Brücke zwischen WAN- und LAN-Ports aktivieren"
  
  msgid "Enable meshing on the WAN interface"
  msgstr "Mesh auf dem WAN-Port aktivieren"
