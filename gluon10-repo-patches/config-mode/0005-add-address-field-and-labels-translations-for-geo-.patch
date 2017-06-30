@@ -1,4 +1,4 @@
-From 0f1fbb1b5df9d090365f05a1f4313d850ebe8668 Mon Sep 17 00:00:00 2001
+From 11e8472cbb0d8034f789a4357a67ab224a26dfd7 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
 Date: Sat, 17 Jun 2017 19:14:12 +0200
 Subject: [PATCH] add address field and labels / translations for geo
@@ -6,8 +6,8 @@ Subject: [PATCH] add address field and labels / translations for geo
 ---
  package/gluon-config-mode-geo-location/i18n/de.po        | 16 ++++++++++++++--
  .../i18n/gluon-config-mode-geo-location.pot              | 11 ++++++++++-
- .../lib/gluon/config-mode/wizard/0400-geo-location.lua   | 15 ++++++++++++++-
- 3 files changed, 38 insertions(+), 4 deletions(-)
+ .../lib/gluon/config-mode/wizard/0400-geo-location.lua   | 14 +++++++++++++-
+ 3 files changed, 37 insertions(+), 4 deletions(-)
 
 diff --git a/package/gluon-config-mode-geo-location/i18n/de.po b/package/gluon-config-mode-geo-location/i18n/de.po
 index c8bc906a..07d7fe25 100644
@@ -60,7 +60,7 @@ index 7acf7f28..9112c600 100644
 +msgid "An address in format as: Sample Street 13, 52042 Musterstadt"
 +msgstr ""
 diff --git a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
-index 4d7fec01..37550807 100644
+index 4d7fec01..99ca107b 100644
 --- a/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
 +++ b/package/gluon-config-mode-geo-location/luasrc/lib/gluon/config-mode/wizard/0400-geo-location.lua
 @@ -23,7 +23,7 @@ return function(form, uci)
@@ -72,13 +72,12 @@ index 4d7fec01..37550807 100644
  	share_location.default = uci:get_bool("gluon-node-info", location, "share_location")
  	function share_location:write(data)
  		uci:set("gluon-node-info", location, "share_location", data)
-@@ -60,5 +60,18 @@ return function(form, uci)
+@@ -60,5 +60,17 @@ return function(form, uci)
  		end
  	end
  
 +	o = s:option(Value, "address", translate("Location address"), translate("An address in format as: Sample Street 13, 52042 Musterstadt"))
 +	o.default = uci:get("gluon-node-info", location, "address")
-+	o.datatype = "string"
 +	o.optional = true
 +	o.maxlen = 60
 +	function o:write(data)
@@ -92,5 +91,5 @@ index 4d7fec01..37550807 100644
  	return {'gluon-node-info'}
  end
 -- 
-2.13.1
+2.13.2
 
