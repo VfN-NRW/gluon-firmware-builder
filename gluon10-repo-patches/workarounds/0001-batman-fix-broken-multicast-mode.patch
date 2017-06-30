@@ -1,0 +1,26 @@
+From c6a3afa1301d0edda4a7eb69a8fc64af220d71d8 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Mon, 26 Jun 2017 14:29:52 +0200
+Subject: [PATCH] generic: batman-adv: disable multicast optimizations for now
+
+A bug in batman-adv can lead to a large amount of management traffic being
+exchanged between nodes when the multicast optimizations are enabled,
+effectively making the mesh unusable. It's safer to disable the feature
+for now, until we have a real fix.
+---
+ targets/generic | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/targets/generic b/targets/generic
+index a717da575..07d2ab640 100644
+--- a/targets/generic
++++ b/targets/generic
+@@ -7,6 +7,8 @@ config 'CONFIG_BUSYBOX_CONFIG_SHA256SUM=y'
+ config 'CONFIG_BUSYBOX_CONFIG_SHA512SUM=y'
+ config '# CONFIG_BUSYBOX_CONFIG_FEATURE_PREFER_IPV4_ADDRESS is not set'
+ 
++config '# CONFIG_KMOD_BATMAN_ADV_MCAST is not set'
++
+ config 'CONFIG_PACKAGE_ATH_DEBUG=y'
+ 
+ config 'CONFIG_TARGET_MULTI_PROFILE=y'
