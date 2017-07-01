@@ -1,0 +1,314 @@
+From a72198e28e6ed7a7133c90e2ffc38cc3b0bb379a Mon Sep 17 00:00:00 2001
+From: Pavel Kubelun <be.dissent@gmail.com>
+Date: Thu, 1 Jun 2017 17:13:04 +0300
+Subject: [PATCH] ath10k: increase bmi timeout to fix OTP on qca99xx boards and
+ add bmi identification through pre-cal file
+
+Backporting upstream patches.
+
+Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name> [refresh, rename patches]
+---
+ .../patches/327-ath10k-increase-BMI-timeout.patch  | 31 +++++++++
+ ...28-ath10k-log-when-longer-bmi-cmds-happen.patch | 74 ++++++++++++++++++++
+ ...BMI-parameters-to-fix-calibration-from-DT.patch | 80 ++++++++++++++++++++++
+ .../921-ath10k_init_devices_synchronously.patch    |  2 +-
+ .../936-ath10k-fix-otp-failure-result.patch        |  2 +-
+ .../960-0010-ath10k-limit-htt-rx-ring-size.patch   |  6 +-
+ .../960-0011-ath10k-limit-pci-buffer-size.patch    | 12 ++--
+ 7 files changed, 196 insertions(+), 11 deletions(-)
+ create mode 100644 package/kernel/mac80211/patches/327-ath10k-increase-BMI-timeout.patch
+ create mode 100644 package/kernel/mac80211/patches/328-ath10k-log-when-longer-bmi-cmds-happen.patch
+ create mode 100644 package/kernel/mac80211/patches/329-ath10k-add-BMI-parameters-to-fix-calibration-from-DT.patch
+
+diff --git a/package/kernel/mac80211/patches/327-ath10k-increase-BMI-timeout.patch b/package/kernel/mac80211/patches/327-ath10k-increase-BMI-timeout.patch
+new file mode 100644
+index 0000000000..c9f493bcd8
+--- /dev/null
++++ b/package/kernel/mac80211/patches/327-ath10k-increase-BMI-timeout.patch
+@@ -0,0 +1,31 @@
++From: Ben Greear <greearb@candelatech.com>
++Date: Wed, 31 May 2017 14:21:19 +0300
++Subject: [PATCH] ath10k: increase BMI timeout
++
++When testing a 9888 chipset NIC, I notice it often takes
++almost 2 seconds, and then many times OTP fails, probably due
++to the two-second timeout.
++
++[ 2269.841842] ath10k_pci 0000:05:00.0: bmi cmd took: 1984 jiffies (HZ: 1000), rv: 0
++[ 2273.608185] ath10k_pci 0000:05:00.0: bmi cmd took: 1986 jiffies (HZ: 1000), rv: 0
++[ 2277.294732] ath10k_pci 0000:05:00.0: bmi cmd took: 1989 jiffies (HZ: 1000), rv: 0
++
++So, increase the BMI timeout to 3 seconds.
++
++Signed-off-by: Ben Greear <greearb@candelatech.com>
++Signed-off-by: Kalle Valo <kvalo@qca.qualcomm.com>
++---
++
++--- a/drivers/net/wireless/ath/ath10k/bmi.h
+++++ b/drivers/net/wireless/ath/ath10k/bmi.h
++@@ -187,8 +187,8 @@ struct bmi_target_info {
++ 	u32 type;
++ };
++ 
++-/* in msec */
++-#define BMI_COMMUNICATION_TIMEOUT_HZ (2 * HZ)
+++/* in jiffies */
+++#define BMI_COMMUNICATION_TIMEOUT_HZ (3 * HZ)
++ 
++ #define BMI_CE_NUM_TO_TARG 0
++ #define BMI_CE_NUM_TO_HOST 1
+diff --git a/package/kernel/mac80211/patches/328-ath10k-log-when-longer-bmi-cmds-happen.patch b/package/kernel/mac80211/patches/328-ath10k-log-when-longer-bmi-cmds-happen.patch
+new file mode 100644
+index 0000000000..500f72ff98
+--- /dev/null
++++ b/package/kernel/mac80211/patches/328-ath10k-log-when-longer-bmi-cmds-happen.patch
+@@ -0,0 +1,74 @@
++From: Ben Greear <greearb@candelatech.com>
++Date: Wed, 31 May 2017 14:21:21 +0300
++Subject: [PATCH] ath10k: log when longer bmi cmds happen
++
++This lets one have a clue that maybe timeouts are happening
++when we just aren't waiting long enough.
++
++Signed-off-by: Ben Greear <greearb@candelatech.com>
++Signed-off-by: Kalle Valo <kvalo@qca.qualcomm.com>
++---
++
++--- a/drivers/net/wireless/ath/ath10k/pci.c
+++++ b/drivers/net/wireless/ath/ath10k/pci.c
++@@ -101,7 +101,8 @@ static int ath10k_pci_init_irq(struct at
++ static int ath10k_pci_deinit_irq(struct ath10k *ar);
++ static int ath10k_pci_request_irq(struct ath10k *ar);
++ static void ath10k_pci_free_irq(struct ath10k *ar);
++-static int ath10k_pci_bmi_wait(struct ath10k_ce_pipe *tx_pipe,
+++static int ath10k_pci_bmi_wait(struct ath10k *ar,
+++			       struct ath10k_ce_pipe *tx_pipe,
++ 			       struct ath10k_ce_pipe *rx_pipe,
++ 			       struct bmi_xfer *xfer);
++ static int ath10k_pci_qca99x0_chip_reset(struct ath10k *ar);
++@@ -1843,7 +1844,7 @@ int ath10k_pci_hif_exchange_bmi_msg(stru
++ 	if (ret)
++ 		goto err_resp;
++ 
++-	ret = ath10k_pci_bmi_wait(ce_tx, ce_rx, &xfer);
+++	ret = ath10k_pci_bmi_wait(ar, ce_tx, ce_rx, &xfer);
++ 	if (ret) {
++ 		u32 unused_buffer;
++ 		unsigned int unused_nbytes;
++@@ -1910,23 +1911,37 @@ static void ath10k_pci_bmi_recv_data(str
++ 	xfer->rx_done = true;
++ }
++ 
++-static int ath10k_pci_bmi_wait(struct ath10k_ce_pipe *tx_pipe,
+++static int ath10k_pci_bmi_wait(struct ath10k *ar,
+++			       struct ath10k_ce_pipe *tx_pipe,
++ 			       struct ath10k_ce_pipe *rx_pipe,
++ 			       struct bmi_xfer *xfer)
++ {
++ 	unsigned long timeout = jiffies + BMI_COMMUNICATION_TIMEOUT_HZ;
+++	unsigned long started = jiffies;
+++	unsigned long dur;
+++	int ret;
++ 
++ 	while (time_before_eq(jiffies, timeout)) {
++ 		ath10k_pci_bmi_send_done(tx_pipe);
++ 		ath10k_pci_bmi_recv_data(rx_pipe);
++ 
++-		if (xfer->tx_done && (xfer->rx_done == xfer->wait_for_resp))
++-			return 0;
+++		if (xfer->tx_done && (xfer->rx_done == xfer->wait_for_resp)) {
+++			ret = 0;
+++			goto out;
+++		}
++ 
++ 		schedule();
++ 	}
++ 
++-	return -ETIMEDOUT;
+++	ret = -ETIMEDOUT;
+++
+++out:
+++	dur = jiffies - started;
+++	if (dur > HZ)
+++		ath10k_dbg(ar, ATH10K_DBG_BMI,
+++			   "bmi cmd took %lu jiffies hz %d ret %d\n",
+++			   dur, HZ, ret);
+++	return ret;
++ }
++ 
++ /*
+diff --git a/package/kernel/mac80211/patches/329-ath10k-add-BMI-parameters-to-fix-calibration-from-DT.patch b/package/kernel/mac80211/patches/329-ath10k-add-BMI-parameters-to-fix-calibration-from-DT.patch
+new file mode 100644
+index 0000000000..3fcf505e15
+--- /dev/null
++++ b/package/kernel/mac80211/patches/329-ath10k-add-BMI-parameters-to-fix-calibration-from-DT.patch
+@@ -0,0 +1,80 @@
++From: Anilkumar Kolli <akolli@qti.qualcomm.com>
++Date: Wed, 31 May 2017 14:21:27 +0300
++Subject: [PATCH] ath10k: add BMI parameters to fix calibration from
++ DT/pre-cal
++
++QCA99X0, QCA9888, QCA9984 supports calibration data in
++either OTP or DT/pre-cal file. Current ath10k supports
++Calibration data from OTP only.
++
++If caldata is loaded from DT/pre-cal file, fetching board id
++and applying calibration parameters like tx power gets failed.
++
++error log:
++[   15.733663] ath10k_pci 0000:01:00.0: failed to fetch board file: -2
++[   15.741474] ath10k_pci 0000:01:00.0: could not probe fw (-2)
++
++This patch adds calibration data support from DT/pre-cal
++file.  Below parameters are used to get board id and
++applying calibration parameters from cal data.
++
++		EEPROM[OTP]	FLASH[DT/pre-cal file]
++Cal param	0x700		0x10000
++Board id	0x10		0x8000
++
++Tested on QCA9888 with pre-cal file.
++
++Signed-off-by: Anilkumar Kolli <akolli@qti.qualcomm.com>
++Signed-off-by: Kalle Valo <kvalo@qca.qualcomm.com>
++---
++
++--- a/drivers/net/wireless/ath/ath10k/bmi.h
+++++ b/drivers/net/wireless/ath/ath10k/bmi.h
++@@ -83,6 +83,8 @@ enum bmi_cmd_id {
++ #define BMI_NVRAM_SEG_NAME_SZ 16
++ 
++ #define BMI_PARAM_GET_EEPROM_BOARD_ID 0x10
+++#define BMI_PARAM_GET_FLASH_BOARD_ID 0x8000
+++#define BMI_PARAM_FLASH_SECTION_ALL 0x10000
++ 
++ #define ATH10K_BMI_BOARD_ID_FROM_OTP_MASK   0x7c00
++ #define ATH10K_BMI_BOARD_ID_FROM_OTP_LSB    10
++--- a/drivers/net/wireless/ath/ath10k/core.c
+++++ b/drivers/net/wireless/ath/ath10k/core.c
++@@ -657,7 +657,7 @@ static int ath10k_core_get_board_id_from
++ {
++ 	u32 result, address;
++ 	u8 board_id, chip_id;
++-	int ret;
+++	int ret, bmi_board_id_param;
++ 
++ 	address = ar->hw_params.patch_load_addr;
++ 
++@@ -681,8 +681,13 @@ static int ath10k_core_get_board_id_from
++ 		return ret;
++ 	}
++ 
++-	ret = ath10k_bmi_execute(ar, address, BMI_PARAM_GET_EEPROM_BOARD_ID,
++-				 &result);
+++	if (ar->cal_mode == ATH10K_PRE_CAL_MODE_DT ||
+++	    ar->cal_mode == ATH10K_PRE_CAL_MODE_FILE)
+++		bmi_board_id_param = BMI_PARAM_GET_FLASH_BOARD_ID;
+++	else
+++		bmi_board_id_param = BMI_PARAM_GET_EEPROM_BOARD_ID;
+++
+++	ret = ath10k_bmi_execute(ar, address, bmi_board_id_param, &result);
++ 	if (ret) {
++ 		ath10k_err(ar, "could not execute otp for board id check: %d\n",
++ 			   ret);
++@@ -810,6 +815,11 @@ static int ath10k_download_and_run_otp(s
++ 		return ret;
++ 	}
++ 
+++	/* As of now pre-cal is valid for 10_4 variants */
+++	if (ar->cal_mode == ATH10K_PRE_CAL_MODE_DT ||
+++	    ar->cal_mode == ATH10K_PRE_CAL_MODE_FILE)
+++		bmi_otp_exe_param = BMI_PARAM_FLASH_SECTION_ALL;
+++
++ 	ret = ath10k_bmi_execute(ar, address, bmi_otp_exe_param, &result);
++ 	if (ret) {
++ 		ath10k_err(ar, "could not execute otp (%d)\n", ret);
+diff --git a/package/kernel/mac80211/patches/921-ath10k_init_devices_synchronously.patch b/package/kernel/mac80211/patches/921-ath10k_init_devices_synchronously.patch
+index 0c34d96847..b966516e57 100644
+--- a/package/kernel/mac80211/patches/921-ath10k_init_devices_synchronously.patch
++++ b/package/kernel/mac80211/patches/921-ath10k_init_devices_synchronously.patch
+@@ -14,7 +14,7 @@ Signed-off-by: Sven Eckelmann <sven@open-mesh.com>
+ 
+ --- a/drivers/net/wireless/ath/ath10k/core.c
+ +++ b/drivers/net/wireless/ath/ath10k/core.c
+-@@ -2319,6 +2319,16 @@ int ath10k_core_register(struct ath10k *
++@@ -2329,6 +2329,16 @@ int ath10k_core_register(struct ath10k *
+  	ar->chip_id = chip_id;
+  	queue_work(ar->workqueue, &ar->register_work);
+  
+diff --git a/package/kernel/mac80211/patches/936-ath10k-fix-otp-failure-result.patch b/package/kernel/mac80211/patches/936-ath10k-fix-otp-failure-result.patch
+index e28fa8fa60..d302a7d2a3 100644
+--- a/package/kernel/mac80211/patches/936-ath10k-fix-otp-failure-result.patch
++++ b/package/kernel/mac80211/patches/936-ath10k-fix-otp-failure-result.patch
+@@ -1,6 +1,6 @@
+ --- a/drivers/net/wireless/ath/ath10k/core.c
+ +++ b/drivers/net/wireless/ath/ath10k/core.c
+-@@ -686,7 +686,7 @@
++@@ -691,7 +691,7 @@ static int ath10k_core_get_board_id_from
+  	if (ret) {
+  		ath10k_err(ar, "could not execute otp for board id check: %d\n",
+  			   ret);
+diff --git a/package/kernel/mac80211/patches/960-0010-ath10k-limit-htt-rx-ring-size.patch b/package/kernel/mac80211/patches/960-0010-ath10k-limit-htt-rx-ring-size.patch
+index e36f13b195..d49be4df70 100644
+--- a/package/kernel/mac80211/patches/960-0010-ath10k-limit-htt-rx-ring-size.patch
++++ b/package/kernel/mac80211/patches/960-0010-ath10k-limit-htt-rx-ring-size.patch
+@@ -1,11 +1,11 @@
+---- a/drivers/net/wireless/ath/ath10k/htt.h	2016-12-12 16:03:58.491019030 +0100
+-+++ b/drivers/net/wireless/ath/ath10k/htt.h	2016-12-12 15:39:45.242298155 +0100
++--- a/drivers/net/wireless/ath/ath10k/htt.h
+++++ b/drivers/net/wireless/ath/ath10k/htt.h
+ @@ -199,7 +199,7 @@ enum htt_rx_ring_flags {
+  };
+  
+  #define HTT_RX_RING_SIZE_MIN 128
+-+#define HTT_RX_RING_SIZE_MAX 512
+ -#define HTT_RX_RING_SIZE_MAX 2048
+++#define HTT_RX_RING_SIZE_MAX 512
+  
+  struct htt_rx_ring_setup_ring {
+  	__le32 fw_idx_shadow_reg_paddr;
+diff --git a/package/kernel/mac80211/patches/960-0011-ath10k-limit-pci-buffer-size.patch b/package/kernel/mac80211/patches/960-0011-ath10k-limit-pci-buffer-size.patch
+index 0bdddaeef8..a101282d07 100644
+--- a/package/kernel/mac80211/patches/960-0011-ath10k-limit-pci-buffer-size.patch
++++ b/package/kernel/mac80211/patches/960-0011-ath10k-limit-pci-buffer-size.patch
+@@ -1,6 +1,6 @@
+---- a/drivers/net/wireless/ath/ath10k/pci.c	2016-12-12 16:29:42.310053558 +0100
+-+++ b/drivers/net/wireless/ath/ath10k/pci.c	2016-12-12 16:34:46.667203800 +0100
+-@@ -127,7 +127,7 @@ static struct ce_attr host_ce_config_wla
++--- a/drivers/net/wireless/ath/ath10k/pci.c
+++++ b/drivers/net/wireless/ath/ath10k/pci.c
++@@ -128,7 +128,7 @@ static struct ce_attr host_ce_config_wla
+  		.flags = CE_ATTR_FLAGS,
+  		.src_nentries = 0,
+  		.src_sz_max = 2048,
+@@ -9,7 +9,7 @@
+  		.recv_cb = ath10k_pci_htt_htc_rx_cb,
+  	},
+  
+-@@ -136,7 +136,7 @@ static struct ce_attr host_ce_config_wla
++@@ -137,7 +137,7 @@ static struct ce_attr host_ce_config_wla
+  		.flags = CE_ATTR_FLAGS,
+  		.src_nentries = 0,
+  		.src_sz_max = 2048,
+@@ -18,7 +18,7 @@
+  		.recv_cb = ath10k_pci_htc_rx_cb,
+  	},
+  
+-@@ -163,7 +163,7 @@ static struct ce_attr host_ce_config_wla
++@@ -164,7 +164,7 @@ static struct ce_attr host_ce_config_wla
+  		.flags = CE_ATTR_FLAGS,
+  		.src_nentries = 0,
+  		.src_sz_max = 512,
+@@ -27,7 +27,7 @@
+  		.recv_cb = ath10k_pci_htt_rx_cb,
+  	},
+  
+-@@ -188,7 +188,7 @@ static struct ce_attr host_ce_config_wla
++@@ -189,7 +189,7 @@ static struct ce_attr host_ce_config_wla
+  		.flags = CE_ATTR_FLAGS,
+  		.src_nentries = 0,
+  		.src_sz_max = 2048,
+-- 
+2.13.2
+

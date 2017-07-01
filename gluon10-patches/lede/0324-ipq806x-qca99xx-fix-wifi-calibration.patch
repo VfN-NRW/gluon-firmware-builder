@@ -1,0 +1,81 @@
+From 2dd23812887bd00ad2bbc740279cd4c401bcce15 Mon Sep 17 00:00:00 2001
+From: Pavel Kubelun <be.dissent@gmail.com>
+Date: Thu, 8 Jun 2017 09:06:27 +0300
+Subject: [PATCH] ipq806x: qca99xx: fix wifi calibration
+
+As of now OTP is being correctly parsed and the driver requires to parse pre-caldata to follow corresponding routine.
+
+Rename cal file into pre-calfile so the board initialized correctly with API 2 board data (board-2.bin).
+
+Also remove the now unneeded for qca9984 board.bin symlink to 5GHz calfile.
+
+Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
+---
+ package/firmware/ath10k-firmware/Makefile             |  6 ------
+ .../etc/hotplug.d/firmware/11-ath10k-caldata          | 19 +++++++++++++++++--
+ 2 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/package/firmware/ath10k-firmware/Makefile b/package/firmware/ath10k-firmware/Makefile
+index 8bf5729fff..4d7a120785 100644
+--- a/package/firmware/ath10k-firmware/Makefile
++++ b/package/firmware/ath10k-firmware/Makefile
+@@ -303,9 +303,6 @@ endef
+ 
+ define Package/ath10k-firmware-qca9984/install
+ 	$(INSTALL_DIR) $(1)/lib/firmware/ath10k/QCA9984/hw1.0
+-	ln -s \
+-		../../cal-pci-0000:01:00.0.bin \
+-		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board.bin
+ 	$(INSTALL_DATA) \
+ 		$(DL_DIR)/$(QCA9984_BOARD_FILE_DL) \
+ 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board-2.bin
+@@ -316,9 +313,6 @@ endef
+ 
+ define Package/ath10k-firmware-qca9984-ct/install
+ 	$(INSTALL_DIR) $(1)/lib/firmware/ath10k/QCA9984/hw1.0
+-	ln -s \
+-		../../cal-pci-0000:01:00.0.bin \
+-		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board.bin
+ 	$(INSTALL_DATA) \
+ 		$(PKG_BUILD_DIR)/QCA9984/hw1.0/board-2.bin \
+ 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board-2.bin
+diff --git a/target/linux/ipq806x/base-files/etc/hotplug.d/firmware/11-ath10k-caldata b/target/linux/ipq806x/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
+index 72c3ae88c2..40e1330bf0 100644
+--- a/target/linux/ipq806x/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
++++ b/target/linux/ipq806x/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
+@@ -46,7 +46,22 @@ board=$(ipq806x_board_name)
+ 
+ 
+ case "$FIRMWARE" in
+-"ath10k/cal-pci-0000:01:00.0.bin")
++"ath10k/pre-cal-ahb-a000000.wifi.bin")
++	case "$board" in
++	fritz4040)
++		/usr/bin/fritz_cal_extract -i 1 -s 0x400 -e 0x207 -l 12064 -o /lib/firmware/$FIRMWARE $(find_mtd_chardev "urlader_config")
++		;;
++	esac
++	;;
++"ath10k/pre-cal-ahb-a800000.wifi.bin")
++	case "$board" in
++	fritz4040)
++		/usr/bin/fritz_cal_extract -i 1 -s 0x400 -e 0x208 -l 12064 -o /lib/firmware/$FIRMWARE $(find_mtd_chardev "urlader_config")
++		;;
++	esac
++	;;
++
++"ath10k/pre-cal-pci-0000:01:00.0.bin")
+ 	case $board in
+ 	c2600)
+ 		ath10kcal_extract "radio" 4096 12064
+@@ -69,7 +84,7 @@ case "$FIRMWARE" in
+ 		;;
+ 	esac
+ 	;;
+-"ath10k/cal-pci-0001:01:00.0.bin")
++"ath10k/pre-cal-pci-0001:01:00.0.bin")
+ 	case $board in
+ 	c2600)
+ 		ath10kcal_extract "radio" 20480 12064
+-- 
+2.13.2
+
