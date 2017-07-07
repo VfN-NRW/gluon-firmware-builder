@@ -1,18 +1,19 @@
-From d37bb8c521f6bf8b542dbec44f91038176e15584 Mon Sep 17 00:00:00 2001
+From b2fe4c48d6312240c55372a9b1dec93d2e1ecb35 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
 Date: Fri, 7 Jul 2017 05:02:36 +0200
 Subject: [PATCH] remove all unneeded protocol allowances for ebtables
  multicast-filter
 
 ---
- .../files/lib/gluon/ebtables/110-mcast-allow-babel                     | 1 -
- .../files/lib/gluon/ebtables/110-mcast-allow-btlpd                     | 1 -
- .../files/lib/gluon/ebtables/110-mcast-allow-dhcpv6                    | 1 -
- .../files/lib/gluon/ebtables/110-mcast-allow-icmpv6                    | 3 ---
- .../files/lib/gluon/ebtables/110-mcast-allow-igmp                      | 1 -
- .../files/lib/gluon/ebtables/110-mcast-allow-ospf                      | 2 --
- .../files/lib/gluon/ebtables/110-mcast-allow-ripng                     | 1 -
- 7 files changed, 10 deletions(-)
+ .../files/lib/gluon/ebtables/110-mcast-allow-babel                   | 1 -
+ .../files/lib/gluon/ebtables/110-mcast-allow-btlpd                   | 1 -
+ .../files/lib/gluon/ebtables/110-mcast-allow-dhcpv6                  | 1 -
+ .../files/lib/gluon/ebtables/110-mcast-allow-icmpv6                  | 3 ---
+ .../files/lib/gluon/ebtables/110-mcast-allow-igmp                    | 1 -
+ .../files/lib/gluon/ebtables/110-mcast-allow-ospf                    | 2 --
+ .../files/lib/gluon/ebtables/110-mcast-allow-ripng                   | 1 -
+ .../files/lib/gluon/ebtables/200-dir-dhcpv6                          | 5 -----
+ 8 files changed, 15 deletions(-)
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-babel
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-btlpd
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-dhcpv6
@@ -20,6 +21,7 @@ Subject: [PATCH] remove all unneeded protocol allowances for ebtables
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-igmp
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-ospf
  delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-ripng
+ delete mode 100644 package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv6
 
 diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-babel b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-babel
 deleted file mode 100644
@@ -73,6 +75,17 @@ index 37d31877..00000000
 +++ /dev/null
 @@ -1 +0,0 @@
 -rule 'MULTICAST_OUT -p IPv6 --ip6-protocol udp --ip6-destination ff02::9 --ip6-destination-port 521 -j RETURN'
+diff --git a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv6 b/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv6
+deleted file mode 100644
+index 470a7648..00000000
+--- a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv6
++++ /dev/null
+@@ -1,5 +0,0 @@
+-rule 'FORWARD -p IPv6 --ip6-protocol udp --ip6-destination-port 547 -j OUT_ONLY'
+-rule 'OUTPUT -p IPv6 --ip6-protocol udp --ip6-destination-port 547 -j OUT_ONLY'
+-
+-rule 'FORWARD -p IPv6 --ip6-protocol udp --ip6-destination-port 546 -j IN_ONLY'
+-rule 'INPUT -p IPv6 --ip6-protocol udp --ip6-destination-port 546 -j IN_ONLY'
 -- 
 2.13.2
 
