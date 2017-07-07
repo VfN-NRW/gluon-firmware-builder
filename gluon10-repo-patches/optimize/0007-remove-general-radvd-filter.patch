@@ -1,0 +1,21 @@
+From 3225a0201a5bb402a5408ddda03ea0ed40c7ec34 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Fri, 7 Jul 2017 18:05:16 +0200
+Subject: [PATCH] remove general radvd filter
+
+---
+ .../files/lib/gluon/ebtables/300-radv-input-output                      | 2 --
+ 1 file changed, 2 deletions(-)
+ delete mode 100644 package/gluon-mesh-batman-adv/files/lib/gluon/ebtables/300-radv-input-output
+
+diff --git a/package/gluon-mesh-batman-adv/files/lib/gluon/ebtables/300-radv-input-output b/package/gluon-mesh-batman-adv/files/lib/gluon/ebtables/300-radv-input-output
+deleted file mode 100644
+index 377d11cd..00000000
+--- a/package/gluon-mesh-batman-adv/files/lib/gluon/ebtables/300-radv-input-output
++++ /dev/null
+@@ -1,2 +0,0 @@
+-rule 'INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -i bat0 -j DROP'
+-rule 'OUTPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -o bat0 -j DROP'
+-- 
+2.13.2
+
