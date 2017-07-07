@@ -1,0 +1,65 @@
+From a3a62bc8df9be753f5f9dbc43a10ecb8400d0c3e Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Fri, 7 Jul 2017 05:56:10 +0200
+Subject: [PATCH] restrict radvd from local node to the mesh and back; deny
+ dhcp from the node's local port
+
+---
+ .../files/lib/gluon/ebtables/200-dir-dhcpv4                |  8 ++++----
+ .../files/lib/gluon/ebtables/200-dir-radv                  |  8 ++++----
+ .../gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules  | 14 ++++++++++++++
+ 3 files changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv4 b/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv4
+index ec56ff1d..cb221f49 100644
+--- a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv4
++++ b/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-dhcpv4
+@@ -1,5 +1,5 @@
+-rule 'FORWARD -p IPv4 --ip-protocol udp --ip-destination-port 67 -j OUT_ONLY'
+-rule 'OUTPUT -p IPv4 --ip-protocol udp --ip-destination-port 67 -j OUT_ONLY'
++rule 'FORWARD -p IPv4 --ip-protocol udp --ip-destination-port 67 -j MESH_OUT_ONLY'
++rule 'OUTPUT -p IPv4 --ip-protocol udp --ip-destination-port 67 -j MESH_OUT_ONLY'
+ 
+-rule 'FORWARD -p IPv4 --ip-protocol udp --ip-destination-port 68 -j IN_ONLY'
+-rule 'INPUT -p IPv4 --ip-protocol udp --ip-destination-port 68 -j IN_ONLY'
++rule 'FORWARD -p IPv4 --ip-protocol udp --ip-destination-port 68 -j MESH_IN_ONLY'
++rule 'INPUT -p IPv4 --ip-protocol udp --ip-destination-port 68 -j MESH_IN_ONLY'
+diff --git a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-radv b/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-radv
+index b34d4c76..dfe68d1f 100644
+--- a/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-radv
++++ b/package/gluon-ebtables-filter-ra-dhcp/files/lib/gluon/ebtables/200-dir-radv
+@@ -1,5 +1,5 @@
+-rule 'FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY'
+-rule 'OUTPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY'
++rule 'FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j LOCAL_TO_MESH_ONLY'
++rule 'OUTPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j LOCAL_TO_MESH_ONLY'
+ 
+-rule 'FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j IN_ONLY'
+-rule 'INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j IN_ONLY'
++rule 'FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j MESH_TO_LOCAL_ONLY'
++rule 'INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j MESH_TO_LOCAL_ONLY'
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+index 00e5a452..52fe76f0 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+@@ -11,3 +11,17 @@ rule 'LOCAL_OUT_ONLY --logical-out br-client -j DROP'
+ 
+ rule 'LOCAL_IN_ONLY --logical-in br-client -i local-port -j RETURN'
+ rule 'LOCAL_IN_ONLY --logical-in br-client -j DROP'
++
++rule 'MESH_OUT_ONLY --logical-out br-client -o bat0 -j RETURN'
++rule 'MESH_OUT_ONLY --logical-out br-client -j DROP'
++
++rule 'MESH_IN_ONLY --logical-in br-client -i bat0 -j RETURN'
++rule 'MESH_IN_ONLY --logical-in br-client -j DROP'
++
++rule 'MESH_TO_LOCAL_ONLY --logical-in br-client -i bat0 --logical-out br-client -o local-port -j RETURN'
++rule 'MESH_TO_LOCAL_ONLY --logical-in br-client -j DROP'
++rule 'MESH_TO_LOCAL_ONLY --logical-out br-client -j DROP'
++
++rule 'LOCAL_TO_MESH_ONLY --logical-in br-client -i local-port --logical-out br-client -o bat0 -j RETURN'
++rule 'LOCAL_TO_MESH_ONLY --logical-in br-client -j DROP'
++rule 'LOCAL_TO_MESH_ONLY --logical-out br-client -j DROP'
+-- 
+2.13.2
+
