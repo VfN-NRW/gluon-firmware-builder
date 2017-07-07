@@ -1,0 +1,89 @@
+From 84f07286b5dfdb6d8b921c69face269c697d24db Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Fri, 7 Jul 2017 05:50:25 +0200
+Subject: [PATCH] add input-filters for gluon-ebtables-source-filter
+
+---
+ .../files/lib/gluon/ebtables/100-mesh-forward-chain              | 1 +
+ .../files/lib/gluon/ebtables/110-mesh-forward-allow-arp          | 6 ++++++
+ .../files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4         | 6 ++++++
+ .../files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6         | 9 +++++++++
+ .../files/lib/gluon/ebtables/300-mesh-forward-rules              | 1 +
+ package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules    | 6 ++++++
+ 6 files changed, 29 insertions(+)
+ create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain
+ create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp
+ create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4
+ create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6
+ create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/300-mesh-forward-rules
+
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain
+new file mode 100644
+index 00000000..9ce41f0e
+--- /dev/null
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain
+@@ -0,0 +1 @@
++chain('MESH_FORWARD', 'DROP')
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp
+new file mode 100644
+index 00000000..44ec6596
+--- /dev/null
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp
+@@ -0,0 +1,6 @@
++prefix4 = require('gluon.site_config').prefix4
++
++if prefix4 then
++	rule('MESH_FORWARD -p ARP --arp-ip-src ' .. prefix4 .. ' --arp-ip-dst ' .. prefix4 .. ' -j RETURN')
++	rule('MESH_FORWARD -p ARP --arp-ip-src 0.0.0.0 --arp-ip-dst ' .. prefix4 .. ' -j RETURN')
++end
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4 b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4
+new file mode 100644
+index 00000000..aa3e8490
+--- /dev/null
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4
+@@ -0,0 +1,6 @@
++prefix4 = require('gluon.site_config').prefix4
++
++if prefix4 then
++	rule('MESH_FORWARD -p IPv4 --ip-protocol udp --ip-destination-port 68 -j RETURN')
++	rule('MESH_FORWARD -p IPv4 --ip-dst ' .. prefix4 .. ' -j RETURN')
++end
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6 b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6
+new file mode 100644
+index 00000000..c62d4ab7
+--- /dev/null
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6
+@@ -0,0 +1,9 @@
++site = require('gluon.site_config')
++
++rule('MESH_FORWARD -p IPv6 --ip6-dst fe80::/64 -j LOCAL_OUT_ONLY')
++rule('MESH_FORWARD -p IPv6 --ip6-dst ::/128 --ip6-proto ipv6-icmp -j LOCAL_OUT_ONLY')
++rule('MESH_FORWARD -p IPv6 --ip6-dst ' .. site.prefix6 .. ' -j LOCAL_OUT_ONLY')
++
++for _, prefix in ipairs(site.extra_prefixes6 or {}) do
++	rule('LOCAL_FORWARD -p IPv6 --ip6-dst ' .. prefix .. ' -j LOCAL_OUT_ONLY')
++end
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/300-mesh-forward-rules b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/300-mesh-forward-rules
+new file mode 100644
+index 00000000..eb4dcca7
+--- /dev/null
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/300-mesh-forward-rules
+@@ -0,0 +1 @@
++rule('FORWARD --logical-in br-client -i bat0 -j MESH_FORWARD')
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+index 74486ae5..00e5a452 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+@@ -5,3 +5,9 @@ rule 'IN_ONLY --logical-in br-client -j DROP'
+ rule 'OUT_ONLY --logical-out br-client -o bat0 -j RETURN'
+ rule 'OUT_ONLY --logical-out br-client -o local-port -j RETURN'
+ rule 'OUT_ONLY --logical-out br-client -j DROP'
++
++rule 'LOCAL_OUT_ONLY --logical-out br-client -o local-port -j RETURN'
++rule 'LOCAL_OUT_ONLY --logical-out br-client -j DROP'
++
++rule 'LOCAL_IN_ONLY --logical-in br-client -i local-port -j RETURN'
++rule 'LOCAL_IN_ONLY --logical-in br-client -j DROP'
+-- 
+2.13.2
+
