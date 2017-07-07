@@ -1,0 +1,157 @@
+From 29fdb54e2296e3f8c416ad61c93038d9d0b27107 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Fri, 7 Jul 2017 06:39:36 +0200
+Subject: [PATCH] revert segment mld; implement very strict multicast-filter
+
+---
+ .../files/lib/gluon/ebtables/100-mcast-chain              |  1 +
+ .../files/lib/gluon/ebtables/110-mcast-allow-arp          |  6 +++---
+ .../files/lib/gluon/ebtables/110-mcast-allow-dhcpv4       |  2 +-
+ .../files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6 |  7 +++++++
+ .../files/lib/gluon/ebtables/300-mcast                    |  2 ++
+ .../files/lib/gluon/ebtables/355-mcast-drop               |  1 -
+ package/gluon-ebtables/files/etc/init.d/gluon-ebtables    | 15 ++++++---------
+ .../gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain |  3 ---
+ .../gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules |  8 ++++++++
+ .../files/lib/gluon/ebtables/350-mcast-dir-rules          |  4 ----
+ 10 files changed, 28 insertions(+), 21 deletions(-)
+ create mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
+ create mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
+ create mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
+ delete mode 100644 package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
+ delete mode 100644 package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
+
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
+new file mode 100644
+index 00000000..d3e21c31
+--- /dev/null
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/100-mcast-chain
+@@ -0,0 +1 @@
++chain('MULTICAST', 'DROP')
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-arp b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-arp
+index 8af1900a..fa76d587 100644
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-arp
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-arp
+@@ -1,3 +1,3 @@
+-rule 'MULTICAST_OUT -p ARP --arp-opcode Reply --arp-ip-src 0.0.0.0 -j DROP'
+-rule 'MULTICAST_OUT -p ARP --arp-opcode Request --arp-ip-dst 0.0.0.0 -j DROP'
+-rule 'MULTICAST_OUT -p ARP -j RETURN'
++rule 'MULTICAST -p ARP --arp-opcode Reply --arp-ip-src 0.0.0.0 -j DROP'
++rule 'MULTICAST -p ARP --arp-opcode Request --arp-ip-dst 0.0.0.0 -j DROP'
++rule 'MULTICAST -p ARP -j RETURN'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-dhcpv4 b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-dhcpv4
+index 2fca2223..f1c7479e 100644
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-dhcpv4
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-dhcpv4
+@@ -1 +1 @@
+-rule 'MULTICAST_OUT -p IPv4 --ip-protocol udp --ip-destination-port 67 -j RETURN'
++rule 'MULTICAST -p IPv4 --ip-protocol udp --ip-destination-port 67 -j RETURN'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6 b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
+new file mode 100644
+index 00000000..2755770c
+--- /dev/null
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
+@@ -0,0 +1,7 @@
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type echo-request -j DROP'
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 139 -j DROP' -- ICMP Node Information Query
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 130 -j DROP' -- MLD Query
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 131 -j DROP' -- MLDv1 Report
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 132 -j DROP' -- MLDv1 Done
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 143 -j DROP' -- MLDv2 Report
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp -j MESH_LOCAL_EXCHANGE'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
+new file mode 100644
+index 00000000..cc95507c
+--- /dev/null
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/300-mcast
+@@ -0,0 +1,2 @@
++rule 'FORWARD -d Multicast -j MULTICAST'
++rule 'OUTPUT -d Multicast -j MULTICAST'
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
+deleted file mode 100644
+index 46ac01a5..00000000
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/355-mcast-drop
++++ /dev/null
+@@ -1 +0,0 @@
+-rule ('MULTICAST_OUT -j DROP')
+diff --git a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+index 5f16e4bc..c62a32a4 100755
+--- a/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
++++ b/package/gluon-ebtables/files/etc/init.d/gluon-ebtables
+@@ -51,12 +51,10 @@ exec_file() {
+ 	local file="$1"
+ 
+ 	/usr/bin/lua -e "
+-		function rule(command, table)
+-			table = table or 'filter'
++		function rule(command)
+ 			os.execute($EBTABLES_RULE)
+ 		end
+-		function chain(name, policy, table)
+-			table = table or 'filter'
++		function chain(name, policy)
+ 			os.execute($EBTABLES_CHAIN)
+ 		end
+ 
+@@ -79,9 +77,8 @@ exec_all() {
+ start() {
+ 	get_lock
+ 	(
+-		export EBTABLES_RULE='"ebtables -t " .. table .. " -A " .. command'
+-		export EBTABLES_CHAIN='"ebtables -t " .. table .. "  -N " .. name .. " -P " .. policy'
+-
++		export EBTABLES_RULE='"ebtables -A " .. command'
++		export EBTABLES_CHAIN='"ebtables -N " .. name .. " -P " .. policy'
+ 		if [ -z "$1" ]; then
+ 			exec_all ''
+ 		else
+@@ -94,8 +91,8 @@ start() {
+ stop() {
+ 	get_lock
+ 	(
+-		export EBTABLES_RULE='"ebtables -t " ..	table .. " -D " .. command'
+-		export EBTABLES_CHAIN='"ebtables -t " .. table .. " -X " .. name'
++		export EBTABLES_RULE='"ebtables -D " .. command'
++		export EBTABLES_CHAIN='"ebtables -X " .. name'
+ 
+ 		if [ -z "$1" ]; then
+ 			exec_all '-r'
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+index e6bf98e3..31c19c53 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+@@ -1,5 +1,2 @@
+ chain('IN_ONLY', 'RETURN')
+ chain('OUT_ONLY', 'RETURN')
+-
+-chain('MULTICAST_OUT', 'RETURN')
+-chain('MULTICAST_OUT_ICMPV6', 'RETURN')
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+index 52fe76f0..5420d35c 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules
+@@ -25,3 +25,11 @@ rule 'MESH_TO_LOCAL_ONLY --logical-out br-client -j DROP'
+ rule 'LOCAL_TO_MESH_ONLY --logical-in br-client -i local-port --logical-out br-client -o bat0 -j RETURN'
+ rule 'LOCAL_TO_MESH_ONLY --logical-in br-client -j DROP'
+ rule 'LOCAL_TO_MESH_ONLY --logical-out br-client -j DROP'
++
++rule 'MESH_LOCAL_EXCHANGE --logical-in br-client -i local-port --logical-out br-client -o bat0 -j RETURN'
++rule 'MESH_LOCAL_EXCHANGE --logical-in br-client -i bat0 --logical-out br-client -o local-port -j RETURN'
++rule 'MESH_LOCAL_EXCHANGE --logical-in br-client -j DROP'
++rule 'MESH_LOCAL_EXCHANGE --logical-out br-client -j DROP'
++
++rule 'LOCAL_IN_ACCEPT --logical-in br-client -i local-port -j ACCEPT'
++rule 'LOCAL_IN_ACCEPT --logical-in br-client -j DROP'
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules b/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
+deleted file mode 100644
+index 01609068..00000000
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/350-mcast-dir-rules
++++ /dev/null
+@@ -1,4 +0,0 @@
+-rule 'OUTPUT -d Multicast --logical-out br-client -o bat0 -j MULTICAST_OUT'
+-rule 'FORWARD -d Multicast --logical-out br-client -o bat0 -j MULTICAST_OUT'
+-
+-rule 'MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j MULTICAST_OUT_ICMPV6'
+-- 
+2.13.2
+
