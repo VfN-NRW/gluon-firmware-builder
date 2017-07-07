@@ -1,16 +1,17 @@
-From 84f07286b5dfdb6d8b921c69face269c697d24db Mon Sep 17 00:00:00 2001
+From 9b20534e07bf2ee88a13ef978cf56bb3dda55038 Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
 Date: Fri, 7 Jul 2017 05:50:25 +0200
 Subject: [PATCH] add input-filters for gluon-ebtables-source-filter
 
 ---
  .../files/lib/gluon/ebtables/100-mesh-forward-chain              | 1 +
+ .../files/lib/gluon/ebtables/110-local-forward-allow-ipv6        | 8 ++++----
  .../files/lib/gluon/ebtables/110-mesh-forward-allow-arp          | 6 ++++++
  .../files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4         | 6 ++++++
  .../files/lib/gluon/ebtables/110-mesh-forward-allow-ipv6         | 9 +++++++++
  .../files/lib/gluon/ebtables/300-mesh-forward-rules              | 1 +
  package/gluon-ebtables/files/lib/gluon/ebtables/101-dir-rules    | 6 ++++++
- 6 files changed, 29 insertions(+)
+ 7 files changed, 33 insertions(+), 4 deletions(-)
  create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain
  create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp
  create mode 100644 package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-ipv4
@@ -24,6 +25,24 @@ index 00000000..9ce41f0e
 +++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/100-mesh-forward-chain
 @@ -0,0 +1 @@
 +chain('MESH_FORWARD', 'DROP')
+diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-local-forward-allow-ipv6 b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-local-forward-allow-ipv6
+index 9b2d1147..a636b4fb 100644
+--- a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-local-forward-allow-ipv6
++++ b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-local-forward-allow-ipv6
+@@ -1,9 +1,9 @@
+ site = require('gluon.site_config')
+ 
+-rule('LOCAL_FORWARD -p IPv6 --ip6-src fe80::/64 -j RETURN')
+-rule('LOCAL_FORWARD -p IPv6 --ip6-src ::/128 --ip6-proto ipv6-icmp -j RETURN')
+-rule('LOCAL_FORWARD -p IPv6 --ip6-src ' .. site.prefix6 .. ' -j RETURN')
++rule('LOCAL_FORWARD -p IPv6 --ip6-src fe80::/64 -j LOCAL_IN_ONLY')
++rule('LOCAL_FORWARD -p IPv6 --ip6-src ::/128 --ip6-proto ipv6-icmp -j LOCAL_IN_ONLY')
++rule('LOCAL_FORWARD -p IPv6 --ip6-src ' .. site.prefix6 .. ' -j LOCAL_IN_ONLY')
+ 
+ for _, prefix in ipairs(site.extra_prefixes6 or {}) do
+-	rule('LOCAL_FORWARD -p IPv6 --ip6-src ' .. prefix .. ' -j RETURN')
++	rule('LOCAL_FORWARD -p IPv6 --ip6-src ' .. prefix .. ' -j LOCAL_IN_ONLY')
+ end
 diff --git a/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp b/package/gluon-ebtables-source-filter/files/lib/gluon/ebtables/110-mesh-forward-allow-arp
 new file mode 100644
 index 00000000..44ec6596
