@@ -1,0 +1,27 @@
+From 8066fc2d4229c76fba9d4947e5bd64e2b0d28c9f Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 8 Jul 2017 02:31:17 +0200
+Subject: [PATCH] add chains to dir-chain file
+
+---
+ package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+index 31c19c53..3e21f8ba 100644
+--- a/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
++++ b/package/gluon-ebtables/files/lib/gluon/ebtables/100-dir-chain
+@@ -1,2 +1,10 @@
+ chain('IN_ONLY', 'RETURN')
+ chain('OUT_ONLY', 'RETURN')
++chain('LOCAL_OUT_ONLY', 'RETURN')
++chain('LOCAL_IN_ONLY', 'RETURN')
++chain('MESH_OUT_ONLY', 'RETURN')
++chain('MESH_IN_ONLY', 'RETURN')
++chain('MESH_TO_LOCAL_ONLY', 'RETURN')
++chain('LOCAL_TO_MESH_ONLY', 'RETURN')
++chain('MESH_LOCAL_EXCHANGE', 'RETURN')
++chain('LOCAL_IN_ACCEPT', 'RETURN')
+-- 
+2.13.2
+
