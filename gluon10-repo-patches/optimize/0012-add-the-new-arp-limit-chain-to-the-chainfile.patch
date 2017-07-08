@@ -1,0 +1,20 @@
+From f633fca7a9e479b12b7ee9ea9c4ac18a924f616b Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 8 Jul 2017 02:42:28 +0200
+Subject: [PATCH] add the new arp-limit-chain to the chainfile
+
+---
+ .../files/lib/gluon/ebtables/100-arp-limit-chains                        | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/100-arp-limit-chains b/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/100-arp-limit-chains
+index 4c835b9c..9292812c 100644
+--- a/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/100-arp-limit-chains
++++ b/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/100-arp-limit-chains
+@@ -1,2 +1,3 @@
+ chain('ARP_LIMIT', 'DROP')
++chain('FIX_ARP_LIMIT', 'DROP')
+ chain('ARP_LIMIT_DATCHECK', 'RETURN')
+-- 
+2.13.2
+
