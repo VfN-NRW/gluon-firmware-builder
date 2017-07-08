@@ -1,0 +1,24 @@
+From f19de1cbbab5e37d9dc2449494aa77bd32518032 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sat, 8 Jul 2017 02:37:13 +0200
+Subject: [PATCH] implement a fix 4/s arp-limit from the mesh to the clients
+
+---
+ .../files/lib/gluon/ebtables/320-arp-limit-rules                        | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/320-arp-limit-rules b/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/320-arp-limit-rules
+index a37c0357..fdc772bd 100644
+--- a/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/320-arp-limit-rules
++++ b/package/gluon-ebtables-limit-arp/files/lib/gluon/ebtables/320-arp-limit-rules
+@@ -1,5 +1,7 @@
+ rule('ARP_LIMIT -j ARP_LIMIT_DATCHECK')
+ rule('ARP_LIMIT --mark 0x2/0x2 -j RETURN')
+ rule('ARP_LIMIT --limit 2/sec -j RETURN')
++rule('FIX_ARP_LIMIT --limit 4/sec -j RETURN')
+ 
+ rule('FORWARD -p ARP --logical-out br-client -o bat0 --arp-op Request -j ARP_LIMIT')
++rule('FORWARD -p ARP --logical-out br-client -o ! bat0 --arp-op Request -j FIX_ARP_LIMIT')
+-- 
+2.13.2
+
