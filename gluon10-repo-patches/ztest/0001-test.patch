@@ -1,0 +1,26 @@
+From e8c4675630ba20ae230fb3ecaec391de760e8c07 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Sun, 30 Jul 2017 20:38:34 +0200
+Subject: [PATCH] test
+
+---
+ .../files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6        | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6 b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
+index bee48e26..2928de00 100644
+--- a/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
++++ b/package/gluon-ebtables-filter-multicast/files/lib/gluon/ebtables/110-mcast-allow-local-icmpv6
+@@ -1,8 +1 @@
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type echo-request -j DROP'
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 139 -j DROP' -- ICMP Node Information Query
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 130 -j DROP' -- MLD Query
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 131 -j DROP' -- MLDv1 Report
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 132 -j DROP' -- MLDv1 Done
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 143 -j DROP' -- MLDv2 Report
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type 137 -j DROP' -- Redirect
+-rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp -j MESH_LOCAL_EXCHANGE'
++rule 'MULTICAST -p IPv6 --ip6-protocol ipv6-icmp -j RETURN'
+-- 
+2.13.3
+
