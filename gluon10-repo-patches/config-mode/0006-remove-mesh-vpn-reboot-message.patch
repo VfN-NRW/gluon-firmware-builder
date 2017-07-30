@@ -1,21 +1,22 @@
-From da52572ccfcd7cb61bf5dc6b570c57852ad940a8 Mon Sep 17 00:00:00 2001
+From 79a8f2742d5160f1ecdfb83dd72f0e059475a07f Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 17 Jun 2017 19:21:28 +0200
+Date: Sun, 30 Jul 2017 12:29:53 +0200
 Subject: [PATCH] remove mesh-vpn reboot message
 
 ---
- .../lib/gluon/config-mode/reboot/0100-mesh-vpn.lua | 34 ----------------------
- 1 file changed, 34 deletions(-)
+ .../lib/gluon/config-mode/reboot/0100-mesh-vpn.lua | 47 ----------------------
+ 1 file changed, 47 deletions(-)
  delete mode 100644 package/gluon-config-mode-mesh-vpn/luasrc/lib/gluon/config-mode/reboot/0100-mesh-vpn.lua
 
 diff --git a/package/gluon-config-mode-mesh-vpn/luasrc/lib/gluon/config-mode/reboot/0100-mesh-vpn.lua b/package/gluon-config-mode-mesh-vpn/luasrc/lib/gluon/config-mode/reboot/0100-mesh-vpn.lua
 deleted file mode 100644
-index 4901aa5d..00000000
+index 14e834e7..00000000
 --- a/package/gluon-config-mode-mesh-vpn/luasrc/lib/gluon/config-mode/reboot/0100-mesh-vpn.lua
 +++ /dev/null
-@@ -1,34 +0,0 @@
+@@ -1,47 +0,0 @@
 -local uci = require("simple-uci").cursor()
 -local lutil = require "gluon.web.util"
+-local fs = require "nixio.fs"
 -
 -local site = require 'gluon.site_config'
 -local sysconfig = require 'gluon.sysconfig'
@@ -24,7 +25,10 @@ index 4901aa5d..00000000
 -local pretty_hostname = require 'pretty_hostname'
 -
 -
--local meshvpn_enabled = uci:get_bool("fastd", "mesh_vpn", "enabled")
+-
+-local has_fastd = fs.access('/lib/gluon/mesh-vpn/fastd')
+-local has_tunneldigger = fs.access('/lib/gluon/mesh-vpn/tunneldigger')
+-
 -
 -local hostname = pretty_hostname.get(uci)
 -local contact = uci:get_first("gluon-node-info", "owner", "contact")
@@ -32,11 +36,20 @@ index 4901aa5d..00000000
 -local pubkey
 -local msg
 -
--if meshvpn_enabled then
--	pubkey = util.trim(lutil.exec("/etc/init.d/fastd show_key mesh_vpn"))
--	msg = _translate('gluon-config-mode:pubkey')
--else
--	msg = _translate('gluon-config-mode:novpn')
+-
+-if has_tunneldigger then
+-	local tunneldigger_enabled = uci:get_bool("tunneldigger", "mesh_vpn", "enabled")
+-	if not tunneldigger_enabled then
+-		msg = _translate('gluon-config-mode:novpn')
+-	end
+-elseif has_fastd then
+-	local fastd_enabled = uci:get_bool("fastd", "mesh_vpn", "enabled")
+-	if fastd_enabled then
+-		pubkey = util.trim(lutil.exec("/etc/init.d/fastd show_key mesh_vpn"))
+-		msg = _translate('gluon-config-mode:pubkey')
+-	else
+-		msg = _translate('gluon-config-mode:novpn')
+-	end
 -end
 -
 -if not msg then return end
@@ -49,5 +62,5 @@ index 4901aa5d..00000000
 -	contact = contact,
 -})
 -- 
-2.13.1
+2.13.3
 

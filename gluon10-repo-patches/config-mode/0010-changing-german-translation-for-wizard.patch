@@ -1,6 +1,6 @@
-From c08503c125fb377f31d56dc25cc554d9f0da4ad0 Mon Sep 17 00:00:00 2001
+From b2e32c0f79bc283edbb41d07574b055c303742ec Mon Sep 17 00:00:00 2001
 From: RubenKelevra <ruben@freifunk-nrw.de>
-Date: Sat, 17 Jun 2017 19:53:33 +0200
+Date: Sun, 30 Jul 2017 12:34:39 +0200
 Subject: [PATCH] changing german translation for wizard
 
 ---
@@ -22,7 +22,7 @@ index dd335a47..dafcff45 100644
  msgid "Your node's setup is now complete."
  msgstr "Dein Knoten ist nun fertig eingerichtet."
 diff --git a/package/gluon-web-admin/i18n/de.po b/package/gluon-web-admin/i18n/de.po
-index fdfb685d..3108b8d3 100644
+index 21f6494b..d56d7145 100644
 --- a/package/gluon-web-admin/i18n/de.po
 +++ b/package/gluon-web-admin/i18n/de.po
 @@ -14,7 +14,7 @@ msgid "(%s available)"
@@ -33,7 +33,7 @@ index fdfb685d..3108b8d3 100644
 +msgstr "Expertenmodus"
  
  msgid ""
- "Alternatively, you can set a password to access you node. Please choose a "
+ "Alternatively, you can set a password to access your node. Please choose a "
 @@ -81,7 +81,7 @@ msgid "SSH keys"
  msgstr "SSH-Schlüssel"
  
@@ -44,5 +44,5 @@ index fdfb685d..3108b8d3 100644
  msgid "Size"
  msgstr "Größe"
 -- 
-2.13.1
+2.13.3
 
