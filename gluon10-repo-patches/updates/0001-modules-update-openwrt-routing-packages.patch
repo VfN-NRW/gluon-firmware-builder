@@ -1,22 +1,23 @@
-From c66b18ca9e773e43b3ec83f5b9a2ba4605d7d506 Mon Sep 17 00:00:00 2001
-From: Matthias Schiffer <mschiffer@universe-factory.net>
-Date: Mon, 7 Aug 2017 22:01:34 +0200
+From 19901e1d6a7471a3535963d5f9c5615dc9791c67 Mon Sep 17 00:00:00 2001
+From: RubenKelevra <ruben@freifunk-nrw.de>
+Date: Mon, 14 Aug 2017 13:22:09 +0200
 Subject: [PATCH] modules: update openwrt-routing packages
 
-Updates batman-adv and alfred to 2017.2 and adds the batman-adv TT-sync
-fix.
+Updates batman-adv and alfred to 2017.2 and adds the batman-adv TT-sync fix.
 
-Fixes #1183
+Fixes gluon-bug #1183
+
+From: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
  modules | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/modules b/modules
-index 70ef5b6c5..83f252de3 100644
+index c3a0802d..a7e33a77 100644
 --- a/modules
 +++ b/modules
 @@ -12,7 +12,7 @@ PACKAGES_GLUON_REPO=https://github.com/freifunk-gluon/packages.git
- PACKAGES_GLUON_COMMIT=0fbef92e84f982e6c70dfac18b626aa000a68a9c
+ PACKAGES_GLUON_COMMIT=71823713c0e9451d1cd459cb10309f468188eb6e
  
  PACKAGES_ROUTING_REPO=https://github.com/openwrt-routing/packages.git
 -PACKAGES_ROUTING_COMMIT=8d9d70510b2c86f7503962308846ec874f0eb39f
@@ -24,3 +25,6 @@ index 70ef5b6c5..83f252de3 100644
  
  PACKAGES_LUCI_REPO=https://github.com/openwrt/luci.git
  PACKAGES_LUCI_BRANCH=lede-17.01
+-- 
+2.14.1
+
